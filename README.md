@@ -59,7 +59,11 @@ Add an entry to `INDICATORS` in `config.js`. There are two kinds:
 - **A column from a table:** set `table` and `column`.
 - **A computed value:** set a `value(db, unitId, year)` function.
 
-An indicator added this way appears automatically in the **Perbandingan** (Compare) ranking. To also show it as a summary card, add its key to `SUMMARY_CARDS`.
+An indicator added this way appears automatically in the **Perbandingan** (Compare) ranking and both **Analisis** modes. To also show it as a summary card, add its key to `SUMMARY_CARDS`.
+For a computed indicator, also list the columns it reads in `uses` (e.g. `["t01.peak_load_mw"]`, wildcards like `"t21.*_mw"` allowed) so Cek Data can name the affected indicator when a column disappears.
+
+`DATA_SCHEMA` in `config.js` lists the columns that Cek Data requires per sheet (the columns read by the charts and indicators). It is the single place to update when a column is intentionally dropped. New columns need not be listed: Cek Data reports them as notes and they appear in the Data tab.
+The staff-facing version of this, with copy-paste templates, is in PANDUAN-UPDATE-DATA.md ("Menambah atau menghapus kolom & indikator").
 
 ## Adding the map (future work)
 

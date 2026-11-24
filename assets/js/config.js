@@ -117,6 +117,7 @@ window.INDICATORS = [
   },
   {
     key: "reserve_margin", id: "Cadangan Daya (Reserve Margin)", en: "Reserve Margin", unit: "%", decimals: 1, better: null,
+    uses: ["t01.power_capacity_mw", "t01.peak_load_mw"], /* kolom yang dipakai rumus (untuk pesan Cek Data) */
     value: (db, u, y) => {
       const r = db.row("t01", u, y);
       if (!r || !r.power_capacity_mw || !r.peak_load_mw) return null;
@@ -127,6 +128,7 @@ window.INDICATORS = [
   {
     key: "ebt_share", id: "Porsi EBT pada Pembangkit Milik PLN", en: "Renewable Share of PLN-owned Capacity",
     unit: "%", decimals: 1, better: "high",
+    uses: ["t21.*_mw"], /* semua kolom kapasitas per jenis pembangkit di t21 */
     value: (db, u, y) => {
       const r = db.row("t21", u, y);
       if (!r) return null;
@@ -140,6 +142,31 @@ window.INDICATORS = [
     note: { id: "Hanya pembangkit milik PLN; sewa & IPP tidak dirinci per jenis.", en: "PLN-owned plants only; leased & IPP are not broken down by type." },
   },
 ];
+
+/* ---------------------------------------------------------------------
+ * DAFTAR KOLOM (dipakai halaman Cek Data).
+ * Kolom yang dibaca grafik & indikator dashboard. Jika sebuah kolom sengaja
+ * DIHAPUS dari Excel, hapus juga di sini (dan di INDICATORS bila dipakai).
+ * Kolom BARU tidak wajib didaftarkan: tetap tampil di tab Data & Unduh.
+ * Lihat PANDUAN-UPDATE-DATA.md, bagian "Menambah atau menghapus kolom & indikator".
+ * ------------------------------------------------------------------- */
+(function () {
+  const ID = ["year", "row_order", "unit_id", "unit_name", "row_type", "parent_unit_id", "region"];
+  window.DATA_SCHEMA = {
+    t01: ID.concat(["installed_capacity_mw", "power_capacity_mw", "peak_load_mw"]),
+    t02: ID.concat(["purchased_gwh", "project_gwh", "received_other_unit_gwh", "own_production_gwh", "leased_gwh", "own_use_power_plant_gwh", "own_use_power_plant_pct", "transformer_losses_gwh", "transformer_losses_pct", "net_production_gwh", "own_use_substation_gwh", "own_use_substation_pct", "transmission_losses_gwh", "transmission_losses_pct", "transfer_other_unit_gwh", "transfer_non_pln_gwh", "transfer_distribution_gwh", "own_use_distr_substation_gwh", "own_use_distr_substation_pct", "distribution_losses_gwh", "distribution_losses_pct", "energy_losses_gwh", "energy_losses_pct", "energy_losses_own_use_gwh", "energy_losses_own_use_pct", "energy_consumption_gwh", "energy_consumption_pct"]),
+    t08: ID.concat(["households_kwh", "industry_kwh", "business_kwh", "social_kwh", "gov_office_kwh", "street_lighting_kwh", "others_tcl_kwh", "total_kwh"]),
+    t16: ID.concat(["saidi_hours_per_customer", "saifi_times_per_customer"]),
+    t19: ID.concat(["households", "household_customers", "electrification_ratio_pct"]),
+    t21: ID.concat(["hydro_mw", "mini_hydro_mw", "micro_hydro_mw", "steam_mw", "gas_mw", "combined_cycle_mw", "geothermal_mw", "diesel_mw", "gas_engine_mw", "solar_mw", "wind_mw", "biomass_mw", "pln_owned_subtotal_mw", "pln_owned_subtotal_share_pct", "leased_mw", "ipp_mw", "total_mw", "total_share_pct"]),
+    t23: ID.concat(["own_hydro_gwh", "own_mini_hydro_gwh", "own_micro_hydro_gwh", "own_steam_gwh", "own_gas_gwh", "own_combined_cycle_gwh", "own_geothermal_gwh", "own_diesel_gwh", "own_gas_engine_gwh", "own_solar_gwh", "own_wind_gwh", "own_biomass_gwh", "leased_diesel_gwh", "leased_gas_engine_gwh", "leased_gas_gwh", "leased_combined_cycle_gwh", "leased_steam_gwh", "leased_hydro_gwh", "leased_solar_gwh", "own_and_leased_subtotal_gwh", "purchased_gwh", "project_gwh", "purchased_and_project_gwh", "total_gwh", "total_share_pct"]),
+    t28: ID.concat(["kv_25_30_kms", "kv_70_kms", "kv_150_kms", "kv_275_kms", "kv_500_kms", "total_kms"]),
+    t29: ID.concat(["mv_6_7kv_kms", "mv_10_12kv_kms", "mv_15_20kv_kms", "lv_kms"]),
+    t30: ID.concat(["kv_500_units", "kv_500_mva", "kv_275_units", "kv_275_mva", "kv_150_units", "kv_150_mva", "kv_70_units", "kv_70_mva", "kv_lt30_units", "kv_lt30_mva", "kv_total_units", "kv_total_mva"]),
+    units: ["unit_id", "unit_name", "row_type", "parent_unit_id", "region"],
+    data_dictionary: ["table_id", "table_name", "table_title_en", "table_title_id", "column", "label_en", "label_id", "uom"],
+  };
+})();
 
 /* Kartu yang tampil di tab Ringkasan (urut). */
 window.SUMMARY_CARDS = [

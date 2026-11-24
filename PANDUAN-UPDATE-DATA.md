@@ -129,11 +129,97 @@ lalu unggah ulang file tersebut dengan nama yang sama.
 
 ## Hal yang sebaiknya TIDAK diubah tanpa bantuan teknis
 
-- File di folder `assets/` (kode tampilan)
+- File di folder `assets/` (kode tampilan), **kecuali** `assets/js/config.js` sesuai bagian
+  "Menambah atau menghapus kolom & indikator" di bawah
 - `index.html`, `cek-data.html`
 
 Mengubah teks sumber data atau kontak di footer: edit `assets/js/config.js` (bagian `source` dan `contact`)
 langsung di GitHub (ikon pensil ✏️), lalu **Commit changes**.
+
+---
+
+## Menambah atau menghapus kolom & indikator
+
+Bagian ini untuk perubahan **isi** data (bukan pembaruan tahunan biasa). Lakukan dengan hati-hati; jika ragu, minta bantuan teknis.
+
+### Ringkasan: apa yang perlu diubah?
+
+| Perubahan | Di Excel | Di `assets/js/config.js` | Hasil di dashboard |
+|---|---|---|---|
+| Kolom baru, cukup tampil di tabel | Tambah kolom + baris di `data_dictionary` | Tidak perlu | Muncul di tab **Data & Unduh** |
+| Kolom baru dijadikan indikator | Seperti di atas | Tambah entri di `INDICATORS` (A) | Muncul di **Perbandingan** dan **Analisis** |
+| Indikator hasil hitungan (rasio dsb.) | Tidak perlu (jika kolomnya sudah ada) | Tambah entri dengan rumus (B) | Sama seperti di atas |
+| Tampilkan indikator sebagai kartu di Ringkasan | — | Tambah `key`-nya di `SUMMARY_CARDS` | Kartu baru di tab **Ringkasan** |
+| Menghapus kolom | Hapus kolom | Hapus dari `DATA_SCHEMA`; jika dipakai indikator, hapus juga entrinya (C) | Kolom hilang dari tabel/indikator |
+| Tabel (sheet) baru, mis. `t35` | Tambah sheet + baris `data_dictionary` | Tambah `"t35"` ke `sheets` dan ke `DATA_SCHEMA` | Muncul di tab **Data & Unduh** |
+| Grafik baru atau tab baru | — | Perlu bantuan teknis (`app.js`) | — |
+
+Halaman **Cek Data** membantu: kolom baru muncul sebagai *catatan*; kolom yang hilang muncul sebagai *kesalahan*
+lengkap dengan nama indikator yang memakainya.
+
+### Cara mengedit `config.js` di GitHub
+
+1. Buka repositori → folder `assets` → `js` → `config.js`.
+2. Klik ikon **pensil ✏️** (kanan atas file).
+3. Ubah teks sesuai contoh di bawah. **Perhatikan tanda koma, tanda kutip, dan kurung**: satu tanda yang hilang bisa membuat dashboard kosong.
+4. Klik **Commit changes…** → tulis keterangan singkat → **Commit changes**.
+5. Tunggu 1–3 menit, buka dashboard di jendela *incognito*, dan pastikan semua tab tampil.
+6. **Jika dashboard menjadi kosong/error:** buka `config.js` → **History** → buka versi sebelumnya → salin seluruh isinya →
+   edit `config.js` dengan pensil, tempel, lalu **Commit changes**. Dashboard kembali seperti semula.
+
+### (A) Contoh: kolom dijadikan indikator
+
+Salin blok ini ke dalam daftar `window.INDICATORS = [ ... ];`, tepat **sebelum** baris `];` penutupnya:
+
+```js
+  {
+    key: "own_use_power_plant", table: "t02", column: "own_use_power_plant_pct",
+    id: "Pemakaian Sendiri Pembangkit", en: "Power Plant Own Use",
+    unit: "%", decimals: 2, better: "low",
+    note: { id: "Persentase energi yang dipakai sendiri oleh pembangkit.", en: "Share of energy used by the power plants themselves." },
+  },
+```
+
+| Isian | Arti |
+|---|---|
+| `key` | Kode unik, huruf kecil + garis bawah. Jangan diubah setelah dipakai (tautan yang dibagikan memakai kode ini). |
+| `table`, `column` | Nama sheet dan judul kolom **persis** seperti di Excel. |
+| `id`, `en` | Nama indikator dalam Bahasa Indonesia dan Inggris. |
+| `unit` | Satuan, mis. `"%"`, `"MW"`, atau `{ id: "kWh/pelanggan", en: "kWh/customer" }`. |
+| `decimals` | Jumlah angka di belakang koma. |
+| `better` | `"high"` = makin tinggi makin baik, `"low"` = makin rendah makin baik, `null` = netral (tanpa warna hijau/merah). |
+| `compareNational: false` | Tambahkan jika nilai nasional tidak sebanding dengan unit (mis. total MW). |
+| `note` | Keterangan singkat (boleh dihapus). |
+
+### (B) Contoh: indikator hasil hitungan
+
+```js
+  {
+    key: "ipp_share", id: "Porsi IPP pada Kapasitas Terpasang", en: "IPP Share of Installed Capacity",
+    unit: "%", decimals: 1, better: null,
+    uses: ["t21.ipp_mw", "t21.total_mw"],
+    value: (db, u, y) => {
+      const r = db.row("t21", u, y);
+      if (!r || !r.total_mw) return null;
+      return ((r.ipp_mw || 0) / r.total_mw) * 100;
+    },
+  },
+```
+
+`uses` mencatat kolom yang dipakai rumus, agar Cek Data bisa memberi tahu indikator mana yang terdampak jika kolomnya hilang.
+Lihat juga contoh "Cadangan Daya" dan "Porsi EBT" yang sudah ada di `config.js`.
+
+### (C) Menghapus kolom atau indikator
+
+1. Hapus kolom di file Excel tahun baru. File tahun-tahun lama **tidak perlu** diubah.
+2. Di `config.js`, bagian `DATA_SCHEMA`: hapus nama kolom tersebut dari daftar sheet-nya.
+3. Jika Cek Data menyebut kolom itu *dipakai indikator*, hapus juga blok indikatornya dari `INDICATORS` dan `key`-nya dari `SUMMARY_CARDS`.
+4. Jika kolom dipakai grafik di tab **Pembangkitan** atau **Jaringan & Susut**, bagian grafik itu akan kosong untuk tahun baru. Hubungi bantuan teknis bila perlu diganti.
+
+### Jika definisi indikator berubah antartahun
+
+Tab **Analisis → Antar tahun** membandingkan angka apa adanya. Jika cara hitung atau cakupan suatu indikator berubah,
+tambahkan keterangan di sheet **`catatan`** agar pembaca tahu angkanya tidak sepenuhnya sebanding.
 
 ---
 
