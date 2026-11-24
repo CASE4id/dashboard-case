@@ -22,6 +22,12 @@
     "unit_id", "unit_name", "row_type", "parent_unit_id", "region",
     "table_id", "table_name", "table_title_en", "table_title_id", "column", "label_en", "label_id", "uom",
     "indicator", "note_id", "note_en",
+    // Ketenagalistrikan 2014–2025
+    "unit_name_reported", "years_present", "note", "names_reported", "years_available", "derived", "years", "issue", "action_taken",
+    // Transmisi Gas & Kedirgantaraan
+    "category", "category_label_en", "category_label_id", "unit", "title_id", "title_en", "source", "file",
+    "flight_type", "direction", "source_table", "airport", "airport_role", "indicator_label_en", "indicator_label_id",
+    "corrected", "airport_id", "airport_name", "regency_city", "province", "has_international_traffic", "flag",
   ]);
 
   function rowsToObjects(rows, sheet, problems, fileLabel) {
@@ -50,16 +56,17 @@
     return out;
   }
 
-  async function readWorkbook(source, fileLabel, fallbackYear) {
+  /* sheets/optional: daftar sheet yang dibaca (bawaan: sektor Ketenagalistrikan di DASHBOARD_CONFIG). */
+  async function readWorkbook(source, fileLabel, fallbackYear, sheets = CFG.sheets, optional = CFG.optionalSheets) {
     const problems = [];
     const result = { sheets: {}, problems };
-    const all = CFG.sheets.concat(CFG.optionalSheets);
+    const all = sheets.concat(optional);
     for (const sheet of all) {
       try {
         const rows = await window.readXlsxFile(source, { sheet });
         result.sheets[sheet] = rowsToObjects(rows, sheet, problems, fileLabel);
       } catch (e) {
-        if (CFG.sheets.includes(sheet)) problems.push(`${fileLabel}: sheet "${sheet}" tidak ditemukan atau tidak terbaca`);
+        if (sheets.includes(sheet)) problems.push(`${fileLabel}: sheet "${sheet}" tidak ditemukan atau tidak terbaca`);
       }
     }
     // Tahun SELALU mengikuti nama file (statistik-pln-TAHUN.xlsx), sehingga kolom "year"
@@ -72,7 +79,8 @@
   }
 
   function buildDb(workbooks) {
-    const db = { tables: {}, units: new Map(), dict: new Map(), notes: [], years: new Set(), problems: [] };
+    const db = { tables: {}, units: new Map(), dict: new Map(), notes: [], quality: [], years: new Set(), problems: [] };
+    const seenQ = new Set();
     // Proses dari tahun lama ke baru agar daftar unit & kamus mengikuti file terbaru.
     workbooks.sort((a, b) => a.year - b.year);
     for (const wb of workbooks) {
@@ -91,6 +99,8 @@
           rows.forEach((d) => d.table_id && db.dict.set(d.table_id + "." + d.column, d));
         } else if (name === "catatan") {
           db.notes.push(...rows);
+        } else if (name === "kualitas_data") {
+          rows.forEach((n) => { const key = [n.years, n.table_id, n.unit_id, n.indicator, n.issue].join("|"); if (!seenQ.has(key)) { seenQ.add(key); db.quality.push(n); } });
         }
       }
     }
@@ -117,11 +127,12 @@
     return db;
   }
 
-  async function loadFromServer(onProgress) {
+  /* Cari file data per tahun (pattern berisi {year}); kembalikan yang ditemukan, terbaru dulu. */
+  async function findFiles(pattern, firstYear, lastYear) {
     const years = [];
-    for (let y = CFG.lastYear; y >= CFG.firstYear; y--) years.push(y);
+    for (let y = lastYear; y >= firstYear; y--) years.push(y);
     const found = await Promise.all(years.map(async (y) => {
-      const url = CFG.dataFilePattern.replace("{year}", y);
+      const url = pattern.replace("{year}", y);
       try {
         const res = await fetch(url, { cache: "no-cache" });
         if (!res.ok) return null;
@@ -133,7 +144,21 @@
         return { year: y, url, blob };
       } catch { return null; }
     }));
-    const files = found.filter(Boolean);
+    return found.filter(Boolean);
+  }
+
+  /* Sektor yang memakai SATU file berisi semua tahun (Transmisi Gas, Kedirgantaraan):
+     hanya file dengan tahun terbaru di namanya yang dibaca. */
+  async function loadEdition(sector) {
+    const files = await findFiles(sector.dataFilePattern, sector.firstYear, sector.lastYear);
+    if (!files.length) throw new Error("NO_DATA");
+    const f = files[0];
+    const wb = await readWorkbook(f.blob, f.url.split("/").pop(), null, sector.sheets, sector.optionalSheets || []);
+    return { edition: f.year, url: f.url, sheets: wb.sheets, problems: wb.problems };
+  }
+
+  async function loadFromServer(onProgress) {
+    const files = await findFiles(CFG.dataFilePattern, CFG.firstYear, CFG.lastYear);
     if (!files.length) throw new Error("NO_DATA");
     const workbooks = [];
     for (const f of files) {
@@ -145,5 +170,5 @@
     return buildDb(workbooks);
   }
 
-  window.PraktikData = { loadFromServer, readWorkbook, buildDb, toNumber };
+  window.PraktikData = { loadFromServer, loadEdition, readWorkbook, buildDb, toNumber };
 })();

@@ -39,7 +39,9 @@
     <section class="card">
       <h3>Cara pakai / How to use</h3>
       <ol class="steps">
-        <li>Siapkan file Excel data tahun baru dengan nama <b>statistik-pln-TAHUN.xlsx</b> (mis. <code>statistik-pln-2026.xlsx</code>).</li>
+        <li>Siapkan file Excel dengan nama sesuai sektornya:
+          <b>statistik-pln-TAHUN.xlsx</b> (Ketenagalistrikan, satu file per tahun),
+          <b>statistik-gas-TAHUN.xlsx</b> (Transmisi Gas) atau <b>statistik-udara-TAHUN.xlsx</b> (Kedirgantaraan); untuk gas dan udara, TAHUN = tahun data terakhir di dalam file.</li>
         <li>Seret file ke kotak di bawah, atau klik untuk memilih file. File <b>tidak diunggah ke mana pun</b>; pemeriksaan berjalan di browser Anda.</li>
         <li>Jika hasilnya <span class="ok"><b>✔ SIAP DIUNGGAH</b></span>, lanjutkan ke langkah unggah di <i>PANDUAN-UPDATE-DATA</i>. Jika ada <span class="err"><b>✖ kesalahan</b></span>, perbaiki di Excel lalu cek ulang.</li>
       </ol>
@@ -71,7 +73,40 @@
     const usedBy = (t, c) => Object.entries(USED_BY)
       .filter(([ref]) => { const [rt, rc] = ref.split("."); return rt === t && new RegExp("^" + rc.replace(/\*/g, ".*") + "$").test(c); })
       .flatMap(([, names]) => names);
-    const ROW_TYPES = ["distribution_unit","regional_unit","transmission_dispatch_unit","transmission_unit","generation_unit","generation_subsidiary","subsidiary","generation_projects","province","regional_total","national_total"];
+    const ROW_TYPES = ["distribution_unit","regional_unit","transmission_dispatch_unit","transmission_unit","generation_unit","generation_subsidiary","subsidiary","generation_projects","province","regional_total","national_total",
+      "generation_transmission_unit","construction_unit","project_component","other"];
+
+    /* Sektor Transmisi Gas & Kedirgantaraan: satu file berisi semua tahun. */
+    async function checkSector(file, key, year, errors, warnings, info) {
+      const sector = window.SECTORS.find((x) => x.key === key);
+      const schema = window.SECTOR_SCHEMA[key];
+      const wb = await PraktikData.readWorkbook(file, file.name, null, sector.sheets, sector.optionalSheets || []);
+      wb.problems.forEach((p) => errors.push(esc(p)));
+      for (const [sheet, cols] of Object.entries(schema)) {
+        const rows = wb.sheets[sheet];
+        if (!rows) continue;
+        const header = rows.header || [];
+        const missing = cols.filter((c) => !header.includes(c));
+        if (missing.length) errors.push(`Sheet <b>${sheet}</b>: kolom hilang/salah nama → ${missing.map(esc).join(", ")}`);
+        if (!rows.length) errors.push(`Sheet <b>${sheet}</b> kosong.`);
+        if (key === "gas" && /^g\d+$/.test(sheet)) {
+          const ys = header.filter((h) => /^\d{4}$/.test(h)).map(Number);
+          if (!ys.length) errors.push(`Sheet <b>${sheet}</b>: tidak ada kolom tahun (judul kolom harus angka tahun, mis. 2025).`);
+          else if (year && !ys.includes(year)) errors.push(`Sheet <b>${sheet}</b>: belum ada kolom <b>${year}</b> (tahun pada nama file). Tambahkan kolom tahun baru di sebelah kanan.`);
+          const odd = header.filter((h) => h && !cols.includes(h) && !/^\d{4}$/.test(h));
+          if (odd.length) warnings.push(`Sheet <b>${sheet}</b>: kolom tidak dikenal → ${odd.map(esc).join(", ")}. Judul kolom tahun harus berupa angka (mis. 2025).`);
+          info.push(`Sheet ${sheet}: ${rows.length} kategori, tahun ${ys.length ? Math.min(...ys) + "–" + Math.max(...ys) : "-"}.`);
+        }
+        if (key === "udara" && /^a\d+$/.test(sheet)) {
+          const ys = [...new Set(rows.map((r) => r.year).filter(Boolean))].sort();
+          if (year && !ys.includes(year)) {
+            if (["a01", "a03", "a04"].includes(sheet)) errors.push(`Sheet <b>${sheet}</b>: belum ada baris untuk tahun <b>${year}</b> (tahun pada nama file). Tambahkan barisnya; jangan hapus tahun lama.`);
+            else warnings.push(`Sheet <b>${sheet}</b>: belum ada baris tahun ${year}. Dashboard akan menampilkan tahun terakhir yang tersedia (${ys.length ? ys[ys.length - 1] : "-"}).`);
+          }
+          info.push(`Sheet ${sheet}: ${rows.length} baris, tahun ${ys.join(", ") || "-"}.`);
+        }
+      }
+    }
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     const out = document.getElementById("result");
 
@@ -79,10 +114,18 @@
       out.innerHTML = '<div class="loader"><div class="spinner"></div>Memeriksa…</div>';
       const errors = [], warnings = [], info = [];
       let schemaHint = false;
+      const sm = file.name.match(/^statistik-(gas|udara)-(\d{4})\.xlsx$/);
+      if (sm) {
+        const sy = Number(sm[2]);
+        info.push(`Nama file benar. Sektor: <b>${sm[1] === "gas" ? "Transmisi Gas" : "Kedirgantaraan"}</b>, tahun data terakhir: <b>${sy}</b>. Unggah ke folder <code>data/${sm[1]}/</code>.`);
+        try { await checkSector(file, sm[1], sy, errors, warnings, info); }
+        catch (e) { errors.push("File tidak dapat dibaca sebagai Excel (.xlsx): " + esc(e.message)); }
+        return show(errors, warnings, info);
+      }
       const m = file.name.match(/^statistik-pln-(\d{4})\.xlsx$/);
       const year = m ? Number(m[1]) : null;
-      if (!m) errors.push(`Nama file "${file.name}" tidak sesuai. Ganti nama menjadi <b>statistik-pln-TAHUN.xlsx</b>, mis. statistik-pln-2026.xlsx (huruf kecil, tanpa spasi).`);
-      else info.push(`Nama file benar. Tahun data: <b>${year}</b>.`);
+      if (!m) errors.push(`Nama file "${file.name}" tidak sesuai. Gunakan <b>statistik-pln-TAHUN.xlsx</b> (Ketenagalistrikan), <b>statistik-gas-TAHUN.xlsx</b> (Transmisi Gas) atau <b>statistik-udara-TAHUN.xlsx</b> (Kedirgantaraan), mis. statistik-pln-2026.xlsx (huruf kecil, tanpa spasi).`);
+      else info.push(`Nama file benar. Sektor: <b>Ketenagalistrikan</b>, tahun data: <b>${year}</b>. Unggah ke folder <code>data/listrik/</code>.`);
 
       let wb;
       try { wb = await PraktikData.readWorkbook(file, file.name, null); }

@@ -13,55 +13,83 @@ Waktu yang dibutuhkan: ± 30–60 menit sekali setahun.
 
 ## Gambaran singkat
 
-Situs membaca **satu file Excel per tahun** di folder `data/`:
+Dashboard memiliki **tiga sektor**. Setiap sektor punya folder data sendiri:
+
+| Sektor | Folder | Nama file | Isi file |
+|---|---|---|---|
+| Ketenagalistrikan | `data/listrik/` | `statistik-pln-TAHUN.xlsx` | **Satu file per tahun** (2014, 2015, … 2025) |
+| Transmisi Gas | `data/gas/` | `statistik-gas-TAHUN.xlsx` | **Satu file berisi semua tahun**; TAHUN = tahun data terakhir |
+| Kedirgantaraan | `data/udara/` | `statistik-udara-TAHUN.xlsx` | **Satu file berisi semua tahun**; TAHUN = tahun data terakhir |
 
 ```
-data/statistik-pln-2025.xlsx
-data/statistik-pln-2026.xlsx   ← file baru yang Anda tambahkan
+data/listrik/statistik-pln-2025.xlsx
+data/listrik/statistik-pln-2026.xlsx    ← file baru (Ketenagalistrikan)
+data/gas/statistik-gas-2025.xlsx        ← edisi baru, berisi 2020–2025 (Transmisi Gas)
+data/udara/statistik-udara-2025.xlsx    ← edisi baru, berisi 2020–2025 (Kedirgantaraan)
 ```
 
-Begitu file baru diunggah, tahun tersebut **otomatis** muncul di pilihan "Tahun" dan menjadi tampilan awal.
-Jika sudah ada lebih dari satu tahun, tab **Analisis → Antar tahun** juga otomatis aktif.
-
-> **Jangan** menaruh data resmi di folder `data-contoh/`. Folder itu hanya berisi data dummy untuk uji coba (dibuka dengan alamat `…/?demo=1`).
-Tidak ada kode yang perlu diubah.
+- **Ketenagalistrikan:** begitu file tahun baru diunggah, tahun itu otomatis muncul di pilihan "Tahun" dan menjadi tampilan awal.
+- **Gas & Kedirgantaraan:** situs hanya membaca file dengan **tahun terbesar** di namanya. File edisi lama boleh tetap ada (sebagai arsip).
+- Tidak ada kode yang perlu diubah.
 
 ---
 
-## Langkah 1 — Siapkan file Excel tahun baru
+## Langkah 1 — Siapkan file Excel
 
-1. Unduh file tahun sebelumnya sebagai **templat**: buka dashboard → tab **Data & Unduh** → tombol **Unduh Excel**.
-   (Atau ambil dari folder `data/` di GitHub.)
-2. Simpan sebagai nama baru: **`statistik-pln-TAHUN.xlsx`**, contoh `statistik-pln-2026.xlsx`.
-   - huruf kecil semua, tanpa spasi, pakai tanda hubung `-`.
-3. Ganti angka di setiap sheet dengan data dari publikasi **Statistik PLN** terbaru.
+Cara termudah untuk semua sektor: **salin file terakhir, ganti namanya, lalu perbarui isinya.**
+Ambil file terakhir dari dashboard (tab **Data & Unduh** → **Unduh Excel**) atau dari folder data di GitHub.
+Nama file: huruf kecil semua, tanpa spasi, pakai tanda hubung `-`.
 
-### Aturan pengisian (penting!)
+### 1A. Ketenagalistrikan (Statistik PLN)
+
+1. Salin file tahun lalu, simpan sebagai **`statistik-pln-TAHUN.xlsx`**, mis. `statistik-pln-2026.xlsx`.
+2. Ganti angka di setiap sheet (`t01` … `t30`) dengan data dari publikasi **Statistik PLN** terbaru.
+3. Sheet `kualitas_data` (catatan teknis, bahasa Inggris) boleh dikosongkan atau diisi catatan baru.
+
+### 1B. Transmisi Gas (BPS, Statistik Gas)
+
+1. Salin file terakhir, simpan dengan tahun data terakhir yang baru, mis. **`statistik-gas-2025.xlsx`**.
+2. Di setiap sheet `g01` … `g10`: **tambahkan satu kolom di paling kanan** dengan judul tahun baru (mis. `2025`, berupa angka), lalu isi angkanya.
+3. Perbarui juga angka tahun-tahun sebelumnya jika BPS merevisinya di publikasi baru.
+4. Baris `total` / `average` adalah angka yang dipublikasikan BPS; isi sesuai publikasi (jangan diganti rumus).
+5. Sheet `catatan`: perbarui keterangan, mis. "Angka 2025 bersifat sementara" (kolom `years` = `2025`).
+
+### 1C. Kedirgantaraan (BPS, Statistik Transportasi Udara)
+
+1. Salin file terakhir, simpan dengan tahun data terakhir yang baru, mis. **`statistik-udara-2025.xlsx`**.
+2. Di sheet `a01` … `a04`: **tambahkan baris** untuk tahun baru (kolom `year` = 2025). **Jangan hapus** baris tahun lama.
+3. Sheet `a05` (per bandara) dan `a06` (per provinsi): tambahkan baris tahun baru. Jika publikasi hanya memuat tahun terbaru,
+   baris tahun lama boleh tetap ada.
+4. Perhatikan satuan: kargo dalam **ton** di `a01`, tetapi dalam **kg** di `a05`/`a06` (sesuai publikasi).
+
+### Aturan pengisian (semua sektor, penting!)
 
 | Boleh ✅ | Jangan ❌ |
 |---|---|
-| Mengubah angka di dalam sel | Mengubah nama sheet (`t01`, `t02`, … `units`, `data_dictionary`) |
-| Menambah baris unit baru (lihat bawah) | Mengubah/menerjemahkan **judul kolom** di baris 1 |
+| Mengubah angka di dalam sel | Mengubah nama sheet (`t01`, `g01`, `a01`, `units`, `tabel`, …) |
+| Menambah baris unit/tahun baru | Mengubah/menerjemahkan **judul kolom** di baris 1 |
 | Mengosongkan sel jika data tidak ada (sama dengan "-") | Menggabungkan sel (merge cells) |
 | Angka desimal pakai koma atau titik | Menulis teks di kolom angka (mis. "n/a", "±5") |
 | Angka negatif sebagai `-3,53` | Menambah baris total/judul di tengah tabel |
 
-- Kolom **`year`** boleh dibiarkan; situs selalu memakai tahun dari **nama file**.
-- Baris **`indonesia`** (nasional) wajib ada di setiap tabel, karena dipakai sebagai pembanding.
 - Sheet `README` di dalam file tidak dibaca oleh situs (hanya untuk catatan).
 
-### Jika ada unit/provinsi baru
+### Khusus Ketenagalistrikan
+
+- Kolom **`year`** boleh dibiarkan; situs selalu memakai tahun dari **nama file**.
+- Baris **`indonesia`** (nasional) wajib ada di setiap tabel, karena dipakai sebagai pembanding.
+- Kolom `unit_name_reported` = nama unit persis seperti di laporan tahun itu (nama unit PLN sering berubah). `unit_name` = nama terkini.
+
+**Jika ada unit/provinsi baru:**
 
 1. Tambahkan barisnya di sheet tabel terkait dengan `unit_id` baru (huruf kecil, pakai garis bawah, mis. `uid_kalimantan_utara`).
 2. Tambahkan juga di sheet **`units`**: `unit_id`, `unit_name`, `row_type`, `parent_unit_id`, `region`.
    - `row_type` gunakan salah satu: `distribution_unit`, `regional_unit`, `province`, `transmission_dispatch_unit`,
      `transmission_unit`, `generation_unit`, `generation_subsidiary`, `subsidiary`, `generation_projects`,
-     `regional_total`, `national_total`.
-3. **Jangan mengganti `unit_id` unit lama**, agar perbandingan antartahun tetap tersambung.
+     `generation_transmission_unit`, `construction_unit`, `project_component`, `regional_total`, `national_total`.
+3. **Jangan mengganti `unit_id` unit lama**, agar perbandingan antartahun tetap tersambung. Jika unit berganti nama, cukup ubah `unit_name_reported`.
 
-### Catatan khusus (opsional)
-
-Sheet **`catatan`** berisi keterangan yang muncul sebagai kotak kuning pada kartu indikator.
+**Catatan khusus (opsional):** sheet **`catatan`** berisi keterangan yang muncul sebagai kotak kuning pada kartu indikator.
 Contoh: SAIDI UID Aceh 2025 tinggi akibat bencana. Kolom:
 
 | year | unit_id | indicator | note_id | note_en |
@@ -69,7 +97,6 @@ Contoh: SAIDI UID Aceh 2025 tinggi akibat bencana. Kolom:
 | 2026 | uid_aceh | saidi_hours_per_customer | Teks Bahasa Indonesia | English text |
 
 `indicator` diisi dengan nama kolom dari tabel (mis. `saidi_hours_per_customer`, `electrification_ratio_pct`).
-Hapus baris catatan tahun lalu jika sudah tidak relevan.
 
 ---
 
@@ -77,9 +104,9 @@ Hapus baris catatan tahun lalu jika sudah tidak relevan.
 
 1. Buka **`<alamat-situs>/cek-data.html`**
    (saat ini: `https://case4id.github.io/dashboard-case/cek-data.html`, atau klik tautan **Cek Data** di bagian bawah dashboard).
-2. Seret file Excel ke kotak yang tersedia.
+2. Seret file Excel ke kotak yang tersedia. Sektornya dikenali otomatis dari nama file.
 3. Baca hasilnya:
-   - **✔ SIAP DIUNGGAH**: lanjut ke Langkah 3.
+   - **✔ SIAP DIUNGGAH**: lanjut ke Langkah 3. Hasil cek juga menyebut **folder tujuan** file tersebut.
    - **✖ BELUM SIAP**: daftar kesalahan menunjukkan sheet, baris, dan kolom yang salah. Perbaiki di Excel, lalu cek ulang.
 
 File **tidak dikirim ke mana pun** saat dicek; pemeriksaan hanya terjadi di browser Anda.
@@ -89,13 +116,13 @@ File **tidak dikirim ke mana pun** saat dicek; pemeriksaan hanya terjadi di brow
 ## Langkah 3 — Unggah ke GitHub (lewat browser)
 
 1. Masuk ke **github.com** dengan akun Anda, lalu buka repositori dashboard.
-2. Klik folder **`data`**.
+2. Klik folder **`data`**, lalu folder sektornya: **`listrik`**, **`gas`**, atau **`udara`**.
 3. Klik tombol **Add file** (kanan atas) → **Upload files**.
-4. Seret file `statistik-pln-2026.xlsx` ke halaman tersebut.
+4. Seret file Excel ke halaman tersebut.
 5. Di kotak **Commit changes** di bawah, tulis keterangan singkat, mis. `Tambah data Statistik PLN 2026`.
 6. Pastikan pilihan **Commit directly to the main branch** dipilih → klik **Commit changes**.
 
-> **Memperbaiki data yang sudah diunggah?** Unggah ulang file dengan **nama yang sama persis**.
+> **Memperbaiki data yang sudah diunggah?** Unggah ulang file dengan **nama yang sama persis** ke folder yang sama.
 > GitHub akan menggantikan file lama (riwayat versi lama tetap tersimpan dan bisa dikembalikan).
 
 ---
@@ -103,7 +130,7 @@ File **tidak dikirim ke mana pun** saat dicek; pemeriksaan hanya terjadi di brow
 ## Langkah 4 — Periksa hasilnya
 
 1. Tunggu **1–3 menit**. GitHub sedang memperbarui situs; status bisa dilihat di tab **Actions** repositori (tanda centang hijau = selesai).
-2. Buka situs dashboard, tekan **Ctrl + F5** (muat ulang penuh). Browser kadang masih menampilkan versi lama hingga **±10 menit**; untuk memastikan, buka di **jendela penyamaran/incognito** (**Ctrl + Shift + N**).
+2. Buka situs dashboard, pilih sektornya, tekan **Ctrl + F5** (muat ulang penuh). Browser kadang masih menampilkan versi lama hingga **±10 menit**; untuk memastikan, buka di **jendela penyamaran/incognito** (**Ctrl + Shift + N**).
 3. Pastikan tahun baru muncul di pilihan **Tahun** dan angka nasional sesuai publikasi.
 4. Jika muncul kotak kuning "Sebagian data tidak terbaca", klik untuk melihat rinciannya, perbaiki file, lalu unggah ulang.
 
@@ -113,7 +140,7 @@ File **tidak dikirim ke mana pun** saat dicek; pemeriksaan hanya terjadi di brow
 
 | Gejala | Penyebab umum | Solusi |
 |---|---|---|
-| Tahun baru tidak muncul | Nama file salah (mis. `Statistik PLN 2026.xlsx`) | Ubah nama menjadi `statistik-pln-2026.xlsx` lalu unggah ulang |
+| Tahun baru tidak muncul | Nama file salah (mis. `Statistik PLN 2026.xlsx`) atau salah folder | Ubah nama menjadi `statistik-pln-2026.xlsx` (atau `statistik-gas-…`/`statistik-udara-…`) dan unggah ke folder sektornya |
 | Kartu menampilkan "Data tidak tersedia" | Sel kosong atau baris unit tidak ada | Periksa sheet terkait |
 | Kotak kuning "Sebagian data tidak terbaca" | Ada teks di kolom angka atau sheet hilang | Jalankan Cek Data, perbaiki |
 | Situs kosong / error merah | File rusak atau situs belum selesai diperbarui | Tunggu 3 menit; jika tetap, kembalikan versi sebelumnya (bawah) |
@@ -122,7 +149,7 @@ File **tidak dikirim ke mana pun** saat dicek; pemeriksaan hanya terjadi di brow
 
 ### Mengembalikan ke versi sebelumnya
 
-Di GitHub, buka file di folder `data/` → klik **History** → pilih versi sebelumnya → klik **⋯** → **View file** → **Download (Raw)**,
+Di GitHub, buka file di folder `data/listrik/`, `data/gas/` atau `data/udara/` → klik **History** → pilih versi sebelumnya → klik **⋯** → **View file** → **Download (Raw)**,
 lalu unggah ulang file tersebut dengan nama yang sama.
 
 ---
@@ -140,7 +167,8 @@ langsung di GitHub (ikon pensil ✏️), lalu **Commit changes**.
 
 ## Menambah atau menghapus kolom & indikator
 
-Bagian ini untuk perubahan **isi** data (bukan pembaruan tahunan biasa). Lakukan dengan hati-hati; jika ragu, minta bantuan teknis.
+Bagian ini untuk perubahan **isi** data (bukan pembaruan tahunan biasa) pada sektor **Ketenagalistrikan**.
+Untuk sektor Gas dan Kedirgantaraan, kategori baru cukup ditambahkan sebagai baris (gas) atau kolom/baris (udara); grafik baru memerlukan bantuan teknis (`assets/js/sektor-gas.js`, `sektor-udara.js`). Lakukan dengan hati-hati; jika ragu, minta bantuan teknis.
 
 ### Ringkasan: apa yang perlu diubah?
 

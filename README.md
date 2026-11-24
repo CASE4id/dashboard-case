@@ -1,44 +1,46 @@
 # Dashboard PraKTIk
 
-A profile and analysis dashboard for Indonesian electricity, built for the Directorate of Transmission, Electricity and Aerospace (Direktorat TKKA; TEA in English), Kementerian PPN/Bappenas.
+A profile and analysis dashboard for the Directorate of Transmission, Electricity and Aerospace (Direktorat TKKA; TEA in English), Kementerian PPN/Bappenas.
+It covers three sectors: **electricity** (PLN, per unit, 2014–2025), **gas transmission** (BPS, national, 2020–2024) and **aerospace / air transport** (BPS, national plus airports and provinces, 2020–2024).
 It replaces the earlier ArcGIS dashboard with a static site that needs **no license, no server and no build step**.
 
 - **Staff who update the data:** read **[PANDUAN-UPDATE-DATA.md](PANDUAN-UPDATE-DATA.md)** (in Bahasa Indonesia).
-- **Data check page:** `cek-data.html`
+- **Data check page:** `cek-data.html` (recognises the sector from the file name).
 
 ## How it works
 
 ```
-index.html            Dashboard (6 tabs: Ringkasan, Pembangkitan, Jaringan & Susut, Perbandingan, Analisis, Data & Unduh)
-cek-data.html         Checks an Excel file in the browser before it is uploaded
-data/                 statistik-pln-YYYY.xlsx, one workbook per year (the ONLY thing changed each year)
-data-contoh/          SAMPLE (dummy) workbooks 2021–2025, used only with ?demo=1
-tools/                buat-data-contoh.py, regenerates data-contoh/ from the latest real file
-assets/js/config.js   Indicators, plant types (renewable vs fossil), source text, contact
-assets/js/i18n.js     UI text in Bahasa Indonesia and English
-assets/js/data.js     Reads the Excel files into memory (read-excel-file)
-assets/js/app.js      Renders the views (Chart.js)
-assets/vendor/        Bundled libraries, with no CDN dependency
+index.html                 Dashboard shell: sector switch, year/unit filters, tabs
+cek-data.html              Checks an Excel file in the browser before it is uploaded
+data/listrik/              statistik-pln-YYYY.xlsx, one workbook per year (electricity)
+data/gas/                  statistik-gas-YYYY.xlsx, one workbook with all years; YYYY = latest year (gas)
+data/udara/                statistik-udara-YYYY.xlsx, one workbook with all years; YYYY = latest year (air transport)
+assets/js/config.js        Electricity config + indicators, DATA_SCHEMA, SECTORS (gas, udara) and SECTOR_SCHEMA
+assets/js/i18n.js          UI text in Bahasa Indonesia and English
+assets/js/data.js          Reads the Excel files (read-excel-file): per-year files and single-edition files
+assets/js/app.js           Core + electricity views; exposes window.PK for the sector modules
+assets/js/sektor-umum.js   Shared helpers for national-level sectors (KPI cards, trend view, notes, CSV)
+assets/js/sektor-gas.js    Gas transmission tabs
+assets/js/sektor-udara.js  Air transport tabs
+assets/vendor/             Bundled libraries, with no CDN dependency
 ```
 
-- On load, the site looks for `data/statistik-pln-{year}.xlsx` for years `firstYear` to `lastYear` in `config.js`. Missing years produce harmless 404s.
-- The year always comes from the **file name**.
-- The sheets it reads are `t01 t02 t08 t16 t19 t21 t23 t28 t29 t30 units data_dictionary`, plus an optional `catatan` sheet. Other sheets are ignored.
-- Column labels in the Data tab come from the `data_dictionary` sheet, so new columns describe themselves.
-- The URL hash keeps the current view (`#tab=compare&unit=uid_aceh&year=2025&lang=en`), so a view can be shared as a link.
+- A sector's data are loaded only when it is opened. The URL hash keeps the view (`#sector=gas&tab=trend&series=g04.total`, or for electricity `#tab=compare&unit=uid_aceh&year=2025&lang=en`), so a view can be shared as a link.
+- **Electricity:** the site looks for `data/listrik/statistik-pln-{year}.xlsx` for years `firstYear` to `lastYear`; missing years produce harmless 404s. The year always comes from the **file name**. Sheets read: `t01 t02 t08 t16 t19 t21 t23 t28 t29 t30 units data_dictionary`, plus optional `catatan` (notes on KPI cards) and `kualitas_data` (data-quality notes, shown in Analisis → Antar tahun and the Data tab). The unit list shows the units that have data in the selected year; `unit_name_reported` keeps the name printed in that year's report.
+- **Gas / air transport:** only the file with the highest year in its name is read (older editions can stay as an archive). Gas sheets `g01`–`g10` are wide (one row per category, one column per year); air sheets `a01`–`a06` are long (one row per year/category). Both have `tabel` (titles), `catatan` (notes) and, for air, `kamus` (column labels).
+- Indicators with a known break in the series have `trendFrom` in `config.js`; the between-years analysis starts there by default.
 - The language choice is remembered in `localStorage`.
 
-## Analisis tab
+## Adding a sector
 
-- **Dua indikator (two indicators):** a scatter chart of any two indicators for all units (or provinces) in the selected year, with national reference lines, an optional trend line with the correlation coefficient (r), optional log scales, and, when there are several years, arrows showing how each unit moved since an earlier year.
-- **Antar tahun (between years):** a trend line for the selected unit against national, and a ranked chart of the change between two chosen years (percentage points for % indicators, percent change otherwise).
-- Between-year analysis turns on automatically once `data/` holds more than one year.
+1. Add an entry to `window.SECTORS` (folder, file pattern, sheets, source text) and, for Cek Data, to `window.SECTOR_SCHEMA` in `config.js`.
+2. Write `assets/js/sektor-<key>.js` that calls `PK.registerSector(key, { tabs, prepare(raw), years(), render(tab), hash(tab) })`, using the helpers in `sektor-umum.js`, and add its `<script>` tag to `index.html`.
+3. Add its texts to `i18n.js` and a section to the guide.
 
-## Sample data (demo mode)
+## Analisis tab (electricity)
 
-Open the site with `?demo=1` (for example `https://case4id.github.io/dashboard-case/?demo=1#tab=analysis&amode=years`) to load the workbooks in `data-contoh/` instead of `data/`.
-A pink banner marks this mode. The 2021–2024 files are **dummy data** derived from 2025 with random but plausible trends; they are not official figures and are not internally consistent (e.g. units do not add up to the national total).
-To regenerate them (requires Python with `openpyxl`): `python3 tools/buat-data-contoh.py`. The live site without `?demo=1` never reads this folder.
+- **Dua indikator (two indicators):** a scatter chart of any two indicators for all units (or provinces) in the selected year, with national reference lines, an optional trend line with the correlation coefficient (r), optional log scales, and arrows showing how each unit moved since an earlier year.
+- **Antar tahun (between years):** a trend line for the selected unit against national, and a ranked chart of the change between two chosen years (percentage points for % indicators, percent change otherwise), followed by the relevant data-quality notes.
 
 ## Run locally
 

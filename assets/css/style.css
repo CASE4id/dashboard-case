@@ -78,6 +78,15 @@ button, select { font: inherit; color: inherit; }
 }
 #unitSelect { min-width: 300px; }
 
+.grid.kpis.six { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+/* Pilihan sektor */
+.sector-switch { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+.sector-switch button {
+  border: 1px solid rgba(255, 255, 255, 0.35); background: rgba(255, 255, 255, 0.08); color: #fff; font: inherit; font-size: 13px;
+  font-weight: 600; padding: 6px 14px; border-radius: 999px; cursor: pointer;
+}
+.sector-switch button:hover { background: rgba(255, 255, 255, 0.18); }
+.sector-switch button[aria-pressed="true"] { background: var(--yellow); border-color: var(--yellow); color: var(--navy); }
 .tabs { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
 .tabs::-webkit-scrollbar { display: none; }
 .tabs button {
@@ -195,12 +204,23 @@ footer .staff-links a { color: inherit; text-decoration: underline; }
 .card h3.mt { margin-top: 22px; }
 .chart-box.xy { height: 520px; }
 .stat { margin: 10px 0 0; font-size: 14px; color: var(--navy); }
-.banner.demo { background: #fde9ef; border: 1px solid #f3b6c7; color: #7a1636; }
-.banner.demo a { color: inherit; font-weight: 600; }
+
+/* Catatan kualitas data, nama unit di laporan */
+details.quality { background: #f4f7fb; border: 1px solid #dfe7f2; border-radius: 10px; padding: 10px 14px; font-size: 13px; }
+details.quality summary { cursor: pointer; font-weight: 600; color: var(--navy); }
+details.quality ul { margin: 6px 0 0; padding-left: 18px; }
+details.quality li { margin-bottom: 6px; }
+details.quality i { color: var(--muted); }
+table.data small.reported { display: block; font-weight: 400; color: var(--faint); font-size: 11px; }
+.derived { color: var(--bad); font-weight: 700; cursor: help; }
+.kpi .flag { display: inline-block; margin-left: 6px; font-size: 11px; font-weight: 600; padding: 1px 8px; border-radius: 999px; background: #fff3cd; color: #6b5200; vertical-align: middle; }
+.search { border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font: inherit; font-size: 14px; min-width: 220px; }
+.stat-list li small { color: var(--faint); margin-left: 6px; }
 
 /* ---------- Responsive ---------- */
 @media (max-width: 1100px) {
   .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid.kpis.six { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .cols-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 760px) {
@@ -216,6 +236,7 @@ footer .staff-links a { color: inherit; text-decoration: underline; }
 }
 @media (max-width: 420px) {
   .kpis { grid-template-columns: minmax(0, 1fr); }
+  .grid.kpis.six { grid-template-columns: minmax(0, 1fr); }
 }
 @media print {
   .tabs, .lang-toggle, .toolbar, footer { display: none; }
