@@ -12,6 +12,10 @@ window.DASHBOARD_CONFIG = {
   /* Nama file data per tahun. {year} diganti otomatis, mis. statistik-pln-2025.xlsx */
   dataFilePattern: "data/statistik-pln-{year}.xlsx",
 
+  /* DATA CONTOH (dummy) untuk uji coba fitur antar tahun. Hanya dipakai jika alamat situs
+     diberi tambahan ?demo=1. Dibuat ulang dengan: python3 tools/buat-data-contoh.py */
+  demoDataFilePattern: "data-contoh/statistik-pln-{year}.xlsx",
+
   /* Rentang tahun yang dicari di folder /data. File yang tidak ada akan dilewati. */
   firstYear: 2020,
   lastYear: new Date().getFullYear() + 1,

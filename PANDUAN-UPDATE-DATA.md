@@ -21,6 +21,9 @@ data/statistik-pln-2026.xlsx   ← file baru yang Anda tambahkan
 ```
 
 Begitu file baru diunggah, tahun tersebut **otomatis** muncul di pilihan "Tahun" dan menjadi tampilan awal.
+Jika sudah ada lebih dari satu tahun, tab **Analisis → Antar tahun** juga otomatis aktif.
+
+> **Jangan** menaruh data resmi di folder `data-contoh/`. Folder itu hanya berisi data dummy untuk uji coba (dibuka dengan alamat `…/?demo=1`).
 Tidak ada kode yang perlu diubah.
 
 ---
@@ -73,7 +76,7 @@ Hapus baris catatan tahun lalu jika sudah tidak relevan.
 ## Langkah 2 — Cek file dengan halaman "Cek Data"
 
 1. Buka **`<alamat-situs>/cek-data.html`**
-   (contoh: `https://NAMA-ORGANISASI.github.io/dashboard-praktik/cek-data.html`).
+   (saat ini: `https://case4id.github.io/dashboard-case/cek-data.html`, atau klik tautan **Cek Data** di bagian bawah dashboard).
 2. Seret file Excel ke kotak yang tersedia.
 3. Baca hasilnya:
    - **✔ SIAP DIUNGGAH**: lanjut ke Langkah 3.
@@ -100,7 +103,7 @@ File **tidak dikirim ke mana pun** saat dicek; pemeriksaan hanya terjadi di brow
 ## Langkah 4 — Periksa hasilnya
 
 1. Tunggu **1–3 menit**. GitHub sedang memperbarui situs; status bisa dilihat di tab **Actions** repositori (tanda centang hijau = selesai).
-2. Buka situs dashboard, tekan **Ctrl + F5** (muat ulang penuh).
+2. Buka situs dashboard, tekan **Ctrl + F5** (muat ulang penuh). Browser kadang masih menampilkan versi lama hingga **±10 menit**; untuk memastikan, buka di **jendela penyamaran/incognito** (**Ctrl + Shift + N**).
 3. Pastikan tahun baru muncul di pilihan **Tahun** dan angka nasional sesuai publikasi.
 4. Jika muncul kotak kuning "Sebagian data tidak terbaca", klik untuk melihat rinciannya, perbaiki file, lalu unggah ulang.
 

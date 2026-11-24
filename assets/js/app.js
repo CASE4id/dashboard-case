@@ -15,7 +15,11 @@
     },
   };
 
-  const state = { lang: "id", year: null, unit: NATIONAL, tab: "summary", indicator: "electrification_ratio", scope: "units", table: "t01" };
+  const state = { lang: "id", year: null, unit: NATIONAL, tab: "summary", indicator: "electrification_ratio", scope: "units", table: "t01",
+    amode: "xy", ax: "electrification_ratio", ay: "avg_sold_household", alog: "", atrend: "1", abase: "", y1: null, y2: null };
+  /* Mode data contoh: buka situs dengan ?demo=1 untuk memakai file di folder data-contoh/ */
+  const DEMO = new URLSearchParams(location.search).has("demo") && !!CFG.demoDataFilePattern;
+  if (DEMO) CFG.dataFilePattern = CFG.demoDataFilePattern;
   let db = null;
   const charts = [];
 
@@ -52,13 +56,18 @@
   /* ---------- URL state ---------- */
   function readHash() {
     const p = new URLSearchParams(location.hash.slice(1));
-    for (const k of ["lang", "unit", "tab", "indicator", "scope", "table"]) if (p.get(k)) state[k] = p.get(k);
+    for (const k of ["lang", "unit", "tab", "indicator", "scope", "table", "amode", "ax", "ay", "alog", "atrend", "abase", "y1", "y2"]) if (p.get(k)) state[k] = p.get(k);
     if (p.get("year")) state.year = Number(p.get("year"));
   }
   function writeHash() {
     const p = new URLSearchParams({ tab: state.tab, unit: state.unit, year: state.year, lang: state.lang });
     if (state.tab === "compare") { p.set("indicator", state.indicator); p.set("scope", state.scope); }
     if (state.tab === "data") p.set("table", state.table);
+    if (state.tab === "analysis") {
+      p.set("amode", state.amode);
+      if (state.amode === "xy") { p.set("ax", state.ax); p.set("ay", state.ay); p.set("scope", state.scope); if (state.alog) p.set("alog", state.alog); if (state.atrend === "0") p.set("atrend", "0"); if (state.abase) p.set("abase", state.abase); }
+      else { p.set("indicator", state.indicator); p.set("scope", state.scope); p.set("y1", state.y1); p.set("y2", state.y2); }
+    }
     history.replaceState(null, "", "#" + p.toString());
   }
 
@@ -144,13 +153,21 @@
         chart.getDatasetMeta(i).data.forEach((bar, j) => {
           const v = ds.data[j];
           if (v == null) return;
-          const txt = opts.decimals != null ? fmt(v, opts.decimals) : fmtAuto(v);
+          const txt = (opts.signed && v > 0 ? "+" : "") + (opts.decimals != null ? fmt(v, opts.decimals) : fmtAuto(v)) + (opts.suffix || "");
           const w = ctx.measureText(txt).width;
-          let inside = bar.x + w + 8 > chart.chartArea.right;
-          /* Jika label di luar batang akan menabrak garis nasional, pindahkan ke dalam batang. */
-          if (!inside && lineX != null && lineX > bar.x && lineX < bar.x + w + 12 && bar.x - bar.base > w + 12) inside = true;
-          const x = inside ? bar.x - 6 : bar.x + 6;
-          ctx.textAlign = inside ? "right" : "left";
+          let inside, x;
+          if (v >= 0) {
+            inside = bar.x + w + 8 > chart.chartArea.right;
+            /* Jika label di luar batang akan menabrak garis nasional, pindahkan ke dalam batang. */
+            if (!inside && lineX != null && lineX > bar.x && lineX < bar.x + w + 12 && bar.x - bar.base > w + 12) inside = true;
+            x = inside ? bar.x - 6 : bar.x + 6;
+            ctx.textAlign = inside ? "right" : "left";
+          } else {
+            inside = bar.x - w - 8 < chart.chartArea.left;
+            if (!inside && lineX != null && lineX < bar.x && lineX > bar.x - w - 12 && bar.base - bar.x > w + 12) inside = true;
+            x = inside ? bar.x + 6 : bar.x - 6;
+            ctx.textAlign = inside ? "left" : "right";
+          }
           ctx.lineJoin = "round"; ctx.lineWidth = 4;
           ctx.strokeStyle = inside ? "rgba(18,33,58,0.35)" : "rgba(255,255,255,0.95)";
           ctx.strokeText(txt, x, bar.y);
@@ -408,6 +425,13 @@
     });
   }
 
+  /* Pindah ke unit lain. Ditunda sebentar agar Chart.js selesai memproses klik sebelum grafik dihapus. */
+  const goUnit = (id, tab) => setTimeout(() => {
+    state.unit = id; if (tab) state.tab = tab;
+    $("#unitSelect").value = id; render();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
   /* ======================= TAB: COMPARE ======================= */
   const nationalLinePlugin = {
     id: "nationalLine",
@@ -421,7 +445,7 @@
       ctx.beginPath(); ctx.moveTo(x, chartArea.top); ctx.lineTo(x, chartArea.bottom); ctx.stroke();
       ctx.setLineDash([]); ctx.fillStyle = COLORS.navy; ctx.font = "600 12px " + Chart.defaults.font.family;
       ctx.textAlign = x > chartArea.right - 120 ? "right" : "left";
-      ctx.fillText(`${opts.label}: ${fmt(opts.value, opts.decimals)}`, x + (ctx.textAlign === "left" ? 6 : -6), chartArea.top - 8);
+      ctx.fillText(`${opts.label}: ${opts.signed && opts.value > 0 ? "+" : ""}${fmt(opts.value, opts.decimals)}${opts.suffix || ""}`, x + (ctx.textAlign === "left" ? 6 : -6), chartArea.top - 8);
       ctx.restore();
     },
   };
@@ -469,14 +493,295 @@
         layout: { padding: { top: 18 } },
         plugins: { legend: { display: false }, nationalLine: { value: nat, label: T("national_line"), decimals: ind.decimals }, barValues: { enabled: true, decimals: ind.decimals } },
         scales: { x: { ticks: numTicks }, y: { grid: { display: false }, ticks: { autoSkip: false } } },
-        onClick: (_e, els) => {
-          if (!els.length) return;
-          state.unit = rows[els[0].index].u.unit_id;
-          state.tab = "summary";
-          $("#unitSelect").value = state.unit;
-          render();
-          window.scrollTo({ top: 0, behavior: "smooth" });
+        onClick: (_e, els) => { if (els.length) goUnit(rows[els[0].index].u.unit_id, "summary"); },
+        onHover: (e, els) => (e.native.target.style.cursor = els.length ? "pointer" : "default"),
+      },
+    });
+  }
+
+  /* ======================= TAB: ANALISIS ======================= */
+  const scopeUnits = () => {
+    const types = state.scope === "provinces" ? ["province"] : ["distribution_unit", "regional_unit", "subsidiary"];
+    return [...db.units.values()].filter((u) => types.includes(u.row_type));
+  };
+  const indLabel = (ind) => `${L(ind)} (${L(ind.unit)})`;
+  const indOptions = () => window.INDICATORS.map((i) => `<option value="${i.key}">${esc(L(i))}</option>`).join("");
+  const scopeSelectHtml = () => `<label>${esc(T("scope"))}<select id="scopeSelect"><option value="units">${esc(T("scope_units"))}</option><option value="provinces">${esc(T("scope_provinces"))}</option></select></label>`;
+  /* Regresi linear sederhana + korelasi Pearson */
+  function linfit(pts) {
+    const n = pts.length;
+    const mx = sum(pts.map((p) => p[0])) / n, my = sum(pts.map((p) => p[1])) / n;
+    let sxy = 0, sxx = 0, syy = 0;
+    for (const [x, y] of pts) { sxy += (x - mx) * (y - my); sxx += (x - mx) ** 2; syy += (y - my) ** 2; }
+    if (!sxx || !syy) return null;
+    const b = sxy / sxx;
+    return { a: my - b * mx, b, r: sxy / Math.sqrt(sxx * syy) };
+  }
+
+  /* Garis rujukan nasional (tegak & mendatar) pada scatter */
+  const crossLinesPlugin = {
+    id: "crossLines",
+    beforeDatasetsDraw(chart, _a, opts) {
+      const { ctx, chartArea: A, scales } = chart;
+      ctx.save();
+      ctx.strokeStyle = COLORS.navy; ctx.globalAlpha = 0.55; ctx.setLineDash([5, 4]); ctx.lineWidth = 1.2;
+      ctx.fillStyle = COLORS.navy; ctx.font = "600 11px " + Chart.defaults.font.family;
+      if (opts.x != null) {
+        const x = scales.x.getPixelForValue(opts.x);
+        if (x >= A.left && x <= A.right) {
+          ctx.beginPath(); ctx.moveTo(x, A.top); ctx.lineTo(x, A.bottom); ctx.stroke();
+          ctx.textAlign = x > A.right - 80 ? "right" : "left";
+          ctx.fillText(opts.label, x + (ctx.textAlign === "left" ? 4 : -4), A.top + 10);
+        }
+      }
+      if (opts.y != null) {
+        const y = scales.y.getPixelForValue(opts.y);
+        if (y >= A.top && y <= A.bottom) {
+          ctx.beginPath(); ctx.moveTo(A.left, y); ctx.lineTo(A.right, y); ctx.stroke();
+          ctx.textAlign = "right"; ctx.fillText(opts.label, A.right - 4, y - 5);
+        }
+      }
+      ctx.restore();
+    },
+  };
+
+  /* Panah pergerakan dari tahun pembanding ke tahun terpilih, dan nama unit terpilih */
+  const trailsPlugin = {
+    id: "trails",
+    afterDatasetsDraw(chart, _a, opts) {
+      const { ctx, scales } = chart;
+      ctx.save();
+      for (const t of opts.pairs || []) {
+        const x0 = scales.x.getPixelForValue(t.x0), y0 = scales.y.getPixelForValue(t.y0);
+        const x1 = scales.x.getPixelForValue(t.x1), y1 = scales.y.getPixelForValue(t.y1);
+        const len = Math.hypot(x1 - x0, y1 - y0);
+        if (len < 4) continue;
+        ctx.strokeStyle = ctx.fillStyle = t.hi ? "#b88a00" : "rgba(21,87,176,0.45)";
+        ctx.lineWidth = t.hi ? 2 : 1.2;
+        const ang = Math.atan2(y1 - y0, x1 - x0), ex = x1 - Math.cos(ang) * 6, ey = y1 - Math.sin(ang) * 6;
+        ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(ex, ey); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(ex, ey);
+        ctx.lineTo(ex - Math.cos(ang - 0.45) * 7, ey - Math.sin(ang - 0.45) * 7);
+        ctx.lineTo(ex - Math.cos(ang + 0.45) * 7, ey - Math.sin(ang + 0.45) * 7);
+        ctx.closePath(); ctx.fill();
+      }
+      if (opts.label) {
+        const x = scales.x.getPixelForValue(opts.label.x), y = scales.y.getPixelForValue(opts.label.y);
+        ctx.font = "700 12px " + Chart.defaults.font.family; ctx.textBaseline = "bottom";
+        ctx.textAlign = x > chart.chartArea.right - 140 ? "right" : "left";
+        const tx = x + (ctx.textAlign === "left" ? 9 : -9);
+        ctx.lineJoin = "round"; ctx.lineWidth = 4; ctx.strokeStyle = "rgba(255,255,255,0.95)";
+        ctx.strokeText(opts.label.text, tx, y - 6);
+        ctx.fillStyle = COLORS.navy; ctx.fillText(opts.label.text, tx, y - 6);
+      }
+      ctx.restore();
+    },
+  };
+
+  function renderAnalysis() {
+    const multi = db.years.length > 1;
+    if (state.amode !== "years") state.amode = "xy";
+    let html = `<div class="context-line"><h2>${esc(T("analysis_title"))}</h2><span class="chip">${state.amode === "xy" ? state.year : esc(T("mode_years"))}</span></div>`;
+    html += `<div class="seg" role="group" aria-label="${esc(T("analysis_title"))}">
+      <button type="button" data-mode="xy" aria-pressed="${state.amode === "xy"}">${esc(T("mode_xy"))}</button>
+      <button type="button" data-mode="years" aria-pressed="${state.amode === "years"}">${esc(T("mode_years"))}</button>
+    </div>`;
+    html += `<div id="analysisBody"></div>`;
+    $("#view").innerHTML = html;
+    document.querySelectorAll(".seg button").forEach((b) => (b.onclick = () => { state.amode = b.dataset.mode; render(); }));
+    if (state.amode === "xy") renderScatter(multi);
+    else renderYears(multi);
+  }
+
+  function renderScatter(multi) {
+    const ix = IND[state.ax] || IND.electrification_ratio, iy = IND[state.ay] || IND.avg_sold_household;
+    state.ax = ix.key; state.ay = iy.key;
+    const baseYears = db.years.filter((y) => y < state.year);
+    const base = baseYears.includes(Number(state.abase)) ? Number(state.abase) : null;
+    const pts = scopeUnits().map((u) => ({ u, x: indValue(ix, u.unit_id, state.year), y: indValue(iy, u.unit_id, state.year) }))
+      .filter((p) => p.x != null && p.y != null);
+    const canLogX = pts.length && pts.every((p) => p.x > 0), canLogY = pts.length && pts.every((p) => p.y > 0);
+    const logX = canLogX && state.alog.includes("x"), logY = canLogY && state.alog.includes("y");
+    const showTrend = state.atrend !== "0";
+
+    const check = (id, on, label, enabled = true) =>
+      `<label class="check${enabled ? "" : " off"}"><input type="checkbox" id="${id}"${on ? " checked" : ""}${enabled ? "" : " disabled"}> ${esc(label)}</label>`;
+    let body = `<section class="card"><p class="sub">${esc(T("xy_sub"))}</p>
+      <div class="toolbar">
+        <label>${esc(T("axis_x"))}<select id="axSelect">${indOptions()}</select></label>
+        <label>${esc(T("axis_y"))}<select id="aySelect">${indOptions()}</select></label>
+        ${scopeSelectHtml()}
+        ${multi ? `<label>${esc(T("movement_from"))}<select id="baseSelect"><option value="">${esc(T("none"))}</option>${baseYears.slice().reverse().map((y) => `<option value="${y}">${y}</option>`).join("")}</select></label>` : ""}
+      </div>
+      <div class="toolbar checks">
+        ${check("trendChk", showTrend, T("trend_line"))}
+        ${check("logxChk", logX, T("log_x"), canLogX)}
+        ${check("logyChk", logY, T("log_y"), canLogY)}
+      </div>`;
+
+    let fit = null;
+    if (pts.length >= 3) {
+      const tx = (v) => (logX ? Math.log10(v) : v), ty = (v) => (logY ? Math.log10(v) : v);
+      fit = linfit(pts.map((p) => [tx(p.x), ty(p.y)]));
+      body += `<div class="chart-box xy"><canvas id="cXY"></canvas></div>`;
+      if (fit) {
+        const r = fit.r, a = Math.abs(r);
+        const strength = T(a < 0.3 ? "corr_weak" : a < 0.6 ? "corr_moderate" : "corr_strong");
+        const dir = T(r >= 0 ? "corr_pos" : "corr_neg");
+        body += `<p class="stat"><b>${esc(T("corr_label"))} (r) = ${fmt(r, 2)}</b> · ${esc(strength)}, ${esc(dir)} · ${pts.length} ${esc(T("points"))}${logX || logY ? ` · ${esc(T("corr_log"))}` : ""}</p>`;
+      }
+      body += `<p class="foot">${esc(T("corr_caution"))}${base ? " " + esc(T("movement_note").replace("{y0}", base).replace("{y1}", state.year)) : ""}</p>`;
+    } else body += empty(T("too_few"));
+    body += `</section>`;
+    $("#analysisBody").innerHTML = body;
+
+    $("#axSelect").value = ix.key; $("#aySelect").value = iy.key; $("#scopeSelect").value = state.scope;
+    $("#axSelect").onchange = (e) => { state.ax = e.target.value; render(); };
+    $("#aySelect").onchange = (e) => { state.ay = e.target.value; render(); };
+    $("#scopeSelect").onchange = (e) => { state.scope = e.target.value; render(); };
+    if ($("#baseSelect")) { $("#baseSelect").value = base || ""; $("#baseSelect").onchange = (e) => { state.abase = e.target.value; render(); }; }
+    $("#trendChk").onchange = (e) => { state.atrend = e.target.checked ? "1" : "0"; render(); };
+    const setLog = () => { state.alog = ($("#logxChk").checked ? "x" : "") + ($("#logyChk").checked ? "y" : ""); render(); };
+    $("#logxChk").onchange = setLog; $("#logyChk").onchange = setLog;
+    if (pts.length < 3) return;
+
+    const sel = pts.find((p) => p.u.unit_id === state.unit);
+    const others = pts.filter((p) => p !== sel);
+    const datasets = [];
+    let pairs = [];
+    if (base) {
+      const old = pts.map((p) => ({ p, x: indValue(ix, p.u.unit_id, base), y: indValue(iy, p.u.unit_id, base) }))
+        .filter((o) => o.x != null && o.y != null && (!logX || o.x > 0) && (!logY || o.y > 0));
+      datasets.push({ label: String(base), kind: "base", data: old.map((o) => ({ x: o.x, y: o.y, name: o.p.u.unit_name })),
+        backgroundColor: "rgba(154,165,177,0.55)", pointRadius: 3.5, pointHoverRadius: 5 });
+      pairs = old.map((o) => ({ x0: o.x, y0: o.y, x1: o.p.x, y1: o.p.y, hi: o.p === sel }));
+    }
+    datasets.push({ label: String(state.year), kind: "unit", data: others.map((p) => ({ x: p.x, y: p.y, name: p.u.unit_name, id: p.u.unit_id })),
+      backgroundColor: "rgba(21,87,176,0.8)", borderColor: "#fff", borderWidth: 1, pointRadius: 6, pointHoverRadius: 8 });
+    if (sel) datasets.push({ label: sel.u.unit_name, kind: "unit", data: [{ x: sel.x, y: sel.y, name: sel.u.unit_name, id: sel.u.unit_id }],
+      backgroundColor: COLORS.yellow, borderColor: COLORS.navy, borderWidth: 2, pointRadius: 9, pointHoverRadius: 10 });
+    if (showTrend && fit) {
+      const xs = pts.map((p) => p.x), lo = Math.min(...xs), hi = Math.max(...xs), line = [];
+      for (let i = 0; i <= 40; i++) {
+        const x = logX ? 10 ** (Math.log10(lo) + ((Math.log10(hi) - Math.log10(lo)) * i) / 40) : lo + ((hi - lo) * i) / 40;
+        const ty = fit.a + fit.b * (logX ? Math.log10(x) : x);
+        line.push({ x, y: logY ? 10 ** ty : ty });
+      }
+      datasets.push({ type: "line", label: T("trend_line"), kind: "trend", data: line, borderColor: COLORS.gold, borderWidth: 2, borderDash: [6, 4], pointRadius: 0, pointHitRadius: 0 });
+    }
+    const showNat = (i) => i.compareNational !== false;
+    const natX = showNat(ix) ? indValue(ix, NATIONAL, state.year) : null, natY = showNat(iy) ? indValue(iy, NATIONAL, state.year) : null;
+    const axis = (ind, log) => ({
+      type: log ? "logarithmic" : "linear", ticks: log ? logTicks : numTicks,
+      title: { display: true, text: indLabel(ind), color: COLORS.navy, font: { weight: "600" } },
+    });
+    makeChart("cXY", {
+      type: "scatter",
+      plugins: [crossLinesPlugin, trailsPlugin],
+      data: { datasets },
+      options: {
+        layout: { padding: { top: 8, right: 12 } },
+        scales: { x: axis(ix, logX), y: axis(iy, logY) },
+        plugins: {
+          legend: { display: !!(base || sel || showTrend), position: "bottom" },
+          crossLines: { x: natX, y: natY, label: T("national_line") },
+          trails: { pairs, label: sel ? { x: sel.x, y: sel.y, text: sel.u.unit_name } : null },
+          tooltip: {
+            filter: (it) => it.dataset.kind !== "trend",
+            callbacks: {
+              title: (items) => items[0].raw.name + (items[0].dataset.kind === "base" ? ` (${base})` : ""),
+              label: (c) => [` ${L(ix)}: ${fmt(c.raw.x, ix.decimals)} ${L(ix.unit)}`, ` ${L(iy)}: ${fmt(c.raw.y, iy.decimals)} ${L(iy.unit)}`],
+            },
+          },
         },
+        onClick: (_e, els) => {
+          const el = els.find((x) => datasets[x.datasetIndex].kind === "unit");
+          if (el) goUnit(datasets[el.datasetIndex].data[el.index].id, "summary");
+        },
+        onHover: (e, els) => (e.native.target.style.cursor = els.some((x) => datasets[x.datasetIndex].kind === "unit") ? "pointer" : "default"),
+      },
+    });
+  }
+
+  function renderYears(multi) {
+    if (!multi) {
+      const demoUrl = location.pathname + "?demo=1#tab=analysis&amode=years";
+      $("#analysisBody").innerHTML = `<section class="card">${empty(T("years_need").replace("{years}", db.years.join(", ")))}
+        <p class="foot">${esc(T("years_demo_hint"))} <a href="${esc(demoUrl)}">${esc(T("years_demo_link"))}</a></p></section>`;
+      return;
+    }
+    const ind = IND[state.indicator] || IND.electrification_ratio;
+    state.indicator = ind.key;
+    const ys = db.years;
+    let y2 = ys.includes(Number(state.y2)) ? Number(state.y2) : state.year;
+    let y1 = ys.includes(Number(state.y1)) ? Number(state.y1) : ys[0];
+    if (y1 >= y2) y1 = ys[Math.max(0, ys.indexOf(y2) - 1)];
+    if (y1 >= y2) { y2 = ys[ys.length - 1]; y1 = ys[0]; }
+    state.y1 = y1; state.y2 = y2;
+    const pp = L(ind.unit) === "%";
+    const change = (a, b) => (a == null || b == null ? null : pp ? b - a : a !== 0 ? ((b - a) / Math.abs(a)) * 100 : null);
+    const rows = scopeUnits().map((u) => ({ u, v: change(indValue(ind, u.unit_id, y1), indValue(ind, u.unit_id, y2)) })).filter((d) => d.v != null);
+    const sign = ind.better === "low" ? -1 : 1;
+    rows.sort((a, b) => sign * (b.v - a.v));
+    const natChange = change(indValue(ind, NATIONAL, y1), indValue(ind, NATIONAL, y2));
+    const yOpts = (list) => list.map((y) => `<option value="${y}">${y}</option>`).join("");
+    const unitShown = state.unit;
+    const showNatSeries = unitShown !== NATIONAL && ind.compareNational !== false;
+
+    $("#analysisBody").innerHTML = `<section class="card"><p class="sub">${esc(T("years_sub"))}</p>
+        <div class="toolbar">
+          <label>${esc(T("indicator"))}<select id="indSelect">${indOptions()}</select></label>
+          ${scopeSelectHtml()}
+          <label>${esc(T("year_from"))}<select id="y1Select">${yOpts(ys.slice(0, -1))}</select></label>
+          <label>${esc(T("year_to"))}<select id="y2Select">${yOpts(ys.slice(1))}</select></label>
+        </div>
+        <h3 class="mt">${esc(T("trend_title").replace("{ind}", L(ind)))}</h3>
+        <p class="sub">${esc(unitName(unitShown))}${showNatSeries ? " · " + esc(T("vs_national")) : ""} · ${ys[0]}–${ys[ys.length - 1]} (${esc(L(ind.unit))})</p>
+        <div class="chart-box"><canvas id="cTrend"></canvas></div>
+        <h3 class="mt">${esc(T("change_title").replace("{y1}", y1).replace("{y2}", y2))}</h3>
+        <p class="sub">${esc(T(pp ? "change_sub_pp" : "change_sub_pct"))}</p>
+        ${rows.length ? `<div class="chart-box" style="height:${Math.max(320, rows.length * 26 + 60)}px"><canvas id="cChange"></canvas></div>` : empty()}
+        ${ind.note ? `<p class="foot">${esc(L(ind.note))}</p>` : ""}
+      </section>`;
+    $("#indSelect").value = ind.key; $("#scopeSelect").value = state.scope;
+    $("#y1Select").value = y1; $("#y2Select").value = y2;
+    $("#indSelect").onchange = (e) => { state.indicator = e.target.value; render(); };
+    $("#scopeSelect").onchange = (e) => { state.scope = e.target.value; render(); };
+    $("#y1Select").onchange = (e) => { state.y1 = Number(e.target.value); render(); };
+    $("#y2Select").onchange = (e) => { state.y2 = Number(e.target.value); render(); };
+
+    const series = [{ label: unitName(unitShown), data: ys.map((y) => indValue(ind, unitShown, y)), borderColor: COLORS.blue, backgroundColor: COLORS.blue, borderWidth: 3, pointRadius: 4, tension: 0.2, spanGaps: true }];
+    if (showNatSeries) series.push({ label: T("national_line"), data: ys.map((y) => indValue(ind, NATIONAL, y)), borderColor: COLORS.navy, backgroundColor: COLORS.navy, borderDash: [6, 4], borderWidth: 2, pointRadius: 3, tension: 0.2, spanGaps: true });
+    makeChart("cTrend", {
+      type: "line",
+      data: { labels: ys.map(String), datasets: series },
+      options: {
+        plugins: { legend: { position: "bottom" }, tooltip: { callbacks: { label: (c) => ` ${c.dataset.label}: ${fmt(c.parsed.y, ind.decimals)} ${L(ind.unit)}` } } },
+        scales: { y: { ticks: numTicks }, x: gridless },
+      },
+    });
+
+    if (!rows.length) return;
+    const color = (d) => {
+      if (d.u.unit_id === state.unit) return COLORS.yellow;
+      if (!ind.better) return COLORS.blue;
+      return d.v * sign >= 0 ? COLORS.good : COLORS.bad;
+    };
+    makeChart("cChange", {
+      type: "bar",
+      plugins: [nationalLinePlugin],
+      data: { labels: rows.map((d) => d.u.unit_name), datasets: [{ data: rows.map((d) => d.v), backgroundColor: rows.map(color), borderRadius: 4 }] },
+      options: {
+        indexAxis: "y",
+        layout: { padding: { top: 18, right: 8 } },
+        plugins: {
+          legend: { display: false },
+          nationalLine: { value: natChange, label: T("national_line"), decimals: pp ? 2 : 1, suffix: pp ? " " + T("pp") : "%", signed: true },
+          barValues: { enabled: true, decimals: pp ? 2 : 1, signed: true, suffix: pp ? "" : "%" },
+          tooltip: { callbacks: { label: (c) => ` ${c.parsed.x > 0 ? "+" : ""}${fmt(c.parsed.x, pp ? 2 : 1)}${pp ? " " + T("pp") : "%"}` } },
+        },
+        scales: { x: { ticks: { callback: (v) => (v > 0 ? "+" : "") + fmtTick(v) + (pp ? "" : "%"), maxRotation: 0 } }, y: { grid: { display: false }, ticks: { autoSkip: false } } },
+        onClick: (_e, els) => { if (els.length) goUnit(rows[els[0].index].u.unit_id); },
         onHover: (e, els) => (e.native.target.style.cursor = els.length ? "pointer" : "default"),
       },
     });
@@ -528,7 +833,7 @@
   }
 
   /* ---------- Main render ---------- */
-  const RENDER = { summary: renderSummary, generation: renderGeneration, network: renderNetwork, compare: renderCompare, data: renderData };
+  const RENDER = { summary: renderSummary, generation: renderGeneration, network: renderNetwork, compare: renderCompare, analysis: renderAnalysis, data: renderData };
   function render() {
     if (!RENDER[state.tab]) state.tab = "summary";
     destroyCharts();
@@ -569,6 +874,7 @@
       else showBanner("error", e.message === "NO_DATA" ? T("err_nodata") : T("err_generic") + " " + e.message);
       return;
     }
+    if (DEMO) $("#banners").insertAdjacentHTML("beforeend", `<div class="banner demo"><b>${esc(T("demo_banner"))}</b> <a href="${esc(location.pathname + location.hash)}">${esc(T("demo_exit"))}</a></div>`);
     if (db.problems.length) showBanner("warn", T("warn_problems"), db.problems);
     if (!db.years.includes(state.year)) state.year = db.years[db.years.length - 1];
     if (!db.units.has(state.unit)) state.unit = NATIONAL;
