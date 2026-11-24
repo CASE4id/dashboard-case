@@ -35,9 +35,9 @@
     if (Number.isInteger(n) || a >= 100) return fmt(n, 0);
     return fmt(n, a >= 10 ? 1 : 2);
   }
-  /* Label sumbu ringkas: 100.000 -> "100 rb" / "100K" */
+  /* Label sumbu ringkas dan seragam mulai 1.000: 5.000 -> "5 rb" / "5K", 2.500.000 -> "2,5 jt" / "2.5M" */
   function fmtTick(v) {
-    if (Math.abs(v) >= 10000) return new Intl.NumberFormat(locale(), { notation: "compact", maximumFractionDigits: 1 }).format(v);
+    if (Math.abs(v) >= 1000) return new Intl.NumberFormat(locale(), { notation: "compact", maximumFractionDigits: 1 }).format(v);
     return fmtAuto(v);
   }
   const unitName = (id) => (db.units.get(id) || {}).unit_name || id;
@@ -72,6 +72,10 @@
     $("#contactEmail").href = "mailto:" + CFG.contact.email;
     $("#contactIg").textContent = "@" + CFG.contact.instagram;
     $("#contactIg").href = "https://www.instagram.com/" + CFG.contact.instagram;
+    if (CFG.staffLinks) {
+      $("#guideLink").href = CFG.staffLinks.guide;
+      $("#checkerLink").href = CFG.staffLinks.checker;
+    }
     if (db) $("#yearsText").textContent = T("years_available") + ": " + db.years.join(", ");
   }
 
@@ -125,11 +129,14 @@
   const logTicks = { callback: (v) => (Math.log10(v) % 1 === 0 ? fmtTick(v) : null), maxRotation: 0 };
 
   /* Tampilkan angka di ujung batang (grafik batang horizontal) */
+  /* Digambar paling akhir (afterDraw) dengan latar putih tipis, agar tidak tertimpa garis nasional. */
   const barValuePlugin = {
     id: "barValues",
-    afterDatasetsDraw(chart, _a, opts) {
+    afterDraw(chart, _a, opts) {
       if (!opts || !opts.enabled) return;
       const { ctx } = chart;
+      const nl = chart.options.plugins.nationalLine;
+      const lineX = nl && nl.value != null && chart.scales.x ? chart.scales.x.getPixelForValue(nl.value) : null;
       ctx.save();
       ctx.font = "600 11px " + Chart.defaults.font.family;
       ctx.fillStyle = "#12213a"; ctx.textBaseline = "middle";
@@ -139,10 +146,16 @@
           if (v == null) return;
           const txt = opts.decimals != null ? fmt(v, opts.decimals) : fmtAuto(v);
           const w = ctx.measureText(txt).width;
-          const inside = bar.x + w + 8 > chart.chartArea.right;
-          ctx.fillStyle = inside ? "#fff" : "#12213a";
+          let inside = bar.x + w + 8 > chart.chartArea.right;
+          /* Jika label di luar batang akan menabrak garis nasional, pindahkan ke dalam batang. */
+          if (!inside && lineX != null && lineX > bar.x && lineX < bar.x + w + 12 && bar.x - bar.base > w + 12) inside = true;
+          const x = inside ? bar.x - 6 : bar.x + 6;
           ctx.textAlign = inside ? "right" : "left";
-          ctx.fillText(txt, inside ? bar.x - 6 : bar.x + 6, bar.y);
+          ctx.lineJoin = "round"; ctx.lineWidth = 4;
+          ctx.strokeStyle = inside ? "rgba(18,33,58,0.35)" : "rgba(255,255,255,0.95)";
+          ctx.strokeText(txt, x, bar.y);
+          ctx.fillStyle = inside ? "#fff" : "#12213a";
+          ctx.fillText(txt, x, bar.y);
         });
       });
       ctx.restore();

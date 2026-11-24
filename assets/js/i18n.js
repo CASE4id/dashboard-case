@@ -13,6 +13,9 @@ window.I18N = {
     loading: "Memuat data…",
     source_label: "Sumber data",
     contact: "Kontak",
+    for_staff: "Untuk staf",
+    guide_link: "Panduan pembaruan data",
+    checker_link: "Cek Data",
     years_available: "Tahun data tersedia",
 
     grp_national: "Nasional & Regional",
@@ -129,6 +132,9 @@ window.I18N = {
     loading: "Loading data…",
     source_label: "Data source",
     contact: "Contact",
+    for_staff: "For staff",
+    guide_link: "Data update guide",
+    checker_link: "Data check",
     years_available: "Data years available",
 
     grp_national: "National & Regional",

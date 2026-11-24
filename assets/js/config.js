@@ -29,6 +29,12 @@ window.DASHBOARD_CONFIG = {
     instagram: "dit.tkka_bappenas",
   },
 
+  /* Tautan kecil di footer untuk staf yang memperbarui data. */
+  staffLinks: {
+    guide: "https://github.com/CASE4id/dashboard-case/blob/main/PANDUAN-UPDATE-DATA.md",
+    checker: "cek-data.html",
+  },
+
   /* Fitur peta: belum aktif karena data spasial belum tersedia.
      Lihat README.md bagian "Menambahkan peta" untuk mengaktifkannya. */
   mapEnabled: false,
