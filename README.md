@@ -9,9 +9,11 @@ It replaces the earlier ArcGIS dashboard with a static site that needs **no lice
 ## How it works
 
 ```
-index.html            Dashboard (5 tabs: Ringkasan, Pembangkitan, Jaringan & Susut, Perbandingan, Data & Unduh)
+index.html            Dashboard (6 tabs: Ringkasan, Pembangkitan, Jaringan & Susut, Perbandingan, Analisis, Data & Unduh)
 cek-data.html         Checks an Excel file in the browser before it is uploaded
 data/                 statistik-pln-YYYY.xlsx, one workbook per year (the ONLY thing changed each year)
+data-contoh/          SAMPLE (dummy) workbooks 2021–2025, used only with ?demo=1
+tools/                buat-data-contoh.py, regenerates data-contoh/ from the latest real file
 assets/js/config.js   Indicators, plant types (renewable vs fossil), source text, contact
 assets/js/i18n.js     UI text in Bahasa Indonesia and English
 assets/js/data.js     Reads the Excel files into memory (read-excel-file)
@@ -25,6 +27,18 @@ assets/vendor/        Bundled libraries, with no CDN dependency
 - Column labels in the Data tab come from the `data_dictionary` sheet, so new columns describe themselves.
 - The URL hash keeps the current view (`#tab=compare&unit=uid_aceh&year=2025&lang=en`), so a view can be shared as a link.
 - The language choice is remembered in `localStorage`.
+
+## Analisis tab
+
+- **Dua indikator (two indicators):** a scatter chart of any two indicators for all units (or provinces) in the selected year, with national reference lines, an optional trend line with the correlation coefficient (r), optional log scales, and, when there are several years, arrows showing how each unit moved since an earlier year.
+- **Antar tahun (between years):** a trend line for the selected unit against national, and a ranked chart of the change between two chosen years (percentage points for % indicators, percent change otherwise).
+- Between-year analysis turns on automatically once `data/` holds more than one year.
+
+## Sample data (demo mode)
+
+Open the site with `?demo=1` (for example `https://case4id.github.io/dashboard-case/?demo=1#tab=analysis&amode=years`) to load the workbooks in `data-contoh/` instead of `data/`.
+A pink banner marks this mode. The 2021–2024 files are **dummy data** derived from 2025 with random but plausible trends; they are not official figures and are not internally consistent (e.g. units do not add up to the national total).
+To regenerate them (requires Python with `openpyxl`): `python3 tools/buat-data-contoh.py`. The live site without `?demo=1` never reads this folder.
 
 ## Run locally
 

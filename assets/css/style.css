@@ -185,6 +185,19 @@ footer p { margin: 0 0 4px; max-width: 760px; }
 footer .staff-links { margin-top: 8px; font-size: 12px; opacity: 0.7; }
 footer .staff-links a { color: inherit; text-decoration: underline; }
 
+/* ---------- Analisis ---------- */
+.seg { display: inline-flex; background: #e7eefa; border-radius: 999px; padding: 3px; margin-bottom: 14px; }
+.seg button { border: 0; background: transparent; color: var(--blue); font: inherit; font-size: 14px; font-weight: 600; padding: 7px 16px; border-radius: 999px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--navy); color: #fff; }
+.toolbar.checks { gap: 18px; margin-top: -4px; }
+.toolbar label.check { flex-direction: row; align-items: center; gap: 6px; font-weight: 500; cursor: pointer; }
+.toolbar label.check.off { opacity: 0.45; cursor: not-allowed; }
+.card h3.mt { margin-top: 22px; }
+.chart-box.xy { height: 520px; }
+.stat { margin: 10px 0 0; font-size: 14px; color: var(--navy); }
+.banner.demo { background: #fde9ef; border: 1px solid #f3b6c7; color: #7a1636; }
+.banner.demo a { color: inherit; font-weight: 600; }
+
 /* ---------- Responsive ---------- */
 @media (max-width: 1100px) {
   .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -199,6 +212,7 @@ footer .staff-links a { color: inherit; text-decoration: underline; }
   .brand-pill .org { display: none; }
   .kpi .value { font-size: 30px; }
   .chart-box.tall { height: 520px; }
+  .chart-box.xy { height: 420px; }
 }
 @media (max-width: 420px) {
   .kpis { grid-template-columns: minmax(0, 1fr); }
