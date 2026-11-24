@@ -117,6 +117,8 @@ File **tidak dikirim ke mana pun** saat dicek; pemeriksaan hanya terjadi di brow
 | Kartu menampilkan "Data tidak tersedia" | Sel kosong atau baris unit tidak ada | Periksa sheet terkait |
 | Kotak kuning "Sebagian data tidak terbaca" | Ada teks di kolom angka atau sheet hilang | Jalankan Cek Data, perbaiki |
 | Situs kosong / error merah | File rusak atau situs belum selesai diperbarui | Tunggu 3 menit; jika tetap, kembalikan versi sebelumnya (bawah) |
+| Tab **Actions** menunjukkan tanda ✖ merah pada "pages build and deployment" (mis. *Server Error* / *502*) | Gangguan sementara di server GitHub, bukan kesalahan file Anda | Buka run tersebut → **Re-run jobs** → **Re-run all jobs**. Jika gagal lagi, cek https://www.githubstatus.com dan coba lagi nanti |
+| Run "pages build and deployment" berstatus **Queued** (titik kuning) lebih dari 15 menit | Antrean GitHub sedang macet; run ini tidak bisa dibatalkan | Tunggu. Atau unggah/ubah file apa pun (mis. perbaikan kecil di panduan ini): setiap perubahan di `main` memulai run baru |
 
 ### Mengembalikan ke versi sebelumnya
 
