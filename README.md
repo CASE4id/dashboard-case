@@ -1,6 +1,6 @@
 # Dashboard PraKTIk
 
-A profile and analysis dashboard for Indonesian electricity, built for the Directorate of Electricity, Telecommunication and Informatics (TKKA), Kementerian PPN/Bappenas.
+A profile and analysis dashboard for Indonesian electricity, built for the Directorate of Transmission, Electricity and Aerospace (Direktorat TKKA; TEA in English), Kementerian PPN/Bappenas.
 It replaces the earlier ArcGIS dashboard with a static site that needs **no license, no server and no build step**.
 
 - **Staff who update the data:** read **[PANDUAN-UPDATE-DATA.md](PANDUAN-UPDATE-DATA.md)** (in Bahasa Indonesia).

@@ -1,7 +1,7 @@
 /* Teks antarmuka dalam dua bahasa / Interface text in two languages */
 window.I18N = {
   id: {
-    directorate: "Direktorat Ketenagalistrikan, Telekomunikasi, dan Informatika",
+    directorate: "Direktorat Transmisi, Ketenagalistrikan, Kedirgantaraan, dan Antariksa",
     subtitle: "Profil dan Analisis Ketenagalistrikan",
     unit: "Unit PLN / Wilayah",
     year: "Tahun",
@@ -117,7 +117,7 @@ window.I18N = {
   },
 
   en: {
-    directorate: "Directorate of Electricity, Telecommunication and Informatics",
+    directorate: "Directorate of Transmission, Electricity and Aerospace",
     subtitle: "Electricity Profile and Analysis",
     unit: "PLN Unit / Region",
     year: "Year",
