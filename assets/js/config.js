@@ -21,8 +21,8 @@ window.DASHBOARD_CONFIG = {
   optionalSheets: ["catatan"],
 
   source: {
-    id: "Statistik PLN (PT PLN (Persero)), diolah oleh Direktorat Ketenagalistrikan, Telekomunikasi, dan Informatika, Kementerian PPN/Bappenas.",
-    en: "PLN Statistics (PT PLN (Persero)), processed by the Directorate of Electricity, Telecommunication and Informatics, Ministry of National Development Planning/Bappenas.",
+    id: "Statistik PLN (PT PLN (Persero)), diolah oleh Direktorat Transmisi, Ketenagalistrikan, Kedirgantaraan, dan Antariksa, Kementerian PPN/Bappenas.",
+    en: "PLN Statistics (PT PLN (Persero)), processed by the Directorate of Transmission, Electricity and Aerospace, Ministry of National Development Planning/Bappenas.",
   },
   contact: {
     email: "dit.tkka@bappenas.go.id",

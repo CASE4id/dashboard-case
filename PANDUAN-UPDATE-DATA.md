@@ -1,6 +1,6 @@
 # Panduan Memperbarui Data Dashboard PraKTIk
 
-Panduan ini untuk staf Direktorat Ketenagalistrikan, Telekomunikasi, dan Informatika (TKKA) Bappenas.
+Panduan ini untuk staf Direktorat Transmisi, Ketenagalistrikan, Kedirgantaraan, dan Antariksa (TKKA) Bappenas.
 **Tidak perlu kemampuan pemrograman.** Yang dibutuhkan hanya:
 
 - Microsoft Excel
