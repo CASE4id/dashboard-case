@@ -125,7 +125,12 @@
       try {
         const res = await fetch(url, { cache: "no-cache" });
         if (!res.ok) return null;
-        return { year: y, url, blob: await res.blob() };
+        const blob = await res.blob();
+        /* File .xlsx selalu diawali "PK" (format zip). Sebagian server (mis. portal lain)
+           menjawab file yang tidak ada dengan halaman HTML biasa, bukan 404: lewati saja. */
+        const head = new Uint8Array(await blob.slice(0, 2).arrayBuffer());
+        if (head[0] !== 0x50 || head[1] !== 0x4b) return null;
+        return { year: y, url, blob };
       } catch { return null; }
     }));
     const files = found.filter(Boolean);
