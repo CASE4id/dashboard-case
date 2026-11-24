@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cek Data — Dashboard PraKTIk</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/png" href="assets/img/logo-bappenas-emblem.png">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    .drop { border: 2px dashed #b9cbe6; border-radius: 14px; padding: 36px 20px; text-align: center; background: #f7fafd; cursor: pointer; }
+    .drop.over { border-color: var(--blue); background: #eaf2fd; }
+    .result h4 { margin: 18px 0 6px; color: var(--navy); }
+    .result ul { margin: 0; padding-left: 20px; }
+    .result li { margin: 3px 0; font-size: 14px; }
+    .ok { color: var(--good); } .err { color: var(--bad); } .warn { color: #8a6500; }
+    .verdict { font-size: 18px; font-weight: 800; padding: 14px 16px; border-radius: 10px; margin-top: 16px; }
+    .verdict.ok { background: var(--good-bg); } .verdict.err { background: var(--bad-bg); }
+    ol.steps li { margin-bottom: 6px; }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <div class="topbar">
+        <a class="brand-pill" href="index.html">
+          <img src="assets/img/logo-bappenas-emblem.png" alt="Logo Kementerian PPN/Bappenas">
+          <span class="org">Kementerian PPN/<br>Bappenas</span>
+          <span class="sep" aria-hidden="true"></span>
+          <img src="assets/img/logo-tkka.png" alt="Logo Direktorat TKKA">
+        </a>
+      </div>
+      <div class="hero"><div><h1>CEK <span>DATA</span></h1><p>Periksa file Excel sebelum diunggah ke situs · <i>Check an Excel file before uploading</i></p></div></div>
+    </div>
+  </header>
+  <main><div class="wrap">
+    <section class="card">
+      <h3>Cara pakai / How to use</h3>
+      <ol class="steps">
+        <li>Siapkan file Excel data tahun baru dengan nama <b>statistik-pln-TAHUN.xlsx</b> (mis. <code>statistik-pln-2026.xlsx</code>).</li>
+        <li>Seret file ke kotak di bawah, atau klik untuk memilih file. File <b>tidak diunggah ke mana pun</b>; pemeriksaan berjalan di browser Anda.</li>
+        <li>Jika hasilnya <span class="ok"><b>✔ SIAP DIUNGGAH</b></span>, lanjutkan ke langkah unggah di <i>PANDUAN-UPDATE-DATA</i>. Jika ada <span class="err"><b>✖ kesalahan</b></span>, perbaiki di Excel lalu cek ulang.</li>
+      </ol>
+      <label class="drop" id="drop">
+        <input type="file" id="file" accept=".xlsx" hidden>
+        <b>📂 Seret file .xlsx ke sini atau klik untuk memilih</b><br><small>Drag an .xlsx file here or click to choose</small>
+      </label>
+      <div class="result" id="result"></div>
+    </section>
+  </div></main>
+
+  <script src="assets/vendor/read-excel-file.min.js"></script>
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/data.js"></script>
+  <script>
+  (function () {
+    const EXPECTED = {"t01":["year","row_order","unit_id","unit_name","row_type","parent_unit_id","region","installed_capacity_mw","power_capacity_mw","peak_load_mw"],"t02":["year","row_order","unit_id","unit_name","row_type","parent_unit_id","region","purchased_gwh","project_gwh","received_other_unit_gwh","own_production_gwh","leased_gwh","own_use_power_plant_gwh","own_use_power_plant_pct","transformer_losses_gwh","transformer_losses_pct","net_production_gwh","own_use_substation_gwh","own_use_substation_pct","transmission_losses_gwh","transmission_losses_pct","transfer_other_unit_gwh","transfer_non_pln_gwh","transfer_distribution_gwh","own_use_distr_substation_gwh","own_use_distr_substation_pct","distribution_losses_gwh","distribution_losses_pct","energy_losses_gwh","energy_losses_pct","energy_losses_own_use_gwh","energy_losses_own_use_pct","energy_consumption_gwh","energy_consumption_pct"],"t08":["year","row_order","unit_id","unit_name","row_type","parent_unit_id","region","households_kwh","industry_kwh","business_kwh","social_kwh","gov_office_kwh","street_lighting_kwh","others_tcl_kwh","total_kwh"],"t16":["year","row_order","unit_id","unit_name","row_type","parent_unit_id","region","saidi_hours_per_customer","saifi_times_per_customer"],"t19":["year","row_order","unit_id","unit_name","row_type","parent_unit_id","region","households","household_customers","electrification_ratio_pct"],"t21":["year","row_order","unit_id","unit_name","row_type","parent_unit_id","region","hydro_mw","mini_hydro_mw","micro_hydro_mw","steam_mw","gas_mw","combined_cycle_mw","geothermal_mw","diesel_mw","gas_engine_mw","solar_mw","wind_mw","biomass_mw","pln_owned_subtotal_mw","pln_owned_subtotal_share_pct","leased_mw","ipp_mw","total_mw","total_share_pct"],"t23":["year","row_order","unit_id","unit_name","row_type","parent_unit_id","region","own_hydro_gwh","own_mini_hydro_gwh","own_micro_hydro_gwh","own_steam_gwh","own_gas_gwh","own_combined_cycle_gwh","own_geothermal_gwh","own_diesel_gwh","own_gas_engine_gwh","own_solar_gwh","own_wind_gwh","own_biomass_gwh","leased_diesel_gwh","leased_gas_engine_gwh","leased_gas_gwh","leased_combined_cycle_gwh","leased_steam_gwh","leased_hydro_gwh","leased_solar_gwh","own_and_leased_subtotal_gwh","purchased_gwh","project_gwh","purchased_and_project_gwh","total_gwh","total_share_pct"],"t28":["year","row_order","unit_id","unit_name","row_type","parent_unit_id","region","kv_25_30_kms","kv_70_kms","kv_150_kms","kv_275_kms","kv_500_kms","total_kms"],"t29":["year","row_order","unit_id","unit_name","row_type","parent_unit_id","region","mv_6_7kv_kms","mv_10_12kv_kms","mv_15_20kv_kms","lv_kms"],"t30":["year","row_order","unit_id","unit_name","row_type","parent_unit_id","region","kv_500_units","kv_500_mva","kv_275_units","kv_275_mva","kv_150_units","kv_150_mva","kv_70_units","kv_70_mva","kv_lt30_units","kv_lt30_mva","kv_total_units","kv_total_mva"],"units":["unit_id","unit_name","row_type","parent_unit_id","region"],"data_dictionary":["table_id","table_name","table_title_en","table_title_id","column","label_en","label_id","uom"]};
+    const ROW_TYPES = ["distribution_unit","regional_unit","transmission_dispatch_unit","transmission_unit","generation_unit","generation_subsidiary","subsidiary","generation_projects","province","regional_total","national_total"];
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const out = document.getElementById("result");
+
+    async function check(file) {
+      out.innerHTML = '<div class="loader"><div class="spinner"></div>Memeriksa…</div>';
+      const errors = [], warnings = [], info = [];
+      const m = file.name.match(/^statistik-pln-(\d{4})\.xlsx$/);
+      const year = m ? Number(m[1]) : null;
+      if (!m) errors.push(`Nama file "${file.name}" tidak sesuai. Ganti nama menjadi <b>statistik-pln-TAHUN.xlsx</b>, mis. statistik-pln-2026.xlsx (huruf kecil, tanpa spasi).`);
+      else info.push(`Nama file benar. Tahun data: <b>${year}</b>.`);
+
+      let wb;
+      try { wb = await PraktikData.readWorkbook(file, file.name, null); }
+      catch (e) { errors.push("File tidak dapat dibaca sebagai Excel (.xlsx): " + esc(e.message)); return show(errors, warnings, info); }
+      wb.problems.forEach((p) => errors.push(esc(p)));
+
+      for (const [sheet, cols] of Object.entries(EXPECTED)) {
+        const rows = wb.sheets[sheet];
+        if (!rows) continue; // sudah dilaporkan sebagai sheet hilang
+        const header = rows.header || [];
+        const missing = cols.filter((c) => !header.includes(c));
+        const extra = header.filter((c) => c && !cols.includes(c));
+        if (missing.length) errors.push(`Sheet <b>${sheet}</b>: kolom hilang/salah nama → ${missing.map(esc).join(", ")}`);
+        if (extra.length) warnings.push(`Sheet <b>${sheet}</b>: kolom tambahan (tidak ditampilkan di grafik, tetapi muncul di tab Data) → ${extra.map(esc).join(", ")}`);
+        if (!rows.length) errors.push(`Sheet <b>${sheet}</b> kosong.`);
+      }
+
+      const units = new Set((wb.sheets.units || []).map((u) => u.unit_id));
+      for (const t of Object.keys(EXPECTED).filter((k) => /^t\d+$/.test(k))) {
+        const rows = wb.sheets[t]; if (!rows) continue;
+        const seen = new Set();
+        const ys = [...new Set(rows.map((r) => r.year))];
+        if (year && ys.some((y) => y !== year)) warnings.push(`Sheet <b>${t}</b>: kolom year berisi ${ys.map(esc).join(", ")}, berbeda dari nama file. Tidak masalah: situs memakai tahun dari nama file (${year}), tetapi sebaiknya diseragamkan.`);
+        rows.forEach((r, i) => {
+          const line = `Sheet <b>${t}</b> baris ${i + 2}`;
+          if (!r.unit_id) { errors.push(`${line}: unit_id kosong.`); return; }
+          const key = r.unit_id;
+          if (seen.has(key)) errors.push(`${line}: unit_id "${esc(r.unit_id)}" muncul dua kali.`);
+          seen.add(key);
+          if (units.size && !units.has(r.unit_id)) warnings.push(`${line}: unit_id "${esc(r.unit_id)}" belum terdaftar di sheet <b>units</b>. Tambahkan agar muncul di pilihan unit.`);
+          if (r.row_type && !ROW_TYPES.includes(r.row_type)) warnings.push(`${line}: row_type "${esc(r.row_type)}" tidak dikenal.`);
+          for (const [k, v] of Object.entries(r)) {
+            if (v == null) continue;
+            if (/_pct$/.test(k) && !/share/.test(k) && (v < -100 || v > 100)) warnings.push(`${line}, kolom ${k}: ${v} di luar rentang 0–100%.`);
+            if (/(_mw|_gwh|_kms|_units|_mva|households|customers)$/.test(k) && v < 0 && !/transfer|received/.test(k)) warnings.push(`${line}, kolom ${k}: nilai negatif (${v}).`);
+          }
+        });
+        if (!rows.some((r) => r.unit_id === "indonesia")) errors.push(`Sheet <b>${t}</b>: baris nasional (unit_id = indonesia) tidak ada. Angka pembanding nasional tidak akan tampil.`);
+        info.push(`Sheet ${t}: ${rows.length} baris.`);
+      }
+      show(errors, warnings, info);
+    }
+
+    function show(errors, warnings, info) {
+      const list = (arr, cls) => `<ul>${arr.slice(0, 200).map((x) => `<li class="${cls}">${x}</li>`).join("")}${arr.length > 200 ? `<li>… dan ${arr.length - 200} lainnya</li>` : ""}</ul>`;
+      let h = errors.length
+        ? `<div class="verdict err">✖ BELUM SIAP: ${errors.length} kesalahan harus diperbaiki</div>`
+        : `<div class="verdict ok">✔ SIAP DIUNGGAH${warnings.length ? ` (dengan ${warnings.length} catatan, silakan dicek)` : ""}</div>`;
+      if (errors.length) h += `<h4 class="err">Kesalahan (wajib diperbaiki)</h4>${list(errors, "err")}`;
+      if (warnings.length) h += `<h4 class="warn">Catatan (periksa, boleh tetap diunggah)</h4>${list(warnings, "warn")}`;
+      h += `<h4>Ringkasan</h4>${list(info, "")}`;
+      out.innerHTML = h;
+    }
+
+    const drop = document.getElementById("drop"), input = document.getElementById("file");
+    input.onchange = () => input.files[0] && check(input.files[0]);
+    ["dragenter", "dragover"].forEach((e) => drop.addEventListener(e, (ev) => { ev.preventDefault(); drop.classList.add("over"); }));
+    ["dragleave", "drop"].forEach((e) => drop.addEventListener(e, (ev) => { ev.preventDefault(); drop.classList.remove("over"); }));
+    drop.addEventListener("drop", (ev) => ev.dataTransfer.files[0] && check(ev.dataTransfer.files[0]));
+  })();
+  </script>
+</body>
+</html>

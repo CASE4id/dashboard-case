@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard PraKTIk — Profil Ketenagalistrikan</title>
+  <meta name="description" content="Dashboard PraKTIk: profil dan analisis ketenagalistrikan Indonesia, Direktorat Ketenagalistrikan, Telekomunikasi, dan Informatika, Kementerian PPN/Bappenas.">
+  <link rel="icon" type="image/png" href="assets/img/logo-bappenas-emblem.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <div class="topbar">
+        <a class="brand-pill" href="https://www.bappenas.go.id" target="_blank" rel="noopener">
+          <img src="assets/img/logo-bappenas-emblem.png" alt="Logo Kementerian PPN/Bappenas">
+          <span class="org">Kementerian PPN/<br>Bappenas</span>
+          <span class="sep" aria-hidden="true"></span>
+          <img src="assets/img/logo-tkka.png" alt="Logo Direktorat TKKA">
+          <span class="org" data-i18n="directorate">Direktorat Ketenagalistrikan, Telekomunikasi, dan Informatika</span>
+        </a>
+        <div class="lang-toggle" role="group" aria-label="Bahasa / Language">
+          <button type="button" data-lang="id" aria-pressed="true">ID</button>
+          <button type="button" data-lang="en" aria-pressed="false">EN</button>
+        </div>
+      </div>
+
+      <div class="hero">
+        <div>
+          <h1>DASHBOARD <span>PraKTIk</span></h1>
+          <p data-i18n="subtitle">Profil dan Analisis Ketenagalistrikan</p>
+        </div>
+        <div class="filters">
+          <label><span data-i18n="unit">Unit PLN / Wilayah</span>
+            <select id="unitSelect" disabled></select>
+          </label>
+          <label><span data-i18n="year">Tahun</span>
+            <select id="yearSelect" disabled></select>
+          </label>
+        </div>
+      </div>
+
+      <nav class="tabs" role="tablist" aria-label="Menu">
+        <button role="tab" data-tab="summary" aria-selected="true" data-i18n="tab_summary">Ringkasan</button>
+        <button role="tab" data-tab="generation" aria-selected="false" data-i18n="tab_generation">Pembangkitan</button>
+        <button role="tab" data-tab="network" aria-selected="false" data-i18n="tab_network">Jaringan &amp; Susut</button>
+        <button role="tab" data-tab="compare" aria-selected="false" data-i18n="tab_compare">Perbandingan</button>
+        <button role="tab" data-tab="data" aria-selected="false" data-i18n="tab_data">Data &amp; Unduh</button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap">
+      <div id="banners"></div>
+      <div id="loader" class="loader"><div class="spinner"></div><span data-i18n="loading">Memuat data…</span></div>
+      <div id="view" hidden></div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <div>
+        <p><b data-i18n="source_label">Sumber data</b>: <span id="sourceText"></span></p>
+        <p id="yearsText"></p>
+      </div>
+      <div>
+        <p><span data-i18n="contact">Kontak</span>: <a id="contactEmail" href="#"></a></p>
+        <p>Instagram: <a id="contactIg" href="#" target="_blank" rel="noopener"></a></p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/vendor/read-excel-file.min.js"></script>
+  <script src="assets/vendor/chart.umd.min.js"></script>
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/i18n.js"></script>
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
