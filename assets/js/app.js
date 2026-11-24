@@ -15,11 +15,12 @@
     },
   };
 
-  const state = { lang: "id", year: null, unit: NATIONAL, tab: "summary", indicator: "electrification_ratio", scope: "units", table: "t01",
-    amode: "xy", ax: "electrification_ratio", ay: "avg_sold_household", alog: "", atrend: "1", abase: "", y1: null, y2: null };
-  /* Mode data contoh: buka situs dengan ?demo=1 untuk memakai file di folder data-contoh/ */
-  const DEMO = new URLSearchParams(location.search).has("demo") && !!CFG.demoDataFilePattern;
-  if (DEMO) CFG.dataFilePattern = CFG.demoDataFilePattern;
+  const state = { sector: "listrik", lang: "id", year: null, unit: NATIONAL, tab: "summary", indicator: "electrification_ratio", scope: "units", table: "t01",
+    amode: "xy", ax: "electrification_ratio", ay: "avg_sold_household", alog: "", atrend: "1", abase: "", y1: null, y2: null, params: {} };
+  const SECTORS = window.SECTORS;
+  const MODULES = {}; // sektor lain (gas, udara) mendaftar lewat PK.registerSector
+  const sectorCfg = () => SECTORS.find((x) => x.key === state.sector) || SECTORS[0];
+  const ELEC_TABS = [["summary", "tab_summary"], ["generation", "tab_generation"], ["network", "tab_network"], ["compare", "tab_compare"], ["analysis", "tab_analysis"], ["data", "tab_data"]];
   let db = null;
   const charts = [];
 
@@ -56,10 +57,19 @@
   /* ---------- URL state ---------- */
   function readHash() {
     const p = new URLSearchParams(location.hash.slice(1));
-    for (const k of ["lang", "unit", "tab", "indicator", "scope", "table", "amode", "ax", "ay", "alog", "atrend", "abase", "y1", "y2"]) if (p.get(k)) state[k] = p.get(k);
+    for (const k of ["sector", "lang", "unit", "tab", "indicator", "scope", "table", "amode", "ax", "ay", "alog", "atrend", "abase", "y1", "y2"]) if (p.get(k)) state[k] = p.get(k);
     if (p.get("year")) state.year = Number(p.get("year"));
+    if (!SECTORS.some((x) => x.key === state.sector)) state.sector = "listrik";
+    state.params = Object.fromEntries(p.entries());
   }
   function writeHash() {
+    if (state.sector !== "listrik") {
+      const p = new URLSearchParams({ sector: state.sector, tab: state.tab, year: state.year, lang: state.lang });
+      const m = MODULES[state.sector];
+      if (m && m.hash) for (const [k, v] of Object.entries(m.hash(state.tab) || {})) if (v != null && v !== "") p.set(k, v);
+      history.replaceState(null, "", "#" + p.toString());
+      return;
+    }
     const p = new URLSearchParams({ tab: state.tab, unit: state.unit, year: state.year, lang: state.lang });
     if (state.tab === "compare") { p.set("indicator", state.indicator); p.set("scope", state.scope); }
     if (state.tab === "data") p.set("table", state.table);
@@ -76,7 +86,10 @@
     document.documentElement.lang = state.lang;
     document.querySelectorAll("[data-i18n]").forEach((el) => (el.textContent = T(el.dataset.i18n)));
     document.querySelectorAll(".lang-toggle button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.lang === state.lang));
-    $("#sourceText").textContent = L(CFG.source);
+    const sc = sectorCfg();
+    $("#sourceText").textContent = L(sc.source || CFG.source);
+    $("#subtitle").textContent = L(sc.subtitle);
+    document.querySelectorAll("#sectorNav button").forEach((b) => { b.textContent = L(SECTORS.find((x) => x.key === b.dataset.sector)); b.setAttribute("aria-pressed", b.dataset.sector === state.sector); });
     $("#contactEmail").textContent = CFG.contact.email;
     $("#contactEmail").href = "mailto:" + CFG.contact.email;
     $("#contactIg").textContent = "@" + CFG.contact.instagram;
@@ -85,7 +98,8 @@
       $("#guideLink").href = CFG.staffLinks.guide;
       $("#checkerLink").href = CFG.staffLinks.checker;
     }
-    if (db) $("#yearsText").textContent = T("years_available") + ": " + db.years.join(", ");
+    const ys = sectorYears();
+    $("#yearsText").textContent = ys.length ? T("years_available") + ": " + yearRange(ys) : "";
   }
 
   /* ---------- Filters ---------- */
@@ -93,15 +107,35 @@
     ["grp_national", ["national_total", "regional_total"]],
     ["grp_distribution", ["distribution_unit", "regional_unit", "subsidiary"]],
     ["grp_province", ["province"]],
-    ["grp_generation", ["generation_unit", "generation_subsidiary", "generation_projects"]],
+    ["grp_generation", ["generation_unit", "generation_subsidiary", "generation_projects", "generation_transmission_unit"]],
     ["grp_transmission", ["transmission_dispatch_unit", "transmission_unit"]],
+    ["grp_other", ["construction_unit", "project_component", "other"]],
   ];
+  /* Unit yang punya data pada tahun tertentu (nama & susunan unit PLN berubah antartahun). */
+  const presentCache = new Map();
+  function unitsPresent(y) {
+    if (!presentCache.has(y)) {
+      const set = new Set();
+      for (const rows of Object.values(db.tables)) rows.forEach((r) => { if (r.year === y) set.add(r.unit_id); });
+      presentCache.set(y, set);
+    }
+    return presentCache.get(y);
+  }
+  const sectorYears = () => (state.sector === "listrik" ? (db ? db.years : []) : MODULES[state.sector] && MODULES[state.sector].data ? MODULES[state.sector].years() : []);
+  function yearRange(ys) {
+    const consecutive = ys.every((y, i) => i === 0 || y === ys[i - 1] + 1);
+    return consecutive && ys.length > 2 ? `${ys[0]}–${ys[ys.length - 1]}` : ys.join(", ");
+  }
   function fillFilters() {
     const ys = $("#yearSelect");
-    ys.innerHTML = db.years.slice().reverse().map((y) => `<option value="${y}">${y}</option>`).join("");
+    ys.innerHTML = sectorYears().slice().reverse().map((y) => `<option value="${y}">${y}</option>`).join("");
     ys.value = state.year;
+    ys.disabled = false;
     const us = $("#unitSelect");
-    const units = [...db.units.values()];
+    us.closest("label").style.display = state.sector === "listrik" ? "" : "none";
+    if (state.sector !== "listrik") return;
+    const present = unitsPresent(state.year);
+    const units = [...db.units.values()].filter((u) => present.has(u.unit_id) || u.unit_id === state.unit);
     // Indonesia first, then units sheet order
     units.sort((a, b) => (a.unit_id === NATIONAL ? -1 : b.unit_id === NATIONAL ? 1 : 0));
     us.innerHTML = GROUPS.map(([label, types]) => {
@@ -165,8 +199,13 @@
           } else {
             inside = bar.x - w - 8 < chart.chartArea.left;
             if (!inside && lineX != null && lineX < bar.x && lineX > bar.x - w - 12 && bar.base - bar.x > w + 12) inside = true;
-            x = inside ? bar.x + 6 : bar.x - 6;
-            ctx.textAlign = inside ? "left" : "right";
+            if (inside && bar.base - bar.x < w + 12) {
+              /* batang negatif terlalu pendek untuk label di dalam: tulis di kanan garis nol */
+              inside = false; x = bar.base + 6; ctx.textAlign = "left";
+            } else {
+              x = inside ? bar.x + 6 : bar.x - 6;
+              ctx.textAlign = inside ? "left" : "right";
+            }
           }
           ctx.lineJoin = "round"; ctx.lineWidth = 4;
           ctx.strokeStyle = inside ? "rgba(18,33,58,0.35)" : "rgba(255,255,255,0.95)";
@@ -224,12 +263,41 @@
     return `<section class="card kpi ${cls}"><div class="label">${esc(L(ind))}</div>${valueHtml}${compare}${notes}${ind.note ? `<div class="note">${esc(L(ind.note))}</div>` : ""}</section>`;
   }
 
+  /* Nama unit seperti tertulis di laporan tahun itu, jika berbeda dari nama sekarang. */
+  function reportedName(u, y) {
+    for (const t of Object.keys(db.tables)) {
+      const r = db.row(t, u, y);
+      if (r && r.unit_name_reported) return r.unit_name_reported.trim() !== (r.unit_name || "").trim() ? r.unit_name_reported : "";
+    }
+    return "";
+  }
+
+  /* Catatan kualitas data (dari sheet kualitas_data): perubahan definisi, kesalahan sumber, dsb. */
+  function qualityNotes({ tables, columns = null, yFrom, yTo, units = null }) {
+    const split = (v) => String(v || "").split(";").map((x) => x.trim()).filter(Boolean);
+    const colMatch = (cols) => !columns || !cols.length || cols.some((c) => columns.some((p) => new RegExp("^" + p.replace(/\*/g, ".*") + "$").test(c)));
+    const list = (db.quality || []).filter((n) => {
+      if (!split(n.table_id).some((t) => tables.includes(t))) return false;
+      if (!colMatch(split(n.indicator))) return false;
+      const ys = split(n.years).map(Number);
+      if (ys.length && !ys.some((y) => y >= yFrom && y <= yTo)) return false;
+      const us = split(n.unit_id);
+      if (units && us.length && !us.includes("all") && !us.some((u) => units.includes(u))) return false;
+      return true;
+    });
+    if (!list.length) return "";
+    return `<details class="quality mt"><summary>ℹ ${esc(T("quality_title"))} (${list.length})</summary><p class="sub">${esc(T("quality_sub"))}</p><ul>${list.map((n) =>
+      `<li><b>${esc(String(n.years || "").replace(/;/g, ", "))}${n.table_id ? " · " + esc(String(n.table_id).replace(/;/g, ", ").toUpperCase()) : ""}</b>: ${esc(n.issue)}${n.action_taken ? ` <i>${esc(n.action_taken)}</i>` : ""}</li>`).join("")}</ul></details>`;
+  }
+
   /* ---------- Context line ---------- */
   function contextLine() {
     const u = db.units.get(state.unit) || {};
     const bits = [];
     if (u.region) bits.push(`${T("region")}: ${u.region}`);
     if (u.parent_unit_id) bits.push(`${T("part_of")}: ${unitName(u.parent_unit_id)}`);
+    const rep = reportedName(state.unit, state.year);
+    if (rep) bits.push(`${T("name_reported").replace("{year}", state.year)}: ${rep}`);
     const localNote = ["distribution_unit", "regional_unit", "province", "subsidiary"].includes(u.row_type) && ["summary", "generation"].includes(state.tab)
       ? `<div class="banner warn">${esc(T("local_capacity_note"))}</div>` : "";
     return localNote + `<div class="context-line"><h2>${esc(unitName(state.unit))}</h2><span class="chip">${state.year}</span>${bits.length ? `<span class="meta">${esc(bits.join(" · "))}</span>` : ""}</div>`;
@@ -264,7 +332,7 @@
     let cust = empty();
     if (t19) {
       cust = `<ul class="stat-list">
-        <li><span>${esc(T("households"))}</span><b>${fmt(t19.households * 1000, 0)}</b></li>
+        <li><span>${esc(T("households"))}</span><b>${fmt((t19.households_thousand ?? t19.households) * 1000, 0)}</b></li>
         <li><span>${esc(T("hh_customers"))}</span><b>${fmt(t19.household_customers, 0)}</b></li>
         <li><span>${esc(T("ratio"))}</span><b>${fmt(t19.electrification_ratio_pct, 2)}%</b></li></ul>`;
     }
@@ -705,16 +773,15 @@
 
   function renderYears(multi) {
     if (!multi) {
-      const demoUrl = location.pathname + "?demo=1#tab=analysis&amode=years";
-      $("#analysisBody").innerHTML = `<section class="card">${empty(T("years_need").replace("{years}", db.years.join(", ")))}
-        <p class="foot">${esc(T("years_demo_hint"))} <a href="${esc(demoUrl)}">${esc(T("years_demo_link"))}</a></p></section>`;
+      $("#analysisBody").innerHTML = `<section class="card">${empty(T("years_need").replace("{years}", db.years.join(", ")))}</section>`;
       return;
     }
     const ind = IND[state.indicator] || IND.electrification_ratio;
     state.indicator = ind.key;
     const ys = db.years;
     let y2 = ys.includes(Number(state.y2)) ? Number(state.y2) : state.year;
-    let y1 = ys.includes(Number(state.y1)) ? Number(state.y1) : ys[0];
+    const from = ind.trendFrom && ys.includes(ind.trendFrom) && ind.trendFrom < y2 ? ind.trendFrom : ys[0];
+    let y1 = ys.includes(Number(state.y1)) ? Number(state.y1) : from;
     if (y1 >= y2) y1 = ys[Math.max(0, ys.indexOf(y2) - 1)];
     if (y1 >= y2) { y2 = ys[ys.length - 1]; y1 = ys[0]; }
     state.y1 = y1; state.y2 = y2;
@@ -739,13 +806,15 @@
         <p class="sub">${esc(unitName(unitShown))}${showNatSeries ? " · " + esc(T("vs_national")) : ""} · ${ys[0]}–${ys[ys.length - 1]} (${esc(L(ind.unit))})</p>
         <div class="chart-box"><canvas id="cTrend"></canvas></div>
         <h3 class="mt">${esc(T("change_title").replace("{y1}", y1).replace("{y2}", y2))}</h3>
+        ${ind.trendFrom && ys[0] < ind.trendFrom ? `<p class="sub">ℹ ${esc(T("trend_from_note").replace("{year}", ind.trendFrom))}</p>` : ""}
         <p class="sub">${esc(T(pp ? "change_sub_pp" : "change_sub_pct"))}</p>
         ${rows.length ? `<div class="chart-box" style="height:${Math.max(320, rows.length * 26 + 60)}px"><canvas id="cChange"></canvas></div>` : empty()}
         ${ind.note ? `<p class="foot">${esc(L(ind.note))}</p>` : ""}
+        ${qualityNotes({ tables: ind.table ? [ind.table] : (ind.uses || []).map((u) => u.split(".")[0]), columns: ind.column ? [ind.column] : (ind.uses || []).map((u) => u.split(".")[1]), yFrom: y1, yTo: y2, units: [NATIONAL, "jawa", "luar_jawa", unitShown, ...rows.map((d) => d.u.unit_id)] })}
       </section>`;
     $("#indSelect").value = ind.key; $("#scopeSelect").value = state.scope;
     $("#y1Select").value = y1; $("#y2Select").value = y2;
-    $("#indSelect").onchange = (e) => { state.indicator = e.target.value; render(); };
+    $("#indSelect").onchange = (e) => { state.indicator = e.target.value; state.y1 = null; render(); };
     $("#scopeSelect").onchange = (e) => { state.scope = e.target.value; render(); };
     $("#y1Select").onchange = (e) => { state.y1 = Number(e.target.value); render(); };
     $("#y2Select").onchange = (e) => { state.y2 = Number(e.target.value); render(); };
@@ -791,7 +860,7 @@
   function tableColumns(t) {
     const rows = db.tables[t] || [];
     const header = rows.header || Object.keys(rows[0] || {});
-    return header.filter((h) => !["year", "row_order", "unit_id", "unit_name", "row_type", "parent_unit_id", "region"].includes(h));
+    return header.filter((h) => !["year", "row_order", "unit_id", "unit_name", "unit_name_reported", "row_type", "parent_unit_id", "region", "derived"].includes(h));
   }
 
   function renderData() {
@@ -803,7 +872,9 @@
     const head = `<tr><th>${esc(T("unit_name"))}</th>${cols.map((c) => `<th>${esc(db.label(t, c, state.lang))}<small>${esc(db.uom(t, c))}</small></th>`).join("")}</tr>`;
     const body = rows.map((r) => {
       const cls = [r.row_type === "province" ? "province" : "", /total/.test(r.row_type || "") ? "total" : "", r.unit_id === state.unit ? "selected" : ""].join(" ");
-      return `<tr class="${cls}"><td>${esc(r.unit_name)}</td>${cols.map((c) => `<td class="num">${r[c] == null ? "" : fmt(r[c], Number.isInteger(r[c]) ? 0 : 2)}</td>`).join("")}</tr>`;
+      const rn = r.unit_name_reported && r.unit_name_reported.trim() !== (r.unit_name || "").trim() ? `<small class="reported">${esc(r.unit_name_reported)}</small>` : "";
+      const dv = r.derived === "true" ? ` <span class="derived" title="${esc(T("derived_hint"))}">*</span>` : "";
+      return `<tr class="${cls}"><td>${esc(r.unit_name)}${dv}${rn}</td>${cols.map((c) => `<td class="num">${r[c] == null ? "" : fmt(r[c], Number.isInteger(r[c]) ? 0 : 2)}</td>`).join("")}</tr>`;
     }).join("");
     const xlsxUrl = CFG.dataFilePattern.replace("{year}", state.year);
 
@@ -815,13 +886,15 @@
         <a class="btn" href="${esc(xlsxUrl)}" download>⬇ ${esc(T("download_xlsx"))}</a>
       </div>
       <div class="table-wrap"><table class="data"><thead>${head}</thead><tbody>${body}</tbody></table></div>
+      ${rows.some((r) => r.unit_name_reported && r.unit_name_reported.trim() !== (r.unit_name || "").trim()) ? `<p class="foot">${esc(T("reported_hint"))}</p>` : ""}
+      ${qualityNotes({ tables: [t], yFrom: state.year, yTo: state.year })}
     </section>`;
     html += card(T("notes_title"), "", `<ul>${T("notes").map((n) => `<li>${esc(n)}</li>`).join("")}</ul>`, "mt");
     $("#view").innerHTML = html;
     $("#tableSelect").value = t;
     $("#tableSelect").onchange = (e) => { state.table = e.target.value; render(); };
     $("#csvBtn").onclick = () => {
-      const all = ["year", "unit_id", "unit_name", "row_type", "parent_unit_id", "region", ...cols];
+      const all = ["year", "unit_id", "unit_name", "unit_name_reported", "row_type", "parent_unit_id", "region", ...cols, "derived"];
       const q = (v) => (v == null ? "" : /[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
       const csv = [all.join(","), ...rows.map((r) => all.map((c) => q(r[c])).join(","))].join("\n");
       const a = document.createElement("a");
@@ -834,11 +907,19 @@
 
   /* ---------- Main render ---------- */
   const RENDER = { summary: renderSummary, generation: renderGeneration, network: renderNetwork, compare: renderCompare, analysis: renderAnalysis, data: renderData };
+  const tabsOf = (sector) => (sector === "listrik" ? ELEC_TABS : MODULES[sector] ? MODULES[sector].tabs : []);
+  function buildTabs() {
+    $("#tabs").innerHTML = tabsOf(state.sector).map(([k, label]) =>
+      `<button role="tab" data-tab="${k}" aria-selected="${k === state.tab}" data-i18n="${label}">${esc(T(label))}</button>`).join("");
+    document.querySelectorAll("#tabs button").forEach((b) => (b.onclick = () => { state.tab = b.dataset.tab; render(); }));
+  }
   function render() {
-    if (!RENDER[state.tab]) state.tab = "summary";
+    const tabs = tabsOf(state.sector).map((t) => t[0]);
+    if (!tabs.includes(state.tab)) state.tab = tabs[0];
     destroyCharts();
-    document.querySelectorAll(".tabs button").forEach((b) => b.setAttribute("aria-selected", b.dataset.tab === state.tab));
-    RENDER[state.tab]();
+    document.querySelectorAll("#tabs button").forEach((b) => b.setAttribute("aria-selected", b.dataset.tab === state.tab));
+    if (state.sector === "listrik") RENDER[state.tab]();
+    else MODULES[state.sector].render(state.tab);
     writeHash();
   }
 
@@ -849,35 +930,48 @@
     $("#banners").insertAdjacentHTML("beforeend", `<div class="banner ${kind}">${d}</div>`);
   }
 
-  /* ---------- Init ---------- */
-  async function init() {
-    readHash();
-    try { const saved = localStorage.getItem("praktik_lang"); if (saved && !location.hash.includes("lang=")) state.lang = saved; } catch {}
-    if (!window.I18N[state.lang]) state.lang = "id";
+  /* ---------- Sektor ---------- */
+  const problemsShown = new Set();
+  async function ensureLoaded(sector) {
+    if (sector === "listrik") {
+      if (!db) db = await window.PraktikData.loadFromServer();
+      return db.problems;
+    }
+    const m = MODULES[sector];
+    if (!m) throw new Error("sector " + sector);
+    if (!m.data) {
+      const raw = await window.PraktikData.loadEdition(SECTORS.find((x) => x.key === sector));
+      m.data = m.prepare(raw);
+      m.data.problems = raw.problems;
+      m.data.url = raw.url;
+      m.data.edition = raw.edition;
+    }
+    return m.data.problems;
+  }
+  async function openSector(sector, keepState) {
+    state.sector = sector;
+    if (!keepState) { state.tab = tabsOf(sector)[0][0]; state.year = null; state.params = {}; }
+    $("#banners").innerHTML = "";
+    destroyCharts();
+    $("#view").hidden = true;
+    $("#loader").hidden = false;
+    buildTabs();
     applyStaticText();
-
-    document.querySelectorAll(".lang-toggle button").forEach((b) => (b.onclick = () => {
-      state.lang = b.dataset.lang;
-      try { localStorage.setItem("praktik_lang", state.lang); } catch {}
-      applyStaticText();
-      if (db) { fillFilters(); render(); }
-    }));
-    document.querySelectorAll(".tabs button").forEach((b) => (b.onclick = () => { state.tab = b.dataset.tab; if (db) render(); }));
-    $("#unitSelect").onchange = (e) => { state.unit = e.target.value; render(); };
-    $("#yearSelect").onchange = (e) => { state.year = Number(e.target.value); render(); };
-
+    $("#yearSelect").disabled = true;
+    let problems;
     try {
-      db = await window.PraktikData.loadFromServer();
+      problems = await ensureLoaded(sector);
     } catch (e) {
       $("#loader").hidden = true;
       if (location.protocol === "file:") showBanner("error", T("err_file"));
       else showBanner("error", e.message === "NO_DATA" ? T("err_nodata") : T("err_generic") + " " + e.message);
       return;
     }
-    if (DEMO) $("#banners").insertAdjacentHTML("beforeend", `<div class="banner demo"><b>${esc(T("demo_banner"))}</b> <a href="${esc(location.pathname + location.hash)}">${esc(T("demo_exit"))}</a></div>`);
-    if (db.problems.length) showBanner("warn", T("warn_problems"), db.problems);
-    if (!db.years.includes(state.year)) state.year = db.years[db.years.length - 1];
-    if (!db.units.has(state.unit)) state.unit = NATIONAL;
+    if (state.sector !== sector) return; // pengguna sudah pindah sektor lagi
+    if (problems.length) showBanner("warn", T("warn_problems"), problems);
+    const ys = sectorYears();
+    if (!ys.includes(state.year)) state.year = ys[ys.length - 1];
+    if (sector === "listrik" && !db.units.has(state.unit)) state.unit = NATIONAL;
     applyStaticText();
     fillFilters();
     $("#loader").hidden = true;
@@ -885,5 +979,30 @@
     render();
   }
 
-  init();
+  /* ---------- Init ---------- */
+  async function init() {
+    readHash();
+    try { const saved = localStorage.getItem("praktik_lang"); if (saved && !location.hash.includes("lang=")) state.lang = saved; } catch {}
+    if (!window.I18N[state.lang]) state.lang = "id";
+    $("#sectorNav").innerHTML = SECTORS.map((x) => `<button type="button" data-sector="${x.key}" aria-pressed="false">${esc(L(x))}</button>`).join("");
+    document.querySelectorAll("#sectorNav button").forEach((b) => (b.onclick = () => { if (b.dataset.sector !== state.sector) openSector(b.dataset.sector); }));
+    document.querySelectorAll(".lang-toggle button").forEach((b) => (b.onclick = () => {
+      state.lang = b.dataset.lang;
+      try { localStorage.setItem("praktik_lang", state.lang); } catch {}
+      applyStaticText();
+      buildTabs();
+      if (!$("#view").hidden) { fillFilters(); render(); }
+    }));
+    $("#unitSelect").onchange = (e) => { state.unit = e.target.value; render(); };
+    $("#yearSelect").onchange = (e) => { state.year = Number(e.target.value); fillFilters(); render(); };
+    await openSector(state.sector, true);
+  }
+
+  /* Dipakai modul sektor (assets/js/sektor-*.js). */
+  window.PK = {
+    state, T, L, esc, fmt, fmtAuto, fmtTick, $, card, chartBox, empty, makeChart, COLORS, numTicks, logTicks, gridless,
+    render, showBanner, nationalLinePlugin, yearRange,
+    registerSector(key, mod) { MODULES[key] = mod; },
+  };
+  document.addEventListener("DOMContentLoaded", init);
 })();

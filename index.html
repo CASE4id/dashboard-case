@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Dashboard PraKTIk — Profil Ketenagalistrikan</title>
-  <meta name="description" content="Dashboard PraKTIk: profil dan analisis ketenagalistrikan Indonesia, Direktorat Transmisi, Ketenagalistrikan, Kedirgantaraan, dan Antariksa, Kementerian PPN/Bappenas.">
+  <title>Dashboard PraKTIk</title>
+  <meta name="description" content="Dashboard PraKTIk: profil dan analisis ketenagalistrikan, transmisi gas, dan kedirgantaraan Indonesia, Direktorat Transmisi, Ketenagalistrikan, Kedirgantaraan, dan Antariksa, Kementerian PPN/Bappenas.">
   <link rel="icon" type="image/png" href="assets/img/logo-bappenas-emblem.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,7 +31,8 @@
       <div class="hero">
         <div>
           <h1>DASHBOARD <span>PraKTIk</span></h1>
-          <p data-i18n="subtitle">Profil dan Analisis Ketenagalistrikan</p>
+          <p id="subtitle">Profil dan Analisis Ketenagalistrikan</p>
+          <nav class="sector-switch" id="sectorNav" aria-label="Sektor / Sector"></nav>
         </div>
         <div class="filters">
           <label><span data-i18n="unit">Unit PLN / Wilayah</span>
@@ -43,14 +44,7 @@
         </div>
       </div>
 
-      <nav class="tabs" role="tablist" aria-label="Menu">
-        <button role="tab" data-tab="summary" aria-selected="true" data-i18n="tab_summary">Ringkasan</button>
-        <button role="tab" data-tab="generation" aria-selected="false" data-i18n="tab_generation">Pembangkitan</button>
-        <button role="tab" data-tab="network" aria-selected="false" data-i18n="tab_network">Jaringan &amp; Susut</button>
-        <button role="tab" data-tab="compare" aria-selected="false" data-i18n="tab_compare">Perbandingan</button>
-        <button role="tab" data-tab="analysis" aria-selected="false" data-i18n="tab_analysis">Analisis</button>
-        <button role="tab" data-tab="data" aria-selected="false" data-i18n="tab_data">Data &amp; Unduh</button>
-      </nav>
+      <nav class="tabs" id="tabs" role="tablist" aria-label="Menu"></nav>
     </div>
   </header>
 
@@ -82,5 +76,8 @@
   <script src="assets/js/i18n.js"></script>
   <script src="assets/js/data.js"></script>
   <script src="assets/js/app.js"></script>
+  <script src="assets/js/sektor-umum.js"></script>
+  <script src="assets/js/sektor-gas.js"></script>
+  <script src="assets/js/sektor-udara.js"></script>
 </body>
 </html>
