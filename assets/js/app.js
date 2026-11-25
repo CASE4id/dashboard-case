@@ -277,12 +277,12 @@
     const split = (v) => String(v || "").split(";").map((x) => x.trim()).filter(Boolean);
     const colMatch = (cols) => !columns || !cols.length || cols.some((c) => columns.some((p) => new RegExp("^" + p.replace(/\*/g, ".*") + "$").test(c)));
     const list = (db.quality || []).filter((n) => {
-      if (!split(n.table_id).some((t) => tables.includes(t))) return false;
+      if (!split(n.table_id).some((t) => t === "all" || tables.includes(t))) return false;
       if (!colMatch(split(n.indicator))) return false;
-      const ys = split(n.years).map(Number);
+      const ys = split(n.years).map(Number).filter((y) => !isNaN(y)); // "all" = semua tahun
       if (ys.length && !ys.some((y) => y >= yFrom && y <= yTo)) return false;
       const us = split(n.unit_id);
-      if (units && us.length && !us.includes("all") && !us.some((u) => units.includes(u))) return false;
+      if (units && us.length && !us.some((u) => u.startsWith("all")) && !us.some((u) => units.includes(u))) return false;
       return true;
     });
     if (!list.length) return "";
