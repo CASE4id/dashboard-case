@@ -101,6 +101,7 @@
     <li class="s">4.2 Memeriksa file di halaman Cek Data</li>
     <li class="s">4.3 Mengunggah ke GitHub</li>
     <li class="s">4.4 Memeriksa hasil dan mengembalikan versi lama</li>
+    <li class="s">4.5 Cara otomatis dari PDF (Ketenagalistrikan)</li>
     <li>5. GitHub untuk Akun Proyek</li>
     <li class="s">5.1 Istilah penting</li>
     <li class="s">5.2 Membuat akun proyek dan mengamankannya</li>
@@ -391,6 +392,29 @@
     <span class="k">buka file di folder data</span><span class="a">→</span><span class="k">History</span><span class="a">→</span><span class="k">pilih versi sebelumnya</span><span class="a">→</span><span class="k">⋯ → View file</span><span class="a">→</span><span class="k">Download raw file</span><span class="a">→</span><span class="k">unggah ulang dengan nama sama (4.3)</span></div>
 </section>
 
+<section>
+  <h2>4.5 Cara otomatis dari PDF (Ketenagalistrikan)</h2>
+  <p>File Statistik PLN dapat dibuat otomatis dari PDF-nya. GitHub membaca PDF, memeriksa hasilnya, lalu membuat <b>pull request</b>
+  berisi file data dan laporan peninjauan. Tidak ada yang tampil di dashboard sebelum pull request di-<i>merge</i> oleh orang.</p>
+  <ol class="steps">
+    <li>Siapkan <b>tautan langsung ke file PDF</b> Statistik PLN (tautan yang langsung mengunduh file <code>.pdf</code>).</li>
+    <li>Di repositori, buka tab <b>Actions</b> → pilih <b>Tambah data PLN dari PDF</b> di kiri → klik <b>Run workflow</b> di kanan.</li>
+    <li>Isi <b>tahun data</b> (mis. 2026) dan <b>tautan PDF</b>, lalu klik tombol hijau <b>Run workflow</b>. Tunggu ±3 menit.</li>
+    <li>Buka tab <b>Pull requests</b> → <i>Data Statistik PLN 2026 (otomatis dari PDF)</i> dan baca laporannya.</li>
+  </ol>
+  <div class="path"><div class="lbl">Jalur klik (ilustrasi)</div>
+    <span class="k">Actions</span><span class="a">→</span><span class="k">Tambah data PLN dari PDF</span><span class="a">→</span><span class="k">Run workflow ▾</span><span class="a">→</span><span class="k">tahun + tautan PDF</span><span class="a">→</span><span class="k btn">Run workflow</span><span class="a">→</span><span class="k">Pull requests</span></div>
+  <table>
+    <tr><th style="width:30%">Laporan menyatakan</th><th>Arti</th><th style="width:34%">Tindakan</th></tr>
+    <tr><td>✅ <b>Siap ditinjau</b></td><td>Semua tabel lolos pemeriksaan otomatis</td><td>Cocokkan angka nasional (bagian 1) dan daftar perubahan besar (bagian 4) dengan PDF, lalu <b>Merge</b></td></tr>
+    <tr><td>⚠️ <b>Perlu bantuan teknis</b> (pull request <i>Draft</i>)</td><td>Biasanya PLN mengubah susunan kolom suatu tabel, atau ada indikasi label baris tertukar</td><td>Minta bantuan teknis mengikuti petunjuk di laporan; setelah diperbaiki, jalankan ulang dengan <b>Use workflow from</b> = branch <code>data-pln-TAHUN</code></td></tr>
+  </table>
+  <div class="box warn"><b>Pemeriksaan manusia tetap wajib</b>
+    Pemeriksaan otomatis menangkap salah baca angka, jumlah yang tidak cocok, dan label baris yang tertukar, tetapi tidak semua
+    kesalahan di PDF. Selalu cocokkan angka nasional dan beberapa sel acak dengan PDF sebelum <i>merge</i>. Uji coba pada laporan
+    2014–2025: pada sebagian besar tahun, PLN mengubah susunan kolom satu atau dua tabel, sehingga bantuan teknis singkat masih sering diperlukan.</div>
+</section>
+
 <!-- ============================ BAB 5 ============================ -->
 <section class="chapter">
   <h1><span class="num">5</span>GitHub untuk Akun Proyek</h1>
@@ -465,6 +489,12 @@
   <div class="box danger"><b>Custom domain</b>
     Kolom <i>Custom domain</i> di halaman yang sama dipakai untuk alamat sendiri (mis. <code>praktik.bappenas.go.id</code>). <b>Jangan mengisinya</b>
     sebelum catatan DNS dibuat oleh Pusdatin; situs akan langsung dialihkan ke alamat baru dan tidak dapat diakses. Jika terlanjur, kosongkan kolom itu lalu Save.</div>
+
+  <h3>Izin untuk proses otomatis (sekali saja)</h3>
+  <p>Agar <b>Tambah data PLN dari PDF</b> (Bab 4.5) dapat membuat pull request, Owner perlu mengaktifkan:</p>
+  <div class="path"><div class="lbl">Jalur klik (ilustrasi)</div>
+    <span class="k">CASE4id/dashboard-case</span><span class="a">→</span><span class="k">Settings</span><span class="a">→</span><span class="k">Actions</span><span class="a">→</span><span class="k">General</span><span class="a">→</span><span class="k">Workflow permissions: Read and write permissions</span><span class="a">→</span><span class="k">✓ Allow GitHub Actions to create and approve pull requests</span><span class="a">→</span><span class="k btn">Save</span></div>
+  <p>Jika pilihan itu tidak bisa diubah (abu-abu), pengaturannya dikunci di tingkat organisasi: <code>github.com/CASE4id</code> → <b>Settings</b> → <b>Actions</b> → <b>General</b>, ubah hal yang sama di sana.</p>
 
   <h2>5.6 Memantau publikasi (tab Actions)</h2>
   <p>Setiap perubahan pada <code>main</code> memicu proses <b>pages build and deployment</b> di tab <b>Actions</b> repositori.</p>

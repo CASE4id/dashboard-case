@@ -46,6 +46,21 @@ Nama file: huruf kecil semua, tanpa spasi, pakai tanda hubung `-`.
 2. Ganti angka di setiap sheet (`t01` … `t30`) dengan data dari publikasi **Statistik PLN** terbaru.
 3. Sheet `kualitas_data` (catatan teknis, bahasa Inggris) boleh dikosongkan atau diisi catatan baru.
 
+#### Cara otomatis dari PDF (disarankan)
+
+File Statistik PLN dapat dibuat otomatis dari PDF-nya, tanpa mengetik angka:
+
+1. Siapkan **tautan langsung ke file PDF** Statistik PLN (tautan yang langsung mengunduh file `.pdf`, bukan halaman web).
+2. Di repositori GitHub, buka tab **Actions** → pilih **Tambah data PLN dari PDF** (kiri) → klik **Run workflow** (kanan).
+3. Isi **Tahun data** (mis. `2026`) dan **tautan PDF** → klik tombol hijau **Run workflow**. Tunggu ±3 menit.
+4. Buka tab **Pull requests** → pull request **Data Statistik PLN 2026 (otomatis dari PDF)**. Isinya berupa laporan:
+   - **✅ Siap ditinjau**: cocokkan angka nasional dan daftar perubahan besar dengan PDF, lalu **Merge pull request** → **Confirm merge**.
+   - **⚠️ Perlu bantuan teknis** (pull request berstatus *Draft*): biasanya PLN mengubah susunan kolom tabel. Minta bantuan teknis
+     mengikuti petunjuk di laporan; setelah diperbaiki, jalankan ulang dengan *Use workflow from* = branch `data-pln-2026`.
+5. Isi sheet `catatan` bila perlu (cara manual di bawah), lalu periksa dashboard seperti Langkah 4.
+
+Jika cara otomatis tidak dapat dipakai, gunakan cara manual berikut.
+
 ### 1B. Transmisi Gas (BPS, Statistik Gas)
 
 1. Salin file terakhir, simpan dengan tahun data terakhir yang baru, mis. **`statistik-gas-2025.xlsx`**.

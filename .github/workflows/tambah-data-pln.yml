@@ -1,0 +1,91 @@
+# Tambah data PLN dari PDF
+# Membuat data/listrik/statistik-pln-TAHUN.xlsx dari PDF Statistik PLN, menjalankan semua pemeriksaan,
+# lalu membuka pull request berisi file data + laporan peninjauan. Tidak ada yang tampil di situs
+# sebelum pull request di-merge oleh orang.
+# Cara pakai: tab Actions → "Tambah data PLN dari PDF" → Run workflow → isi tahun dan tautan PDF.
+# Teknis: tools/ekstraksi/otomatis_pln.sh, README di tools/ekstraksi/.
+name: Tambah data PLN dari PDF
+
+on:
+  workflow_dispatch:
+    inputs:
+      tahun:
+        description: "Tahun data (contoh: 2026)"
+        required: true
+        type: string
+      pdf:
+        description: "Tautan langsung ke file PDF Statistik PLN (harus berakhir di file .pdf, bukan halaman web)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: tambah-data-pln
+  cancel-in-progress: false
+
+jobs:
+  ekstraksi:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      TAHUN: ${{ inputs.tahun }}
+      PDF_URL: ${{ inputs.pdf }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Periksa isian
+        run: |
+          if ! [[ "$TAHUN" =~ ^20[0-9]{2}$ ]]; then echo "::error::Tahun tidak valid: '$TAHUN' (contoh: 2026)"; exit 1; fi
+          BR="data-pln-$TAHUN"
+          if [ "$GITHUB_REF_NAME" != "$BR" ] && git ls-remote --exit-code --heads origin "$BR" >/dev/null; then
+            echo "::error::Pull request untuk $TAHUN sudah ada (branch $BR). Jalankan ulang dengan 'Use workflow from' = $BR agar perbaikan di branch itu tidak hilang."
+            exit 1
+          fi
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Pasang alat
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q poppler-utils
+          pip install -q -r tools/ekstraksi/requirements.txt
+
+      - name: Ekstraksi PDF dan pemeriksaan
+        id: run
+        run: |
+          tools/ekstraksi/otomatis_pln.sh "$TAHUN" "$PDF_URL"
+          echo "status=$(cat tools/ekstraksi/work/status)" >> "$GITHUB_OUTPUT"
+          cat tools/ekstraksi/work/laporan.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Buat atau perbarui pull request
+        env:
+          STATUS: ${{ steps.run.outputs.status }}
+        run: |
+          BR="data-pln-$TAHUN"
+          TITLE="Data Statistik PLN $TAHUN (otomatis dari PDF)"
+          BODY=tools/ekstraksi/work/laporan.md
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$BR"
+          git add -A data/listrik tools/ekstraksi/pln/config.json tools/ekstraksi/pln/unit_name_map.csv
+          if git diff --cached --quiet; then
+            echo "Tidak ada perubahan file."
+          else
+            git commit -q -m "$TITLE"
+          fi
+          git push -f origin "$BR"
+          HELP="Aktifkan: Settings → Actions → General → Workflow permissions → centang 'Allow GitHub Actions to create and approve pull requests', lalu jalankan ulang."
+          if gh pr view "$BR" --json number >/dev/null 2>&1; then
+            gh pr edit "$BR" --title "$TITLE" --body-file "$BODY"
+            if [ "$STATUS" = ok ]; then gh pr ready "$BR" || true; fi
+          else
+            DRAFT=""; [ "$STATUS" = review ] && DRAFT="--draft"
+            gh pr create --base main --head "$BR" --title "$TITLE" --body-file "$BODY" $DRAFT || { echo "::error::Pull request tidak bisa dibuat. $HELP"; exit 1; }
+          fi
+          echo "Pull request: $(gh pr view "$BR" --json url -q .url)" >> "$GITHUB_STEP_SUMMARY"

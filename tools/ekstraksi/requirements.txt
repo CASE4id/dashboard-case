@@ -1,0 +1,7 @@
+pandas>=2.0
+openpyxl>=3.1
+pymupdf>=1.23
+# System dependency (not pip): poppler-utils, which provides `pdftotext` and `pdfinfo`
+#   Ubuntu/Debian: sudo apt install poppler-utils
+#   macOS:         brew install poppler
+#   Windows:       use WSL, or install poppler for Windows and add it to PATH
