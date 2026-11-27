@@ -27,7 +27,7 @@ tools/ekstraksi/           PDF extraction toolkit (Statistik PLN, BPS gas/air) +
 .github/workflows/         tambah-data-pln.yml: "Tambah data PLN dari PDF" (PDF → data file → pull request)
 docs/                      Buku Panduan (PDF guidebook) and its source
 data/referensi/            provinsi.xlsx (38 provinces, BPS codes, accepted alternative spellings) and the province-data template
-data/provinsi/             province-level datasets + daftar-indikator.xlsx (what the Provinsi tab shows)
+data/provinsi/             province-level datasets + daftar-indikator.xlsx (shown with Scope: Provinces)
 ```
 
 - A sector's data are loaded only when it is opened. The URL hash keeps the view (`#sector=gas&tab=trend&series=g04.total`, or for electricity `#tab=compare&unit=uid_aceh&year=2025&lang=en`), so a view can be shared as a link.
@@ -44,14 +44,19 @@ pull request with a review report (draft when a table needs a person). One-time 
 Workflow permissions →* **Read and write permissions** and **Allow GitHub Actions to create and approve pull requests**.
 Details: `tools/ekstraksi/README.md`, section 0.
 
-## Province-level data (Provinsi tab)
+## Province-level data (Scope: Provinces)
 
 Simple province data (e.g. villages by electricity status) live in `data/provinsi/`, one tidy workbook per dataset
 (sheets `info`, `indikator`, `data` = Tahun | Kode BPS | Provinsi | Indikator | Nilai). `data/provinsi/daftar-indikator.xlsx`
-(sheet `daftar`: file | tampilkan | urutan) lists what is shown; `assets/js/tab-provinsi.js` adds a **Provinsi** tab to the
-electricity sector only when that list has an entry with `tampilkan = ya` (it is committed empty). The tab shows a ranking per
-indicator (order from `makin_tinggi_makin_baik`), an optional 100 % composition (`komposisi = ya`, only for non-overlapping
-categories), province details, a trend once two or more years exist, and a table with CSV/Excel download.
+(sheet `daftar`: file | tampilkan | urutan) lists what is shown. `assets/js/data-provinsi.js` loads them; they appear in the
+**Perbandingan** and **Analisis** tabs when Scope = Provinces (indicator keys `p:FILE|INDIKATOR`; `ps:…` = share of the `penyebut`
+indicator or, with `komposisi = ya`, of the sum of all indicators; `pk:FILE` = 100 % composition view in Perbandingan).
+
+With Scope = Provinces, PLN indicators are also shown by province: `data/referensi/pln-provinsi.xlsx` maps each PLN unit to BPS
+province codes. Per table and year `app.js` uses PLN's own province rows where they exist, otherwise the unit as one combined area
+(e.g. Kalimantan Timur + Kalimantan Utara); when two indicators (or two years) split areas differently, areas are merged to the
+finest common level. Counts are summed for combined areas; fractions/percentages are not (those areas are skipped).
+Old links `#tab=provinces…` are redirected to Perbandingan.
 
 `cek-data.html` (`assets/js/cek-provinsi.js`) recognises these files by content, accepts long or wide layouts, checks province names
 against `data/referensi/provinsi.xlsx` (alternative spellings, closest-match suggestion), duplicates, missing provinces, text values

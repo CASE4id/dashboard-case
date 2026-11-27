@@ -61,6 +61,11 @@
     if (p.get("year")) state.year = Number(p.get("year"));
     if (!SECTORS.some((x) => x.key === state.sector)) state.sector = "listrik";
     state.params = Object.fromEntries(p.entries());
+    if (state.tab === "provinces") {   // tautan lama ke tab Provinsi (sekarang bagian dari Perbandingan)
+      const P = state.params;
+      state.tab = "compare"; state.scope = "provinces";
+      if (P.pds) state.indicator = !P.pind || P.pind === "__komposisi" ? "pk:" + P.pds : `p:${P.pds}|${P.pind}`;
+    }
   }
   function writeHash() {
     if (state.sector !== "listrik") {
@@ -502,6 +507,116 @@
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
 
+  /* ======================= WILAYAH PROVINSI ======================= */
+  /* Metrik = indikator PLN (window.INDICATORS) atau indikator data per provinsi (assets/js/data-provinsi.js). */
+  const PKP = () => window.PKP || { loaded: false, unitCodes: new Map(), provinces: new Map(), metric: () => null, dataset: () => null, optionsHtml: () => "", metrics: () => [] };
+  const metric = (key) => IND[key] || PKP().metric(key) || null;
+  const metricTable = (m) => m.table || (m.uses ? m.uses[0].split(".")[0] : null);
+  const provScope = () => state.scope === "provinces";
+  const metricOptions = (withKomposisi) => `<optgroup label="${esc(T("grp_pln"))}">${window.INDICATORS.map((i) => `<option value="${i.key}">${esc(L(i))}</option>`).join("")}</optgroup>${PKP().optionsHtml(withKomposisi)}`;
+
+  const presentCacheT = new Map();
+  function presentIn(t, y) {
+    const k = t + "|" + y;
+    if (!presentCacheT.has(k)) presentCacheT.set(k, new Set((db.tables[t] || []).filter((r) => r.year === y).map((r) => r.unit_id)));
+    return presentCacheT.get(k);
+  }
+  /* Cakupan provinsi setiap unit PLN pada satu tabel & tahun.
+     Unit yang dirinci PLN (punya baris provinsi di bawahnya) diganti rinciannya; baris yang cakupannya memuat
+     baris lain yang lebih sempit (mis. Papua sebelum/sesudah pemekaran) dikurangi cakupan baris itu. */
+  function coverage(t, y) {
+    const map = PKP().unitCodes;
+    const all = [...presentIn(t, y)].filter((u) => map.has(u) && map.get(u).codes.length);
+    const hasChild = new Set(all.map((u) => (db.units.get(u) || {}).parent_unit_id).filter(Boolean));
+    const leaves = all.filter((u) => !hasChild.has(u));
+    const full = (u) => new Set(map.get(u).codes);
+    const cov = new Map(all.map((u) => [u, full(u)])), leafSet = new Set();
+    for (const u of leaves) {
+      const s = full(u);
+      for (const v of leaves) if (v !== u) { const o = full(v); if (o.size < s.size && [...o].every((c) => s.has(c))) o.forEach((c) => s.delete(c)); }
+      if (s.size) { cov.set(u, s); leafSet.add(u); } else cov.delete(u);
+    }
+    return { t, y, cov, leaves: leafSet };
+  }
+  /* Wilayah bersama untuk beberapa pasangan [tabel, tahun]: provinsi tunggal bila semua tabel merinci,
+     selain itu gabungan provinsi (mis. Kalimantan Timur + Kalimantan Utara). */
+  function areasFor(pairs) {
+    const mk = (codes, units) => {
+      const unit = Object.values(units)[0] || null;
+      const name = codes.length > 3 && unit ? `${unitName(unit)} (${codes.length} ${T("provinces_n")})` : codes.map((c) => PKP().provinces.get(c) || c).join(" + ");
+      return { id: codes.join("-"), codes, units, name, unit };
+    };
+    if (!pairs.length) return [...PKP().provinces.keys()].sort((a, b) => a - b).map((k) => mk([k], {}));
+    const covs = pairs.map(([t, y]) => coverage(t, y));
+    const parent = new Map();
+    const add = (c) => { if (!parent.has(c)) parent.set(c, c); };
+    const find = (c) => { while (parent.get(c) !== c) c = parent.get(c); return c; };
+    const union = (a, b) => { add(a); add(b); const ra = find(a), rb = find(b); if (ra !== rb) parent.set(ra, rb); };
+    for (const cv of covs) for (const u of cv.leaves) { const s = [...cv.cov.get(u)]; s.forEach((c) => union(s[0], c)); }
+    const comps = () => { const m = new Map(); for (const c of parent.keys()) { const r = find(c); if (!m.has(r)) m.set(r, []); m.get(r).push(c); } return [...m.values()]; };
+    const eq = (set, arr) => set.size === arr.length && arr.every((c) => set.has(c));
+    for (let guard = 0; guard < 20; guard++) {
+      let changed = false;
+      for (const comp of comps()) for (const cv of covs) {
+        if ([...cv.cov.values()].some((s) => eq(s, comp))) continue;
+        let best = null;
+        for (const s of cv.cov.values()) if (comp.every((c) => s.has(c)) && (!best || s.size < best.size)) best = s;
+        if (best) { best.forEach((c) => union(comp[0], c)); changed = true; }
+      }
+      if (!changed) break;
+    }
+    return comps().map((codes) => {
+      codes.sort((a, b) => a - b);
+      const units = {};
+      for (const cv of covs) for (const [u, s] of cv.cov) if (eq(s, codes)) { units[cv.t + "|" + cv.y] = u; break; }
+      return mk(codes, units);
+    }).sort((a, b) => a.codes[0] - b.codes[0]);
+  }
+  /* Titik/batang yang dibandingkan: unit PLN, atau wilayah provinsi bila Cakupan = Provinsi. */
+  function targets(ms, years) {
+    if (!provScope()) return scopeUnits().map((u) => ({ id: u.unit_id, name: u.unit_name, unit: u.unit_id, codes: [] }));
+    const pairs = [];
+    for (const m of ms) if (!m.prov) for (const y of years) if (y != null) pairs.push([metricTable(m), y]);
+    return areasFor(pairs);
+  }
+  function mval(m, tg, y) {
+    if (y == null) return null;
+    if (m.prov) return provScope() ? m.value(tg.codes, y) : null;
+    if (!provScope()) return indValue(m, tg.unit, y);
+    const u = tg.units[metricTable(m) + "|" + y];
+    return u ? indValue(m, u, y) : null;
+  }
+  const mnat = (m, y) => (y == null ? null : m.prov ? m.national(y) : indValue(m, NATIONAL, y));
+  /* Tahun data provinsi yang dipakai untuk tahun terpilih (tahun yang sama, atau tahun terakhir sebelumnya). */
+  const myear = (m, y) => (m.prov ? m.yearFor(y) : y);
+  function isSelected(tg) {
+    if (!provScope()) return tg.unit === state.unit;
+    if (tg.unit && tg.unit === state.unit) return true;
+    const sel = (PKP().unitCodes.get(state.unit) || {}).codes || [];
+    return sel.length > 0 && tg.codes.every((c) => sel.includes(c));
+  }
+  /* Catatan di bawah grafik cakupan provinsi: tahun data provinsi, catatan wilayah, unit PLN yang belum dipetakan. */
+  function provFoot(ms, tgs, years) {
+    if (!provScope()) return "";
+    const out = [];
+    for (const m of ms) if (m.prov) for (const y of years) {
+      const my = m.yearFor(y);
+      if (my !== y) out.push(my == null ? T("prov_no_year").replace("{title}", L(m.group)).replace("{year}", y) : T("prov_year_note").replace("{title}", L(m.group)).replace("{y}", y).replace("{y2}", my));
+    }
+    if (ms.some((m) => !m.prov)) {
+      out.push(T("prov_scope_note"));
+      const map = PKP().unitCodes, notes = new Map(), unmapped = new Set();
+      for (const tg of tgs) for (const u of Object.values(tg.units)) { const n = (map.get(u) || {}).note; if (n) notes.set(n, [...(notes.get(n) || []), tg.name]); }
+      for (const m of ms) if (!m.prov) for (const y of years) for (const u of presentIn(metricTable(m), y)) {
+        const ut = (db.units.get(u) || {}).row_type;
+        if (["distribution_unit", "regional_unit", "province", "subsidiary"].includes(ut) && !map.has(u)) unmapped.add(unitName(u));
+      }
+      for (const [n, names] of notes) out.push([...new Set(names)].join(", ") + ": " + n);
+      if (unmapped.size) out.push(T("prov_unmapped").replace("{list}", [...unmapped].join(", ")));
+    }
+    return out.length ? `<ul class="foot-list">${[...new Set(out)].map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : "";
+  }
+
   /* ======================= TAB: COMPARE ======================= */
   const nationalLinePlugin = {
     id: "nationalLine",
@@ -521,32 +636,46 @@
   };
 
   function renderCompare() {
-    const ind = IND[state.indicator] || IND.electrification_ratio;
-    const types = state.scope === "provinces" ? ["province"] : ["distribution_unit", "regional_unit", "subsidiary"];
-    const rows = [...db.units.values()].filter((u) => types.includes(u.row_type))
-      .map((u) => ({ u, v: indValue(ind, u.unit_id, state.year) })).filter((d) => d.v != null);
-    rows.sort((a, b) => (ind.better === "low" ? a.v - b.v : b.v - a.v));
-    const nat = indValue(ind, NATIONAL, state.year);
+    const P = PKP();
+    const kds = state.indicator.startsWith("pk:") ? P.dataset(state.indicator.slice(3)) : null;
+    const ind = kds ? null : metric(state.indicator) || IND.electrification_ratio;
+    if (ind) state.indicator = ind.key;
+    const ds = kds || (ind.prov ? ind.ds : null);
+    const yr = ds ? ds.yearFor(state.year) : state.year;
+    const scopeOK = !ds || provScope();
+    const tgs = scopeOK && ind && yr != null ? targets([ind], [yr]) : [];
+    const rows = tgs.map((tg) => ({ tg, v: mval(ind, tg, yr) })).filter((d) => d.v != null);
+    if (ind) rows.sort((a, b) => (ind.better === "low" ? a.v - b.v : b.v - a.v));
+    const nat = ind && ind.compareNational !== false ? mnat(ind, yr) : null;
+    const clickable = rows.some((d) => d.tg.unit);
 
-    let html = `<div class="context-line"><h2>${esc(T("compare_title"))}</h2><span class="chip">${state.year}</span></div>`;
-    html += `<section class="card"><p class="sub">${esc(T("compare_sub"))}</p>
+    let html = `<div class="context-line"><h2>${esc(T("compare_title"))}</h2><span class="chip">${yr ?? state.year}</span></div>`;
+    html += `<section class="card"><p class="sub">${esc(T(provScope() ? "compare_sub_prov" : "compare_sub"))}</p>
       <div class="toolbar">
-        <label>${esc(T("indicator"))}<select id="indSelect">${window.INDICATORS.map((i) => `<option value="${i.key}">${esc(L(i))}</option>`).join("")}</select></label>
-        <label>${esc(T("scope"))}<select id="scopeSelect"><option value="units">${esc(T("scope_units"))}</option><option value="provinces">${esc(T("scope_provinces"))}</option></select></label>
-      </div>
-      ${rows.length ? `<div class="chart-box" style="height:${Math.max(320, rows.length * 26 + 60)}px"><canvas id="cRank"></canvas></div>` : empty()}
-      ${ind.note ? `<p class="foot">${esc(L(ind.note))}</p>` : ""}
-    </section>`;
+        <label>${esc(T("indicator"))}<select id="indSelect">${metricOptions(true)}</select></label>
+        ${scopeSelectHtml()}
+      </div>`;
+    let draw = null;
+    if (!scopeOK) html += empty(T("prov_only"));
+    else if (yr == null) html += empty(T("prov_no_year").replace("{title}", L(ds.title)).replace("{year}", state.year));
+    else if (kds) { const k = P.komposisi(kds, yr, (codes) => isSelected({ codes, unit: null }), "cRank"); html += k.html; draw = k.draw; }
+    else html += rows.length ? `<div class="chart-box" style="height:${Math.max(320, rows.length * 26 + 60)}px"><canvas id="cRank"></canvas></div>` : empty();
+    if (ind && ind.note && scopeOK) html += `<p class="foot">${esc(L(ind.note))}</p>`;
+    if (scopeOK) html += provFoot(ind ? [ind] : [{ prov: true, group: kds.title, yearFor: kds.yearFor }], tgs, [state.year]);
+    html += `</section>`;
+    const tbl = ds && provScope() && yr != null ? P.table(ds, yr, (codes) => isSelected({ codes, unit: null })) : null;
+    if (tbl) html += tbl.html;
     html += `<section class="map-placeholder mt"><h3>🗺 ${esc(T("map_title"))}</h3><p>${esc(T("map_body"))}</p></section>`;
     $("#view").innerHTML = html;
-    $("#indSelect").value = ind.key;
+    $("#indSelect").value = state.indicator;
     $("#scopeSelect").value = state.scope;
     $("#indSelect").onchange = (e) => { state.indicator = e.target.value; render(); };
     $("#scopeSelect").onchange = (e) => { state.scope = e.target.value; render(); };
-
+    if (tbl) tbl.bind();
+    if (draw) return draw();
     if (!rows.length) return;
     const color = (d) => {
-      if (d.u.unit_id === state.unit) return COLORS.yellow;
+      if (isSelected(d.tg)) return COLORS.yellow;
       if (!ind.better || nat == null) return COLORS.blue;
       const better = ind.better === "high" ? d.v >= nat : d.v <= nat;
       return better ? COLORS.good : COLORS.bad;
@@ -555,16 +684,16 @@
       type: "bar",
       plugins: [nationalLinePlugin],
       data: {
-        labels: rows.map((d) => d.u.unit_name),
-        datasets: [{ label: `${L(ind)} (${L(ind.unit)})`, data: rows.map((d) => d.v), backgroundColor: rows.map(color), borderRadius: 4 }],
+        labels: rows.map((d) => d.tg.name),
+        datasets: [{ label: `${L(ind)}${L(ind.unit) ? ` (${L(ind.unit)})` : ""}`, data: rows.map((d) => d.v), backgroundColor: rows.map(color), borderRadius: 4 }],
       },
       options: {
         indexAxis: "y",
         layout: { padding: { top: 18 } },
         plugins: { legend: { display: false }, nationalLine: { value: nat, label: T("national_line"), decimals: ind.decimals }, barValues: { enabled: true, decimals: ind.decimals } },
         scales: { x: { ticks: numTicks }, y: { grid: { display: false }, ticks: { autoSkip: false } } },
-        onClick: (_e, els) => { if (els.length) goUnit(rows[els[0].index].u.unit_id, "summary"); },
-        onHover: (e, els) => (e.native.target.style.cursor = els.length ? "pointer" : "default"),
+        onClick: (_e, els) => { if (els.length && rows[els[0].index].tg.unit) goUnit(rows[els[0].index].tg.unit, "summary"); },
+        onHover: (e, els) => (e.native.target.style.cursor = clickable && els.length && rows[els[0].index].tg.unit ? "pointer" : "default"),
       },
     });
   }
@@ -574,8 +703,8 @@
     const types = state.scope === "provinces" ? ["province"] : ["distribution_unit", "regional_unit", "subsidiary"];
     return [...db.units.values()].filter((u) => types.includes(u.row_type));
   };
-  const indLabel = (ind) => `${L(ind)} (${L(ind.unit)})`;
-  const indOptions = () => window.INDICATORS.map((i) => `<option value="${i.key}">${esc(L(i))}</option>`).join("");
+  const indLabel = (ind) => `${L(ind)}${L(ind.unit) ? ` (${L(ind.unit)})` : ""}`;
+  const indOptions = () => metricOptions(false);
   const scopeSelectHtml = () => `<label>${esc(T("scope"))}<select id="scopeSelect"><option value="units">${esc(T("scope_units"))}</option><option value="provinces">${esc(T("scope_provinces"))}</option></select></label>`;
   /* Regresi linear sederhana + korelasi Pearson */
   function linfit(pts) {
@@ -660,15 +789,19 @@
     $("#view").innerHTML = html;
     document.querySelectorAll(".seg button").forEach((b) => (b.onclick = () => { state.amode = b.dataset.mode; render(); }));
     if (state.amode === "xy") renderScatter(multi);
-    else renderYears(multi);
+    else renderYears();
   }
 
   function renderScatter(multi) {
-    const ix = IND[state.ax] || IND.electrification_ratio, iy = IND[state.ay] || IND.avg_sold_household;
+    const ix = metric(state.ax) || IND.electrification_ratio, iy = metric(state.ay) || IND.avg_sold_household;
     state.ax = ix.key; state.ay = iy.key;
     const baseYears = db.years.filter((y) => y < state.year);
     const base = baseYears.includes(Number(state.abase)) ? Number(state.abase) : null;
-    const pts = scopeUnits().map((u) => ({ u, x: indValue(ix, u.unit_id, state.year), y: indValue(iy, u.unit_id, state.year) }))
+    const scopeOK = provScope() || (!ix.prov && !iy.prov);
+    const yx = myear(ix, state.year), yy = myear(iy, state.year);
+    const by = (m) => (base ? myear(m, base) : null);
+    const tgs = scopeOK ? targets([ix, iy], [state.year].concat(base ? [base] : [])) : [];
+    const pts = tgs.map((tg) => ({ u: { unit_id: tg.unit, unit_name: tg.name }, tg, x: mval(ix, tg, yx), y: mval(iy, tg, yy) }))
       .filter((p) => p.x != null && p.y != null);
     const canLogX = pts.length && pts.every((p) => p.x > 0), canLogY = pts.length && pts.every((p) => p.y > 0);
     const logX = canLogX && state.alog.includes("x"), logY = canLogY && state.alog.includes("y");
@@ -676,7 +809,7 @@
 
     const check = (id, on, label, enabled = true) =>
       `<label class="check${enabled ? "" : " off"}"><input type="checkbox" id="${id}"${on ? " checked" : ""}${enabled ? "" : " disabled"}> ${esc(label)}</label>`;
-    let body = `<section class="card"><p class="sub">${esc(T("xy_sub"))}</p>
+    let body = `<section class="card"><p class="sub">${esc(T(provScope() ? "xy_sub_prov" : "xy_sub"))}</p>
       <div class="toolbar">
         <label>${esc(T("axis_x"))}<select id="axSelect">${indOptions()}</select></label>
         <label>${esc(T("axis_y"))}<select id="aySelect">${indOptions()}</select></label>
@@ -701,7 +834,8 @@
         body += `<p class="stat"><b>${esc(T("corr_label"))} (r) = ${fmt(r, 2)}</b> · ${esc(strength)}, ${esc(dir)} · ${pts.length} ${esc(T("points"))}${logX || logY ? ` · ${esc(T("corr_log"))}` : ""}</p>`;
       }
       body += `<p class="foot">${esc(T("corr_caution"))}${base ? " " + esc(T("movement_note").replace("{y0}", base).replace("{y1}", state.year)) : ""}</p>`;
-    } else body += empty(T("too_few"));
+    } else body += empty(T(scopeOK ? "too_few" : "prov_only"));
+    if (scopeOK) body += provFoot([ix, iy], tgs, [state.year]);
     body += `</section>`;
     $("#analysisBody").innerHTML = body;
 
@@ -715,12 +849,12 @@
     $("#logxChk").onchange = setLog; $("#logyChk").onchange = setLog;
     if (pts.length < 3) return;
 
-    const sel = pts.find((p) => p.u.unit_id === state.unit);
+    const sel = pts.find((p) => isSelected(p.tg));
     const others = pts.filter((p) => p !== sel);
     const datasets = [];
     let pairs = [];
     if (base) {
-      const old = pts.map((p) => ({ p, x: indValue(ix, p.u.unit_id, base), y: indValue(iy, p.u.unit_id, base) }))
+      const old = pts.map((p) => ({ p, x: mval(ix, p.tg, by(ix)), y: mval(iy, p.tg, by(iy)) }))
         .filter((o) => o.x != null && o.y != null && (!logX || o.x > 0) && (!logY || o.y > 0));
       datasets.push({ label: String(base), kind: "base", data: old.map((o) => ({ x: o.x, y: o.y, name: o.p.u.unit_name })),
         backgroundColor: "rgba(154,165,177,0.55)", pointRadius: 3.5, pointHoverRadius: 5 });
@@ -740,7 +874,7 @@
       datasets.push({ type: "line", label: T("trend_line"), kind: "trend", data: line, borderColor: COLORS.gold, borderWidth: 2, borderDash: [6, 4], pointRadius: 0, pointHitRadius: 0 });
     }
     const showNat = (i) => i.compareNational !== false;
-    const natX = showNat(ix) ? indValue(ix, NATIONAL, state.year) : null, natY = showNat(iy) ? indValue(iy, NATIONAL, state.year) : null;
+    const natX = showNat(ix) ? mnat(ix, yx) : null, natY = showNat(iy) ? mnat(iy, yy) : null;
     const axis = (ind, log) => ({
       type: log ? "logarithmic" : "linear", ticks: log ? logTicks : numTicks,
       title: { display: true, text: indLabel(ind), color: COLORS.navy, font: { weight: "600" } },
@@ -766,22 +900,28 @@
         },
         onClick: (_e, els) => {
           const el = els.find((x) => datasets[x.datasetIndex].kind === "unit");
-          if (el) goUnit(datasets[el.datasetIndex].data[el.index].id, "summary");
+          const id = el && datasets[el.datasetIndex].data[el.index].id;
+          if (id) goUnit(id, "summary");
         },
-        onHover: (e, els) => (e.native.target.style.cursor = els.some((x) => datasets[x.datasetIndex].kind === "unit") ? "pointer" : "default"),
+        onHover: (e, els) => (e.native.target.style.cursor = els.some((x) => datasets[x.datasetIndex].kind === "unit" && datasets[x.datasetIndex].data[x.index].id) ? "pointer" : "default"),
       },
     });
   }
 
-  function renderYears(multi) {
-    if (!multi) {
-      $("#analysisBody").innerHTML = `<section class="card">${empty(T("years_need").replace("{years}", db.years.join(", ")))}</section>`;
-      return;
-    }
-    const ind = IND[state.indicator] || IND.electrification_ratio;
+  function renderYears() {
+    const ind = metric(state.indicator) || IND.electrification_ratio;
     state.indicator = ind.key;
-    const ys = db.years;
-    let y2 = ys.includes(Number(state.y2)) ? Number(state.y2) : state.year;
+    const ys = ind.prov ? ind.years : db.years;
+    const toolbarOnly = (msg) => {
+      $("#analysisBody").innerHTML = `<section class="card"><p class="sub">${esc(T("years_sub"))}</p><div class="toolbar">
+        <label>${esc(T("indicator"))}<select id="indSelect">${indOptions()}</select></label>${scopeSelectHtml()}</div>${empty(msg)}</section>`;
+      $("#indSelect").value = ind.key; $("#scopeSelect").value = state.scope;
+      $("#indSelect").onchange = (e) => { state.indicator = e.target.value; state.y1 = null; state.y2 = null; render(); };
+      $("#scopeSelect").onchange = (e) => { state.scope = e.target.value; render(); };
+    };
+    if (ind.prov && !provScope()) return toolbarOnly(T("prov_only"));
+    if (ys.length < 2) return toolbarOnly(ind.prov ? T("prov_years_need").replace("{title}", L(ind.group)).replace("{years}", ys.join(", ")) : T("years_need").replace("{years}", ys.join(", ")));
+    let y2 = ys.includes(Number(state.y2)) ? Number(state.y2) : ys.includes(state.year) ? state.year : ys[ys.length - 1];
     const from = ind.trendFrom && ys.includes(ind.trendFrom) && ind.trendFrom < y2 ? ind.trendFrom : ys[0];
     let y1 = ys.includes(Number(state.y1)) ? Number(state.y1) : from;
     if (y1 >= y2) y1 = ys[Math.max(0, ys.indexOf(y2) - 1)];
@@ -789,12 +929,20 @@
     state.y1 = y1; state.y2 = y2;
     const pp = L(ind.unit) === "%";
     const change = (a, b) => (a == null || b == null ? null : pp ? b - a : a !== 0 ? ((b - a) / Math.abs(a)) * 100 : null);
-    const rows = scopeUnits().map((u) => ({ u, v: change(indValue(ind, u.unit_id, y1), indValue(ind, u.unit_id, y2)) })).filter((d) => d.v != null);
+    const tgs = targets([ind], [y1, y2]);
+    const rows = tgs.map((tg) => ({ tg, u: { unit_id: tg.unit, unit_name: tg.name }, v: change(mval(ind, tg, y1), mval(ind, tg, y2)) })).filter((d) => d.v != null);
     const sign = ind.better === "low" ? -1 : 1;
     rows.sort((a, b) => sign * (b.v - a.v));
-    const natChange = change(indValue(ind, NATIONAL, y1), indValue(ind, NATIONAL, y2));
+    const natChange = ind.compareNational === false && ind.prov ? null : change(mnat(ind, y1), mnat(ind, y2));
     const yOpts = (list) => list.map((y) => `<option value="${y}">${y}</option>`).join("");
-    const unitShown = state.unit;
+    /* Garis tren: unit terpilih (data PLN), atau wilayah provinsi yang memuat unit terpilih (data per provinsi). */
+    let unitShown = state.unit, trendVals, trendName;
+    if (ind.prov) {
+      const tg = targets([ind], ys).find(isSelected);
+      unitShown = tg ? tg.id : NATIONAL;
+      trendName = tg ? tg.name : T("national_line");
+      trendVals = ys.map((y) => (tg ? mval(ind, tg, y) : mnat(ind, y)));
+    } else { trendName = unitName(unitShown); trendVals = ys.map((y) => indValue(ind, unitShown, y)); }
     const showNatSeries = unitShown !== NATIONAL && ind.compareNational !== false;
 
     $("#analysisBody").innerHTML = `<section class="card"><p class="sub">${esc(T("years_sub"))}</p>
@@ -805,14 +953,15 @@
           <label>${esc(T("year_to"))}<select id="y2Select">${yOpts(ys.slice(1))}</select></label>
         </div>
         <h3 class="mt">${esc(T("trend_title").replace("{ind}", L(ind)))}</h3>
-        <p class="sub">${esc(unitName(unitShown))}${showNatSeries ? " · " + esc(T("vs_national")) : ""} · ${ys[0]}–${ys[ys.length - 1]} (${esc(L(ind.unit))})</p>
+        <p class="sub">${esc(trendName)}${showNatSeries ? " · " + esc(T("vs_national")) : ""} · ${ys[0]}–${ys[ys.length - 1]} (${esc(L(ind.unit))})</p>
         <div class="chart-box"><canvas id="cTrend"></canvas></div>
         <h3 class="mt">${esc(T("change_title").replace("{y1}", y1).replace("{y2}", y2))}</h3>
         ${ind.trendFrom && ys[0] < ind.trendFrom ? `<p class="sub">ℹ ${esc(T("trend_from_note").replace("{year}", ind.trendFrom))}</p>` : ""}
         <p class="sub">${esc(T(pp ? "change_sub_pp" : "change_sub_pct"))}</p>
         ${rows.length ? `<div class="chart-box" style="height:${Math.max(320, rows.length * 26 + 60)}px"><canvas id="cChange"></canvas></div>` : empty()}
         ${ind.note ? `<p class="foot">${esc(L(ind.note))}</p>` : ""}
-        ${qualityNotes({ tables: ind.table ? [ind.table] : (ind.uses || []).map((u) => u.split(".")[0]), columns: ind.column ? [ind.column] : (ind.uses || []).map((u) => u.split(".")[1]), yFrom: y1, yTo: y2, units: [NATIONAL, "jawa", "luar_jawa", unitShown, ...rows.map((d) => d.u.unit_id)] })}
+        ${provFoot([ind], tgs, ind.prov ? [] : [y1, y2])}
+        ${ind.prov ? "" : qualityNotes({ tables: ind.table ? [ind.table] : (ind.uses || []).map((u) => u.split(".")[0]), columns: ind.column ? [ind.column] : (ind.uses || []).map((u) => u.split(".")[1]), yFrom: y1, yTo: y2, units: [NATIONAL, "jawa", "luar_jawa", unitShown, ...rows.flatMap((d) => d.tg.unit ? [d.tg.unit, ...Object.values(d.tg.units || {})] : [])] })}
       </section>`;
     $("#indSelect").value = ind.key; $("#scopeSelect").value = state.scope;
     $("#y1Select").value = y1; $("#y2Select").value = y2;
@@ -821,8 +970,8 @@
     $("#y1Select").onchange = (e) => { state.y1 = Number(e.target.value); render(); };
     $("#y2Select").onchange = (e) => { state.y2 = Number(e.target.value); render(); };
 
-    const series = [{ label: unitName(unitShown), data: ys.map((y) => indValue(ind, unitShown, y)), borderColor: COLORS.blue, backgroundColor: COLORS.blue, borderWidth: 3, pointRadius: 4, tension: 0.2, spanGaps: true }];
-    if (showNatSeries) series.push({ label: T("national_line"), data: ys.map((y) => indValue(ind, NATIONAL, y)), borderColor: COLORS.navy, backgroundColor: COLORS.navy, borderDash: [6, 4], borderWidth: 2, pointRadius: 3, tension: 0.2, spanGaps: true });
+    const series = [{ label: trendName, data: trendVals, borderColor: COLORS.blue, backgroundColor: COLORS.blue, borderWidth: 3, pointRadius: 4, tension: 0.2, spanGaps: true }];
+    if (showNatSeries) series.push({ label: T("national_line"), data: ys.map((y) => mnat(ind, y)), borderColor: COLORS.navy, backgroundColor: COLORS.navy, borderDash: [6, 4], borderWidth: 2, pointRadius: 3, tension: 0.2, spanGaps: true });
     makeChart("cTrend", {
       type: "line",
       data: { labels: ys.map(String), datasets: series },
@@ -834,7 +983,7 @@
 
     if (!rows.length) return;
     const color = (d) => {
-      if (d.u.unit_id === state.unit) return COLORS.yellow;
+      if (isSelected(d.tg)) return COLORS.yellow;
       if (!ind.better) return COLORS.blue;
       return d.v * sign >= 0 ? COLORS.good : COLORS.bad;
     };
@@ -852,8 +1001,8 @@
           tooltip: { callbacks: { label: (c) => ` ${c.parsed.x > 0 ? "+" : ""}${fmt(c.parsed.x, pp ? 2 : 1)}${pp ? " " + T("pp") : "%"}` } },
         },
         scales: { x: { ticks: { callback: (v) => (v > 0 ? "+" : "") + fmtTick(v) + (pp ? "" : "%"), maxRotation: 0 } }, y: { grid: { display: false }, ticks: { autoSkip: false } } },
-        onClick: (_e, els) => { if (els.length) goUnit(rows[els[0].index].u.unit_id); },
-        onHover: (e, els) => (e.native.target.style.cursor = els.length ? "pointer" : "default"),
+        onClick: (_e, els) => { if (els.length && rows[els[0].index].tg.unit) goUnit(rows[els[0].index].tg.unit); },
+        onHover: (e, els) => (e.native.target.style.cursor = els.length && rows[els[0].index].tg.unit ? "pointer" : "default"),
       },
     });
   }
@@ -909,7 +1058,7 @@
 
   /* ---------- Main render ---------- */
   const RENDER = { summary: renderSummary, generation: renderGeneration, network: renderNetwork, compare: renderCompare, analysis: renderAnalysis, data: renderData };
-  /* Tab tambahan sektor Ketenagalistrikan (mis. tab Provinsi, assets/js/tab-provinsi.js): tampil hanya jika available() */
+  /* Tab tambahan sektor Ketenagalistrikan (PK.registerElecTab): tampil hanya jika available(). Saat ini tidak dipakai. */
   const ELEC_EXTRA = [];
   const elecTabs = () => {
     const tabs = ELEC_TABS.slice();
@@ -948,6 +1097,7 @@
     if (sector === "listrik") {
       if (!db) db = await window.PraktikData.loadFromServer();
       const extraProblems = [];
+      if (window.PKP && !window.PKP.loaded) { try { extraProblems.push(...(await window.PKP.load())); } catch (e) { window.PKP.loaded = true; extraProblems.push(e.message); } }
       for (const x of ELEC_EXTRA) if (!x.loaded) { x.loaded = true; try { extraProblems.push(...((await x.load()) || [])); } catch (e) { extraProblems.push(e.message); } }
       return db.problems.concat(extraProblems);
     }

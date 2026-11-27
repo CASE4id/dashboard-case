@@ -15,6 +15,7 @@
     ["sumber", "Sumber data, mis. BPS, Statistik Potensi Desa 2024", true],
     ["satuan", "Satuan bawaan semua indikator, mis. desa; atau fraksi (0–1, tampil sebagai %), persen", false],
     ["komposisi", "ya = indikator-indikatornya adalah bagian dari satu keseluruhan (dapat ditampilkan sebagai persentase); tidak = indikator terpisah", false],
+    ["penyebut", "Opsional: nama indikator yang menjadi keseluruhan, mis. Jumlah desa. Indikator lain lalu dapat ditampilkan juga sebagai persentase terhadapnya (mis. % desa tidak berlistrik)", false],
     ["catatan", "Catatan tambahan (opsional)", false],
   ];
   const NATIONAL = new Set(["indonesia", "nasional", "national", "total", "jumlah"]);
@@ -314,12 +315,18 @@
       const miss = INFO_KEYS.filter(([k, , req]) => req && !getInfo(k)).map(([k]) => k);
       if (miss.length) warnings.push(`Sheet <b>info</b> belum lengkap: ${miss.map(esc).join(", ")}.`);
     }
+    const pen = String(getInfo("penyebut") || "").trim();
+    if (pen) {
+      if (!inds.includes(pen)) errors.push(`Sheet info: <b>penyebut</b> "${esc(pen)}" tidak ada di daftar indikator (${inds.map(esc).join(", ")}). Tulis persis sama dengan nama indikatornya.`);
+      else if (["fraksi", "persen"].includes(unitOf[pen])) errors.push(`Sheet info: <b>penyebut</b> "${esc(pen)}" harus berupa jumlah (bukan fraksi/persen).`);
+      else info.push(`Penyebut: indikator lain juga tampil sebagai persentase terhadap "${esc(pen)}".`);
+    }
     const komp = ["ya", "yes"].includes(norm(getInfo("komposisi")));
     if (komp) {
       const us = new Set(inds.map((i) => unitOf[i]));
       if (us.size > 1 || us.has("fraksi") || us.has("persen")) warnings.push(`<b>komposisi = ya</b>, tetapi satuan indikatornya berbeda atau berupa persen/fraksi. Komposisi hanya bermakna untuk jumlah dengan satuan sama (mis. desa).`);
       else info.push(`Komposisi: ${inds.length} indikator dijumlahkan menjadi 100% per provinsi.`);
-    } else if (inds.length > 1 && !getInfo("komposisi")) {
+    } else if (inds.length > 1 && !getInfo("komposisi") && !pen) {
       const us = new Set(inds.map((i) => unitOf[i]));
       const tot = !us.has("fraksi") && !us.has("persen") ? recs.filter((r) => r.year === years[years.length - 1] && r.nama !== "Indonesia").reduce((a, r) => a + r.v, 0) : null;
       warnings.push(`Ada ${inds.length} indikator${tot != null ? ` (jumlah semuanya ${fnum(tot, 0)} untuk tahun ${years[years.length - 1]})` : ""}. Isi <b>komposisi</b> di sheet info: ` +
