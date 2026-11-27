@@ -41,7 +41,9 @@
       <ol class="steps">
         <li>Siapkan file Excel dengan nama sesuai sektornya:
           <b>statistik-pln-TAHUN.xlsx</b> (Ketenagalistrikan, satu file per tahun),
-          <b>statistik-gas-TAHUN.xlsx</b> (Transmisi Gas) atau <b>statistik-udara-TAHUN.xlsx</b> (Kedirgantaraan); untuk gas dan udara, TAHUN = tahun data terakhir di dalam file.</li>
+          <b>statistik-gas-TAHUN.xlsx</b> (Transmisi Gas) atau <b>statistik-udara-TAHUN.xlsx</b> (Kedirgantaraan); untuk gas dan udara, TAHUN = tahun data terakhir di dalam file.
+          <br><b>Indikator per provinsi</b> (mis. rasio desa berlistrik): nama file bebas; cukup ada kolom <b>Tahun</b>, <b>Provinsi</b>, dan nilai
+          (<a href="data/referensi/templat-indikator-provinsi.xlsx" download>unduh templat</a>).</li>
         <li>Seret file ke kotak di bawah, atau klik untuk memilih file. File <b>tidak diunggah ke mana pun</b>; pemeriksaan berjalan di browser Anda.</li>
         <li>Jika hasilnya <span class="ok"><b>✔ SIAP DIUNGGAH</b></span>, lanjutkan ke langkah unggah di <i>PANDUAN-UPDATE-DATA</i>. Jika ada <span class="err"><b>✖ kesalahan</b></span>, perbaiki di Excel lalu cek ulang.</li>
       </ol>
@@ -56,6 +58,8 @@
   <script src="assets/vendor/read-excel-file.min.js"></script>
   <script src="assets/js/config.js"></script>
   <script src="assets/js/data.js"></script>
+  <script src="assets/vendor/write-excel-file.min.js"></script>
+  <script src="assets/js/cek-provinsi.js"></script>
   <script>
   (function () {
     /* Daftar kolom diambil dari assets/js/config.js (DATA_SCHEMA), ditambah kolom yang dipakai indikator. */
@@ -114,6 +118,11 @@
       out.innerHTML = '<div class="loader"><div class="spinner"></div>Memeriksa…</div>';
       const errors = [], warnings = [], info = [];
       let schemaHint = false;
+      // Indikator per provinsi (mis. rasio desa berlistrik): dikenali dari isinya, bukan dari nama file
+      if (!/^statistik-(pln|gas|udara)-\d{4}\.xlsx$/.test(file.name) && window.CekProvinsi) {
+        try { if (await window.CekProvinsi.check(file, { show, out })) return; }
+        catch (e) { errors.push("File tidak dapat dibaca: " + esc(e.message)); return show(errors, warnings, info); }
+      }
       const sm = file.name.match(/^statistik-(gas|udara)-(\d{4})\.xlsx$/);
       if (sm) {
         const sy = Number(sm[2]);
@@ -185,11 +194,11 @@
       show(errors, warnings, info, hint);
     }
 
-    function show(errors, warnings, info, hint = "") {
+    function show(errors, warnings, info, hint = "", okLabel = null) {
       const list = (arr, cls) => `<ul>${arr.slice(0, 200).map((x) => `<li class="${cls}">${x}</li>`).join("")}${arr.length > 200 ? `<li>… dan ${arr.length - 200} lainnya</li>` : ""}</ul>`;
       let h = errors.length
         ? `<div class="verdict err">✖ BELUM SIAP: ${errors.length} kesalahan harus diperbaiki</div>`
-        : `<div class="verdict ok">✔ SIAP DIUNGGAH${warnings.length ? ` (dengan ${warnings.length} catatan, silakan dicek)` : ""}</div>`;
+        : `<div class="verdict ok">${okLabel || "✔ SIAP DIUNGGAH"}${warnings.length ? ` (dengan ${warnings.length} catatan, silakan dicek)` : ""}</div>`;
       if (errors.length) h += `<h4 class="err">Kesalahan (wajib diperbaiki)</h4>${list(errors, "err")}${hint}`;
       if (warnings.length) h += `<h4 class="warn">Catatan (periksa, boleh tetap diunggah)</h4>${list(warnings, "warn")}`;
       h += `<h4>Ringkasan</h4>${list(info, "")}`;

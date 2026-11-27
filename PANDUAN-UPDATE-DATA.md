@@ -77,6 +77,23 @@ Jika cara otomatis tidak dapat dipakai, gunakan cara manual berikut.
    baris tahun lama boleh tetap ada.
 4. Perhatikan satuan: kargo dalam **ton** di `a01`, tetapi dalam **kg** di `a05`/`a06` (sesuai publikasi).
 
+### 1D. Indikator per provinsi (persiapan, mis. rasio desa berlistrik)
+
+Untuk data sederhana per provinsi (tahun, provinsi, nilai), tidak perlu mengubah format secara manual:
+
+1. Siapkan file Excel dengan kolom **Tahun**, **Provinsi**, dan satu kolom **nilai** (atau unduh templat:
+   `data/referensi/templat-indikator-provinsi.xlsx`, juga tersedia di halaman Cek Data).
+   Susunan melebar (satu kolom per tahun) juga diterima.
+2. Seret file ke halaman **Cek Data**. Halaman ini mengenali file per provinsi dari isinya dan memeriksa:
+   penulisan provinsi (dibandingkan dengan `data/referensi/provinsi.xlsx`, termasuk penulisan lain seperti "DIY" atau "Kep. Babel"),
+   baris ganda, provinsi yang belum ada datanya, teks di kolom nilai, serta fraksi (0–1) atau persen.
+3. Jika hasilnya ✔, klik **Unduh versi rapi**: file baru dengan sheet `info` (nama indikator, satuan, sumber) dan sheet `data`
+   (Tahun, Kode BPS, Provinsi, Nilai). Lengkapi sheet `info`, lalu cek ulang.
+4. Jika ada penulisan provinsi yang benar tetapi belum dikenali, tambahkan ke kolom `alternatif` di `data/referensi/provinsi.xlsx`.
+
+> Indikator per provinsi **belum ditampilkan** di dashboard. Menampilkannya memerlukan pengaturan teknis satu kali; setelah itu
+> cukup unggah file rapi ke folder `data/provinsi/`.
+
 ### Aturan pengisian (semua sektor, penting!)
 
 | Boleh ✅ | Jangan ❌ |
