@@ -26,7 +26,8 @@ assets/vendor/             Bundled libraries, with no CDN dependency
 tools/ekstraksi/           PDF extraction toolkit (Statistik PLN, BPS gas/air) + automation; see its README
 .github/workflows/         tambah-data-pln.yml: "Tambah data PLN dari PDF" (PDF → data file → pull request)
 docs/                      Buku Panduan (PDF guidebook) and its source
-data/referensi/            provinsi.xlsx (38 provinces, BPS codes, accepted alternative spellings) and the province-indicator template
+data/referensi/            provinsi.xlsx (38 provinces, BPS codes, accepted alternative spellings) and the province-data template
+data/provinsi/             province-level datasets + daftar-indikator.xlsx (what the Provinsi tab shows)
 ```
 
 - A sector's data are loaded only when it is opened. The URL hash keeps the view (`#sector=gas&tab=trend&series=g04.total`, or for electricity `#tab=compare&unit=uid_aceh&year=2025&lang=en`), so a view can be shared as a link.
@@ -43,14 +44,19 @@ pull request with a review report (draft when a table needs a person). One-time 
 Workflow permissions →* **Read and write permissions** and **Allow GitHub Actions to create and approve pull requests**.
 Details: `tools/ekstraksi/README.md`, section 0.
 
-## Province-level indicators (preparation)
+## Province-level data (Provinsi tab)
 
-`cek-data.html` recognises a province-level indicator file by its content (a header row with a *Provinsi* column, plus a *Tahun*
-column or one column per year) and checks it in `assets/js/cek-provinsi.js`: title rows and notes, long or wide layout, province
-names against `data/referensi/provinsi.xlsx` (with alternative spellings and a closest-match suggestion), duplicates, missing
-provinces per year, text in value cells, and fraction vs percent. It then offers a tidy file (`info` + `data` sheets with BPS codes),
-written in the browser with the bundled `write-excel-file`. The dashboard does not display these indicators yet; a future
-*Provinsi* tab would read tidy files from `data/provinsi/`.
+Simple province data (e.g. villages by electricity status) live in `data/provinsi/`, one tidy workbook per dataset
+(sheets `info`, `indikator`, `data` = Tahun | Kode BPS | Provinsi | Indikator | Nilai). `data/provinsi/daftar-indikator.xlsx`
+(sheet `daftar`: file | tampilkan | urutan) lists what is shown; `assets/js/tab-provinsi.js` adds a **Provinsi** tab to the
+electricity sector only when that list has an entry with `tampilkan = ya` (it is committed empty). The tab shows a ranking per
+indicator (order from `makin_tinggi_makin_baik`), an optional 100 % composition (`komposisi = ya`, only for non-overlapping
+categories), province details, a trend once two or more years exist, and a table with CSV/Excel download.
+
+`cek-data.html` (`assets/js/cek-provinsi.js`) recognises these files by content, accepts long or wide layouts, checks province names
+against `data/referensi/provinsi.xlsx` (alternative spellings, closest-match suggestion), duplicates, missing provinces, text values
+and fraction/percent, writes the tidy workbook in the browser (bundled `write-excel-file`), and checks the registry (listed files present).
+Staff guide with screenshots: `docs/Panduan-Menambah-Data-Provinsi.pdf` (source in `docs/panduan-provinsi/`).
 
 ## Adding a sector
 

@@ -289,7 +289,11 @@
       if (us.size > 1 || us.has("fraksi") || us.has("persen")) warnings.push(`<b>komposisi = ya</b>, tetapi satuan indikatornya berbeda atau berupa persen/fraksi. Komposisi hanya bermakna untuk jumlah dengan satuan sama (mis. desa).`);
       else info.push(`Komposisi: ${inds.length} indikator dijumlahkan menjadi 100% per provinsi.`);
     } else if (inds.length > 1 && !getInfo("komposisi")) {
-      warnings.push(`Ada ${inds.length} indikator. Jika semuanya bagian dari satu keseluruhan (mis. desa berlistrik PLN + non-PLN + tidak berlistrik = semua desa), isi <b>komposisi = ya</b> di sheet info agar dashboard dapat menampilkan persentasenya.`);
+      const us = new Set(inds.map((i) => unitOf[i]));
+      const tot = !us.has("fraksi") && !us.has("persen") ? recs.filter((r) => r.year === years[years.length - 1] && r.nama !== "Indonesia").reduce((a, r) => a + r.v, 0) : null;
+      warnings.push(`Ada ${inds.length} indikator${tot != null ? ` (jumlah semuanya ${fnum(tot, 0)} untuk tahun ${years[years.length - 1]})` : ""}. Isi <b>komposisi</b> di sheet info: ` +
+        `<b>ya</b> hanya jika indikator-indikator ini tidak tumpang tindih dan jumlahnya sama dengan keseluruhannya (bandingkan dengan total yang diketahui, mis. jumlah semua desa); ` +
+        `<b>tidak</b> jika satu unsur dapat masuk lebih dari satu indikator.`);
     }
 
     const ok = errors.length === 0;
