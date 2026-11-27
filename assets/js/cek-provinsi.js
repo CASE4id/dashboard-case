@@ -76,6 +76,20 @@
         return { header: i, layout: "long", pc, yc, ic, vcols };
       }
       if (yearCols.length) return { header: i, layout: "wide", pc, ic, yearCols };
+      // Judul kolom bertingkat (khas unduhan BPS): baris indikator, lalu baris tahun di bawahnya
+      for (let k = i + 1; k <= Math.min(i + 5, rows.length - 1); k++) {
+        const yr = rows[k] || [];
+        const cols = yr.map((v, j) => (j !== pc && isYear(v) ? j : -1)).filter((j) => j >= 0);
+        if (!cols.length) continue;
+        const width = Math.max(...rows.slice(i, k + 1).map((x) => (x || []).length));
+        const filledRow = (x) => { const o = []; let last = null; for (let j = 0; j < width; j++) { if (j !== pc && filled((x || [])[j])) last = String(x[j]).trim(); o.push(j === pc ? null : last); } return o; };
+        const labelRows = []; for (let m = k - 1; m >= i; m--) labelRows.push({ m, raw: rows[m] || [], ff: filledRow(rows[m]) });
+        const lab = labelRows.find((L) => cols.filter((j) => filled(L.raw[j])).length >= Math.min(2, cols.length)) || labelRows[0];
+        const titleCells = rows.slice(0, k).flat().filter((v) => typeof v === "string" && v.trim().length > 15 && !isProvHeader(v));
+        const title = titleCells.sort((a, b) => b.length - a.length)[0] || "";
+        return { header: k, layout: "wide2", pc, ic: -1, labelRow: lab.m, title,
+          cols: cols.map((j) => ({ j, year: yr[j], ind: (filled(lab.raw[j]) ? String(lab.raw[j]).trim() : lab.ff[j]) || "Nilai" })) };
+      }
     }
     return null;
   }
@@ -151,9 +165,21 @@
     const meta = keyVal(lower.info);
     const getInfo = (k) => meta[norm(k)] || meta[norm(k.replace("judul", "nama"))] || "";   // "nama_id" (format lama) juga diterima
 
+    // saran judul & satuan dari judul tabel BPS, mis. "Banyaknya Desa/Kelurahan ... (Desa)"
+    const sugg = {};
+    if (t.title) {
+      const m = t.title.match(/^(.*?)\s*\(([^()]{1,25})\)\s*$/);
+      sugg.judulid = (m ? m[1] : t.title).trim();
+      if (m) sugg.satuan = m[2].trim().toLowerCase();
+    }
     // bagaimana indikator ditentukan
     let indMode;
-    if (t.ic >= 0) {
+    if (t.layout === "wide2") {
+      indMode = "columns";
+      const inds = [...new Set(t.cols.map((c) => c.ind))], yrs = [...new Set(t.cols.map((c) => String(c.year).trim()))];
+      info.push(`Judul kolom dua tingkat dikenali (khas unduhan BPS): indikator di baris ${t.labelRow + 1} (${inds.map(esc).join(", ")}), tahun di baris ${t.header + 1} (${yrs.map(esc).join(", ")}).`);
+      if (sugg.judulid) info.push(`Judul tabel: "${esc(t.title)}". Dipakai sebagai saran judul${sugg.satuan ? ` dan satuan (<b>${esc(sugg.satuan)}</b>)` : ""} di versi rapi.`);
+    } else if (t.ic >= 0) {
       indMode = "column";
       if (t.layout === "long" && t.vcols.length !== 1) errors.push(`${S}: dengan kolom <b>${esc(hdr[t.ic])}</b>, harus ada tepat satu kolom nilai (sekarang ${t.vcols.length}: ${t.vcols.map((j) => esc(hdr[j])).join(", ") || "tidak ada"}).`);
     } else if (t.layout === "long" && t.vcols.length > 1) {
@@ -164,10 +190,10 @@
       if (t.layout === "long" && t.vcols.length === 0) errors.push(`${S}: tidak ada kolom nilai di sebelah kolom Tahun dan Provinsi.`);
     }
     const singleName = t.layout === "long" && t.vcols.length === 1 && !isValueHeader(hdr[t.vcols[0]]) ? String(hdr[t.vcols[0]]).trim() : (getInfo("judul_id") || "Nilai");
-    const layoutTxt = t.layout === "long" ? "memanjang (satu baris per tahun dan provinsi)" : "melebar (satu kolom per tahun)";
+    const layoutTxt = t.layout === "long" ? "memanjang (satu baris per tahun dan provinsi)" : t.layout === "wide2" ? "tabel BPS (indikator dan tahun sebagai judul kolom)" : "melebar (satu kolom per tahun)";
     info.push(`Dikenali sebagai <b>data per provinsi</b>: sheet <b>${esc(dataName)}</b>, susunan ${layoutTxt}, ${indMode === "column" ? `indikator di kolom <b>${esc(hdr[t.ic])}</b>` : indMode === "columns" ? "satu kolom per indikator" : `satu indikator ("${esc(singleName)}")`}.`);
     if (t.layout === "wide") warnings.push(`Susunan melebar (tahun sebagai kolom: ${t.yearCols.map((j) => esc(hdr[j])).join(", ")}). Dapat dibaca; versi rapi mengubahnya menjadi satu baris per tahun.`);
-    if (t.header > 0) warnings.push(`Baris 1–${t.header} berisi judul/teks di atas tabel dan diabaikan. Versi rapi tidak menyertakannya.`);
+    if (t.header > 0 && t.layout !== "wide2") warnings.push(`Baris 1–${t.header} berisi judul/teks di atas tabel dan diabaikan. Versi rapi tidak menyertakannya.`);
 
     const recs = [], aliasUsed = new Map(), unknown = [], notes = [], indSpell = new Map();
     let pctStrings = 0;
@@ -190,7 +216,7 @@
     for (let i = t.header + 1; i < rows.length; i++) {
       const r = rows[i] || [], line = i + 1;
       const pv = r[t.pc];
-      const valCells = t.layout === "long" ? t.vcols.map((j) => r[j]) : t.yearCols.map((j) => r[j]);
+      const valCells = t.layout === "long" ? t.vcols.map((j) => r[j]) : t.layout === "wide2" ? t.cols.map((c) => r[c.j]) : t.yearCols.map((j) => r[j]);
       const hasVals = valCells.some(filled);
       if (!filled(pv) && !hasVals) continue;
       const texts = r.filter(filled).map((v) => String(v).trim());
@@ -222,6 +248,7 @@
       };
       if (t.layout === "long" && indMode === "columns") t.vcols.forEach((j) => push(r[t.yc], r[j], String(hdr[j]).trim()));
       else if (t.layout === "long") push(r[t.yc], r[t.vcols[0]], ind);
+      else if (t.layout === "wide2") t.cols.forEach((c) => push(c.year, r[c.j], c.ind));
       else t.yearCols.forEach((j) => push(hdr[j], r[j], ind));
     }
     for (const u of unknown) errors.push(`${S} baris ${u.line}: provinsi "${esc(u.text)}" tidak dikenali.` +
@@ -252,7 +279,7 @@
     }
     const unitOf = {};
     for (const ind of inds) {
-      const rs = recs.filter((r) => r.ind === ind), vals = rs.map((r) => r.v);
+      const rs = recs.filter((r) => r.ind === ind && r.nama !== "Indonesia"), vals = rs.map((r) => r.v);   // kisaran tanpa baris nasional
       let unit = norm((indMeta[ind.toLowerCase()] || {}).satuan || getInfo("satuan"));
       if (unit === "%") unit = "persen";
       const nLow = vals.filter((v) => v >= 0 && v <= 1).length, nHigh = vals.filter((v) => v > 1 && v <= 100).length, nBig = vals.filter((v) => v > 100 || v < 0).length;
@@ -308,7 +335,7 @@
     const btn = document.getElementById("tidyBtn");
     if (btn) btn.onclick = async () => {
       const H = (v) => ({ value: v, fontWeight: "bold" });
-      const infoSheet = [[H("kunci"), H("isian"), H("keterangan")], ...INFO_KEYS.map(([k, d]) => [k, getInfo(k) || (k === "komposisi" && inds.length === 1 ? "tidak" : null), d])];
+      const infoSheet = [[H("kunci"), H("isian"), H("keterangan")], ...INFO_KEYS.map(([k, d]) => [k, getInfo(k) || sugg[norm(k)] || (k === "komposisi" && inds.length === 1 ? "tidak" : null), d])];
       const indSheet = [[H("indikator"), H("nama_en"), H("satuan"), H("makin_tinggi_makin_baik")], ...inds.map((ind) => {
         const m = indMeta[ind.toLowerCase()] || {};
         return [ind, m.en || null, m.satuan || (["fraksi", "persen"].includes(unitOf[ind]) ? unitOf[ind] : null), m.better || null];
