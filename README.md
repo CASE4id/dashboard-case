@@ -23,6 +23,9 @@ assets/js/sektor-umum.js   Shared helpers for national-level sectors (KPI cards,
 assets/js/sektor-gas.js    Gas transmission tabs
 assets/js/sektor-udara.js  Air transport tabs
 assets/vendor/             Bundled libraries, with no CDN dependency
+tools/ekstraksi/           PDF extraction toolkit (Statistik PLN, BPS gas/air) + automation; see its README
+.github/workflows/         tambah-data-pln.yml: "Tambah data PLN dari PDF" (PDF → data file → pull request)
+docs/                      Buku Panduan (PDF guidebook) and its source
 ```
 
 - A sector's data are loaded only when it is opened. The URL hash keeps the view (`#sector=gas&tab=trend&series=g04.total`, or for electricity `#tab=compare&unit=uid_aceh&year=2025&lang=en`), so a view can be shared as a link.
@@ -30,6 +33,14 @@ assets/vendor/             Bundled libraries, with no CDN dependency
 - **Gas / air transport:** only the file with the highest year in its name is read (older editions can stay as an archive). Gas sheets `g01`–`g10` are wide (one row per category, one column per year); air sheets `a01`–`a06` are long (one row per year/category). Both have `tabel` (titles), `catatan` (notes) and, for air, `kamus` (column labels).
 - Indicators with a known break in the series have `trendFrom` in `config.js`; the between-years analysis starts there by default.
 - The language choice is remembered in `localStorage`.
+
+## Electricity data from the PDF (automated)
+
+`tools/ekstraksi/` holds the extraction toolkit that produced the 2014–2025 data; it reproduces the dashboard files cell for cell.
+The **Tambah data PLN dari PDF** workflow turns a new Statistik PLN PDF into `data/listrik/statistik-pln-<YEAR>.xlsx` and opens a
+pull request with a review report (draft when a table needs a person). One-time repository setting: *Settings → Actions → General →
+Workflow permissions →* **Read and write permissions** and **Allow GitHub Actions to create and approve pull requests**.
+Details: `tools/ekstraksi/README.md`, section 0.
 
 ## Adding a sector
 

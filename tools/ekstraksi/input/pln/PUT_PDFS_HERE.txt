@@ -1,0 +1,1 @@
+Put the PLN reports here, named Statistik<YEAR>.pdf (e.g. Statistik2024.pdf).

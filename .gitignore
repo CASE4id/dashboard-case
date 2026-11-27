@@ -1,2 +1,8 @@
 .DS_Store
 ~$*.xlsx
+
+# Toolkit ekstraksi: PDF, hasil kerja, dan keluaran sementara tidak disimpan di repositori
+tools/ekstraksi/input/**/*.pdf
+tools/ekstraksi/work/
+tools/ekstraksi/output/
+__pycache__/

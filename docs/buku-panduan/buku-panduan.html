@@ -1,0 +1,601 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Buku Panduan Dashboard PraKTIk</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root { --navy:#0a2f6b; --blue:#1557b0; --sky:#2fa8e0; --yellow:#f7c948; --ink:#12213a; --muted:#5b6b82; --line:#dce3ee; --bg:#f2f5fa; --red:#e0245e; --good:#1e8e4e; --bad:#c8382a; }
+  @page { size: A4; margin: 18mm 16mm 20mm 16mm; }
+  * { box-sizing: border-box; }
+  body { font-family: "Plus Jakarta Sans", system-ui, sans-serif; color: var(--ink); font-size: 10pt; line-height: 1.5; margin: 0; }
+  h1 { font-size: 22pt; color: var(--navy); margin: 0 0 6mm; letter-spacing: .01em; }
+  h1 .num { display: inline-block; background: var(--yellow); color: var(--navy); border-radius: 8px; padding: 0 10px; margin-right: 8px; }
+  h2 { font-size: 14pt; color: var(--navy); margin: 6mm 0 3mm; border-bottom: 2px solid var(--line); padding-bottom: 1.5mm; }
+  h3 { font-size: 11.5pt; color: var(--blue); margin: 5mm 0 2mm; }
+  p { margin: 0 0 3mm; }
+  .chapter { page-break-before: always; }
+  .avoid { page-break-inside: avoid; }
+  ul, ol { margin: 0 0 3mm; padding-left: 6mm; }
+  li { margin-bottom: 1.2mm; }
+  code, .mono { font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; font-size: 9.2pt; background: #eef2f8; border-radius: 4px; padding: 0 4px; color: var(--navy); }
+  b, strong { color: var(--navy); }
+  table { width: 100%; border-collapse: collapse; margin: 2mm 0 4mm; font-size: 9.5pt; page-break-inside: avoid; }
+  th { background: var(--navy); color: #fff; text-align: left; padding: 2mm 2.5mm; font-weight: 600; }
+  td { border-bottom: 1px solid var(--line); padding: 1.5mm 2.5mm; vertical-align: top; }
+  tr:nth-child(even) td { background: #f7f9fc; }
+  figure { margin: 3mm 0 5mm; page-break-inside: avoid; }
+  figure img { width: 100%; max-height: 150mm; object-fit: contain; object-position: left top; border: 1px solid var(--line); border-radius: 8px; display: block; }
+  figure.narrow img { width: 62%; margin: 0 auto; }
+  figure.phone img { width: 38%; margin: 0 auto; }
+  figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
+  .callouts { counter-reset: c; list-style: none; padding-left: 0; }
+  .callouts li { position: relative; padding-left: 9mm; }
+  .callouts li::before { counter-increment: c; content: counter(c); position: absolute; left: 0; top: .2mm; width: 6mm; height: 6mm; border-radius: 50%; background: var(--red); color: #fff; font-weight: 800; font-size: 8.5pt; text-align: center; line-height: 6mm; }
+  .box { border-radius: 10px; padding: 2.5mm 4mm; margin: 2.5mm 0 3mm; page-break-inside: avoid; }
+  .tip { background: #eaf4fd; border-left: 4px solid var(--sky); }
+  .warn { background: #fff7e0; border-left: 4px solid var(--yellow); }
+  .danger { background: #fdecef; border-left: 4px solid var(--red); }
+  .box b:first-child { display: block; margin-bottom: 1mm; }
+  .steps { counter-reset: s; list-style: none; padding-left: 0; }
+  .steps > li { position: relative; padding-left: 10mm; margin-bottom: 2.5mm; }
+  .steps > li::before { counter-increment: s; content: counter(s); position: absolute; left: 0; top: 0; width: 7mm; height: 7mm; border-radius: 6px; background: var(--navy); color: #fff; font-weight: 700; font-size: 9pt; text-align: center; line-height: 7mm; }
+  /* Jalur klik (ilustrasi, bukan tangkapan layar GitHub) */
+  .path { display: flex; flex-wrap: wrap; align-items: center; gap: 1.5mm; background: var(--bg); border: 1px dashed #b9cbe6; border-radius: 10px; padding: 3mm; margin: 2mm 0 4mm; page-break-inside: avoid; }
+  .path .lbl { width: 100%; font-size: 8pt; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: .5mm; }
+  .path span.k { background: #fff; border: 1px solid #c9d6ea; border-radius: 6px; padding: .8mm 2.5mm; font-weight: 600; font-size: 9.2pt; color: var(--navy); }
+  .path span.btn { background: #1f883d; border-color: #1f883d; color: #fff; }
+  .path span.a { color: var(--muted); font-weight: 700; }
+  /* Sampul */
+  .cover { height: 257mm; display: flex; flex-direction: column; justify-content: space-between; background: linear-gradient(135deg, #0a2f6b 0%, #1557b0 60%, #2fa8e0 100%); color: #fff; border-radius: 16px; padding: 18mm 16mm; }
+  .cover .pill { display: inline-flex; align-items: center; gap: 4mm; background: #fff; color: var(--navy); border-radius: 999px; padding: 3mm 6mm; font-weight: 600; font-size: 9.5pt; }
+  .cover .pill img { height: 11mm; }
+  .cover h1 { color: #fff; font-size: 34pt; margin: 0; line-height: 1.1; }
+  .cover h1 span { color: var(--yellow); }
+  .cover .sub { font-size: 15pt; margin-top: 4mm; opacity: .95; }
+  .cover .meta { font-size: 10pt; opacity: .9; line-height: 1.7; }
+  .cover .sectors span { display: inline-block; border: 1px solid rgba(255,255,255,.5); border-radius: 999px; padding: 1.5mm 4mm; margin: 0 2mm 2mm 0; font-size: 10pt; }
+  .cover .sectors span:first-child { background: var(--yellow); color: var(--navy); border-color: var(--yellow); font-weight: 700; }
+  .toc { list-style: none; padding: 0; }
+  .toc li { display: flex; justify-content: space-between; border-bottom: 1px dotted #c9d6ea; padding: .7mm 0; font-size: 9.8pt; font-weight: 600; color: var(--navy); }
+  .toc li.s { font-weight: 400; padding-left: 6mm; color: var(--ink); font-size: 9.8pt; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; }
+  .check { list-style: none; padding-left: 0; }
+  .check li { padding-left: 8mm; position: relative; }
+  .check li::before { content: ""; position: absolute; left: 0; top: .6mm; width: 4.5mm; height: 4.5mm; border: 1.5px solid var(--navy); border-radius: 3px; }
+  .fill { display: inline-block; min-width: 55mm; border-bottom: 1px solid #9aa5b1; }
+</style>
+</head>
+<body>
+
+<!-- ============================ SAMPUL ============================ -->
+<section class="cover">
+  <div><span class="pill"><img src="img/logo-bappenas-emblem.png" alt=""> Kementerian PPN/Bappenas <img src="img/logo-tkka.png" alt=""> Direktorat Transmisi, Ketenagalistrikan, Kedirgantaraan, dan Antariksa</span></div>
+  <div>
+    <div style="font-size:12pt;letter-spacing:.2em;opacity:.9;margin-bottom:4mm">BUKU PANDUAN</div>
+    <h1>DASHBOARD <span>PraKTIk</span></h1>
+    <div class="sub">Pengoperasian, Pembaruan Data, dan Pengelolaan GitHub</div>
+    <div class="sectors" style="margin-top:8mm"><span>Ketenagalistrikan</span><span>Transmisi Gas</span><span>Kedirgantaraan</span></div>
+  </div>
+  <div class="meta">
+    Alamat dashboard: <b style="color:#fff">case4id.github.io/dashboard-case</b><br>
+    Repositori: <b style="color:#fff">github.com/CASE4id/dashboard-case</b><br>
+    Versi 1.0 · November 2026
+  </div>
+</section>
+
+<!-- ============================ DAFTAR ISI ============================ -->
+<section class="chapter">
+  <h1>Daftar Isi</h1>
+  <ul class="toc">
+    <li>1. Mengenal Dashboard PraKTIk</li>
+    <li>2. Menggunakan Dashboard</li>
+    <li class="s">2.1 Bagian atas: sektor, bahasa, filter, tab</li>
+    <li class="s">2.2 Sektor Ketenagalistrikan</li>
+    <li class="s">2.3 Sektor Transmisi Gas</li>
+    <li class="s">2.4 Sektor Kedirgantaraan</li>
+    <li class="s">2.5 Bahasa Inggris, tautan, ponsel, dan bagian bawah</li>
+    <li>3. Cara Kerja Situs</li>
+    <li>4. Memperbarui Data (rutin tahunan)</li>
+    <li class="s">4.1 Menyiapkan file Excel per sektor</li>
+    <li class="s">4.2 Memeriksa file di halaman Cek Data</li>
+    <li class="s">4.3 Mengunggah ke GitHub</li>
+    <li class="s">4.4 Memeriksa hasil dan mengembalikan versi lama</li>
+    <li class="s">4.5 Cara otomatis dari PDF (Ketenagalistrikan)</li>
+    <li>5. GitHub untuk Akun Proyek</li>
+    <li class="s">5.1 Istilah penting</li>
+    <li class="s">5.2 Membuat akun proyek dan mengamankannya</li>
+    <li class="s">5.3 Menjadikan akun proyek pemilik (Owner) organisasi</li>
+    <li class="s">5.4 Mengundang dan mengeluarkan staf</li>
+    <li class="s">5.5 Pengaturan GitHub Pages</li>
+    <li class="s">5.6 Memantau publikasi (tab Actions)</li>
+    <li class="s">5.7 Menerima perubahan dari pihak teknis (pull request)</li>
+    <li>6. Pemecahan Masalah</li>
+    <li>7. Serah Terima</li>
+    <li>Lampiran: Glosarium</li>
+  </ul>
+  <div class="box tip"><b>Cara membaca buku ini</b>
+    Bagian 1–2 untuk semua pengguna. Bagian 4 untuk petugas pembaruan data (sekali setahun per sektor). Bagian 5 untuk admin
+    yang memegang akun proyek GitHub. Lingkaran merah bernomor pada gambar dijelaskan oleh daftar bernomor di bawahnya.
+    Kotak abu-abu bergaris putus-putus adalah <b>jalur klik</b> di situs GitHub (ilustrasi, bukan tangkapan layar).</div>
+</section>
+
+<!-- ============================ BAB 1 ============================ -->
+<section class="chapter">
+  <h1><span class="num">1</span>Mengenal Dashboard PraKTIk</h1>
+  <p>Dashboard PraKTIk menyajikan profil dan analisis tiga sektor yang menjadi lingkup Direktorat Transmisi, Ketenagalistrikan,
+  Kedirgantaraan, dan Antariksa (TKKA), Kementerian PPN/Bappenas. Dashboard ini menggantikan versi lama berbasis ArcGIS
+  dan kini berupa <b>situs statis gratis</b>: tidak memerlukan lisensi, server, atau basis data.</p>
+  <table>
+    <tr><th style="width:22%">Sektor</th><th style="width:30%">Sumber data</th><th style="width:20%">Tahun</th><th>Tingkat rincian</th></tr>
+    <tr><td><b>Ketenagalistrikan</b></td><td>Statistik PLN (PT PLN (Persero))</td><td>2014–2025</td><td>Per unit PLN (UID/UIW, unit pembangkitan, transmisi), rincian provinsi di beberapa tabel, nasional</td></tr>
+    <tr><td><b>Transmisi Gas</b></td><td>BPS, Statistik Gas (Survei Tahunan Perusahaan Gas)</td><td>2020–2024</td><td>Nasional</td></tr>
+    <tr><td><b>Kedirgantaraan</b></td><td>BPS, Statistik Transportasi Udara</td><td>2020–2024</td><td>Nasional; per provinsi dan per bandara (2024)</td></tr>
+  </table>
+  <table>
+    <tr><th style="width:30%">Alamat</th><th>Kegunaan</th></tr>
+    <tr><td><code>case4id.github.io/dashboard-case</code></td><td>Dashboard untuk publik</td></tr>
+    <tr><td><code>case4id.github.io/dashboard-case/cek-data.html</code></td><td>Halaman <b>Cek Data</b> untuk staf (memeriksa file Excel sebelum diunggah)</td></tr>
+    <tr><td><code>github.com/CASE4id/dashboard-case</code></td><td>Repositori: tempat semua file situs dan data disimpan</td></tr>
+  </table>
+  <div class="box warn"><b>Catatan penting tentang data unit PLN</b>
+    Data ketenagalistrikan disajikan <b>per unit PLN</b>, bukan per provinsi. Untuk unit distribusi/wilayah, kapasitas pembangkit
+    hanya mencakup pembangkit yang dikelola unit tersebut (umumnya sistem terisolasi), bukan seluruh sistem interkoneksi.
+    Dashboard menampilkan catatan ini secara otomatis.</div>
+</section>
+
+<!-- ============================ BAB 2 ============================ -->
+<section class="chapter">
+  <h1><span class="num">2</span>Menggunakan Dashboard</h1>
+  <h2>2.1 Bagian atas: sektor, bahasa, filter, tab</h2>
+  <figure><img src="img/d_header.png"><figcaption>Gambar 2.1 · Bagian atas dashboard.</figcaption></figure>
+  <ol class="callouts">
+    <li><b>Pilihan sektor.</b> Klik Ketenagalistrikan, Transmisi Gas, atau Kedirgantaraan. Tombol kuning = sektor yang sedang dibuka. Data tiap sektor baru dimuat saat sektornya dibuka.</li>
+    <li><b>Bahasa.</b> ID (Bahasa Indonesia) atau EN (English). Pilihan diingat browser.</li>
+    <li><b>Unit PLN / Wilayah</b> (hanya sektor Ketenagalistrikan). Pilih Indonesia, unit distribusi/wilayah, provinsi, unit pembangkitan, atau unit transmisi. Daftar hanya memuat unit yang punya data pada tahun terpilih.</li>
+    <li><b>Tahun.</b> Tahun data yang ditampilkan. Tahun terbaru menjadi tampilan awal.</li>
+    <li><b>Tab.</b> Halaman-halaman dalam sektor. Setiap sektor punya tab sendiri.</li>
+  </ol>
+  <figure><img src="img/d_summary.png"><figcaption>Gambar 2.2 · Tab Ringkasan sektor Ketenagalistrikan (Indonesia, 2025).</figcaption></figure>
+</section>
+
+<section>
+  <h2>2.2 Sektor Ketenagalistrikan</h2>
+  <h3>Tab Ringkasan: kartu indikator</h3>
+  <figure><img src="img/d_kpi.png"><figcaption>Gambar 2.3 · Kartu indikator untuk UID Aceh, 2025.</figcaption></figure>
+  <ol class="callouts">
+    <li><b>Nilai</b> indikator untuk unit dan tahun terpilih, dengan satuannya.</li>
+    <li><b>Pembanding:</b> nilai nasional (dengan label <i>lebih baik/lebih buruk</i> dan warna hijau/merah bila indikator punya arah baik) serta perubahan dari tahun sebelumnya (▲ naik, ▼ turun).</li>
+    <li><b>Keterangan</b> singkat tentang definisi indikator.</li>
+  </ol>
+  <p>Kotak kuning di dalam kartu adalah <b>catatan khusus</b> dari sheet <code>catatan</code> di file Excel, misalnya SAIDI UID Aceh 2025 yang tinggi akibat bencana.
+  Untuk unit distribusi/wilayah, dashboard juga menampilkan catatan cakupan pembangkit:</p>
+  <figure><img src="img/d_localnote.png"><figcaption>Gambar 2.4 · Catatan cakupan untuk unit distribusi/wilayah.</figcaption></figure>
+  <h3>Tab Pembangkitan dan Jaringan &amp; Susut</h3>
+  <p><b>Pembangkitan</b>: kapasitas terpasang per jenis pembangkit (EBT dan fosil), produksi energi per jenis, dan sumber energi (produksi sendiri, sewa, pembelian).
+  <b>Jaringan &amp; Susut</b>: susut energi, SAIDI/SAIFI, panjang jaringan transmisi dan distribusi, serta trafo gardu induk.
+  Arahkan kursor ke grafik untuk melihat angkanya.</p>
+</section>
+
+<section>
+  <h3>Tab Perbandingan: peringkat semua unit</h3>
+  <figure><img src="img/d_compare.png"><figcaption>Gambar 2.5 · Peringkat rasio elektrifikasi per unit, 2025.</figcaption></figure>
+  <ol class="callouts">
+    <li><b>Indikator</b> yang dibandingkan.</li>
+    <li><b>Cakupan:</b> unit induk distribusi/wilayah, atau provinsi.</li>
+    <li><b>Grafik peringkat.</b> Hijau = lebih baik dari nasional, merah = lebih buruk, kuning = unit yang sedang dipilih. Garis putus-putus = nilai nasional. <b>Klik sebuah batang</b> untuk membuka profil unit tersebut.</li>
+  </ol>
+  <div class="box tip"><b>Peta</b>
+    Di bawah grafik terdapat tempat untuk peta. Peta akan diaktifkan setelah data batas wilayah (GeoJSON) tersedia.</div>
+</section>
+
+<section>
+  <h3>Tab Analisis: dua indikator</h3>
+  <figure><img src="img/d_scatter.png"><figcaption>Gambar 2.6 · Hubungan rasio elektrifikasi dan konsumsi rumah tangga, dengan pergerakan sejak 2016.</figcaption></figure>
+  <ol class="callouts">
+    <li><b>Mode analisis:</b> <i>Dua indikator</i> (gambar ini) atau <i>Antar tahun</i> (halaman berikut).</li>
+    <li><b>Sumbu X</b> (mendatar): indikator pertama.</li>
+    <li><b>Sumbu Y</b> (tegak): indikator kedua. Setiap titik = satu unit. Klik titik untuk membuka profil unit.</li>
+    <li><b>Pergerakan sejak:</b> pilih tahun lama untuk melihat panah dari posisi tahun itu ke tahun terpilih.</li>
+    <li><b>Pilihan tampilan:</b> garis tren dan skala logaritmik (berguna untuk angka yang sangat timpang, mis. kapasitas).</li>
+    <li><b>Korelasi (r)</b> beserta penjelasan kekuatannya. Korelasi bukan sebab-akibat; dengan sekitar 20 titik, gunakan sebagai petunjuk awal.</li>
+  </ol>
+</section>
+
+<section>
+  <h3>Tab Analisis: antar tahun</h3>
+  <figure><img src="img/d_years.png"><figcaption>Gambar 2.7 · Tren rasio elektrifikasi UIW Nusa Tenggara Timur dan perubahan semua unit.</figcaption></figure>
+  <ol class="callouts">
+    <li><b>Indikator</b> yang dianalisis.</li>
+    <li><b>Dari tahun</b> dan</li>
+    <li><b>Sampai tahun</b> untuk grafik perubahan.</li>
+    <li><b>Tren</b> unit terpilih (garis biru) dibandingkan nasional (garis putus-putus) untuk semua tahun.</li>
+    <li><b>Perubahan</b> semua unit antara dua tahun: poin persentase untuk indikator dalam %, persen untuk lainnya. Klik batang untuk mengganti unit pada grafik tren.</li>
+  </ol>
+  <div class="box warn"><b>Perubahan definisi data</b>
+    Beberapa deret data punya "patahan" karena PLN mengubah cara pelaporan (mis. SAIDI/SAIFI pada 2016, kapasitas terpasang 2014–2015).
+    Untuk indikator tersebut, perbandingan bawaan dimulai setelah patahan dan dashboard menampilkan penjelasannya. Rincian ada di
+    <b>Catatan kualitas data</b> di bawah grafik (klik untuk membuka):</div>
+  <figure><img src="img/d_quality.png"><figcaption>Gambar 2.8 · Catatan kualitas data (teks teknis dalam bahasa Inggris dari dokumentasi ekstraksi data).</figcaption></figure>
+</section>
+
+<section>
+  <h3>Tab Data &amp; Unduh</h3>
+  <figure><img src="img/d_data.png"><figcaption>Gambar 2.9 · Tabel data dan tombol unduh.</figcaption></figure>
+  <ol class="callouts">
+    <li><b>Tabel</b> yang ditampilkan (T01–T30, sesuai nomor tabel Statistik PLN).</li>
+    <li><b>Unduh CSV</b>: tabel yang sedang ditampilkan, untuk tahun terpilih.</li>
+    <li><b>Unduh Excel</b>: file Excel lengkap tahun tersebut (semua tabel). File ini juga menjadi <b>templat</b> untuk pembaruan data (Bab 4).</li>
+  </ol>
+  <p>Teks kecil di bawah nama unit adalah nama unit sebagaimana tertulis di laporan tahun itu (nama unit PLN sering berganti).
+  Tanda <b style="color:var(--bad)">*</b> menandai nilai yang dihitung, bukan dipublikasikan.</p>
+
+  <h2>2.3 Sektor Transmisi Gas</h2>
+  <figure><img src="img/g_summary.png"><figcaption>Gambar 2.10 · Ringkasan sektor Transmisi Gas, 2024.</figcaption></figure>
+</section>
+
+<section>
+  <p>Sektor Transmisi Gas berisi angka <b>nasional</b> perusahaan yang menjual gas melalui jaringan pipa. Tab yang tersedia:</p>
+  <table>
+    <tr><th style="width:28%">Tab</th><th>Isi</th></tr>
+    <tr><td><b>Ringkasan</b></td><td>Pelanggan, volume dan nilai penjualan, harga rata-rata, nilai tambah bruto, pekerja; volume per jenis pelanggan, harga per jenis pelanggan, output dan biaya antara.</td></tr>
+    <tr><td><b>Biaya &amp; Tenaga Kerja</b></td><td>Struktur biaya bahan &amp; jasa, pekerja menurut pendidikan, balas jasa pekerja, pemakaian bahan bakar.</td></tr>
+    <tr><td><b>Tren &amp; Analisis</b></td><td>Pilih satu deret data mana pun; tampil grafik tren, perubahan total, rata-rata pertumbuhan per tahun, dan perubahan tahunan.</td></tr>
+    <tr><td><b>Data &amp; Unduh</b></td><td>Tabel G01–G10 (kategori × tahun), unduh CSV dan Excel, beserta catatan data.</td></tr>
+  </table>
+  <p>Label kuning <b>sementara</b> pada kartu menandakan angka yang masih bersifat sementara menurut BPS.</p>
+  <figure><img src="img/g_trend.png"><figcaption>Gambar 2.11 · Tab Tren &amp; Analisis: (1) pilihan deret data, (2) ringkasan pertumbuhan.</figcaption></figure>
+</section>
+
+<section>
+  <h2>2.4 Sektor Kedirgantaraan</h2>
+  <figure><img src="img/u_summary.png"><figcaption>Gambar 2.12 · Ringkasan sektor Kedirgantaraan (transportasi udara), 2024.</figcaption></figure>
+  <table>
+    <tr><th style="width:28%">Tab</th><th>Isi</th></tr>
+    <tr><td><b>Ringkasan</b></td><td>Penumpang berangkat (domestik, internasional), pergerakan pesawat, kargo, faktor muatan, armada; grafik 2020–2024.</td></tr>
+    <tr><td><b>Bandara &amp; Provinsi</b></td><td>Peringkat provinsi (penumpang, pergerakan pesawat, atau kargo), lima bandara tersibuk, dan daftar 238 bandara yang dapat dicari.</td></tr>
+    <tr><td><b>Tren &amp; Analisis</b></td><td>Seperti sektor gas: pilih satu deret data.</td></tr>
+    <tr><td><b>Data &amp; Unduh</b></td><td>Tabel A01–A06 sesuai sumber, unduh CSV dan Excel.</td></tr>
+  </table>
+  <figure><img src="img/u_search.png"><figcaption>Gambar 2.13 · Daftar bandara: (1) kotak pencarian (contoh: "Bali"), (2) jumlah bandara yang ditemukan. Peringkat provinsi di atasnya dapat diubah ukurannya (penumpang, pergerakan pesawat, kargo).</figcaption></figure>
+</section>
+
+<section>
+  <h2>2.5 Bahasa Inggris, tautan, ponsel, dan bagian bawah</h2>
+  <div class="grid2">
+    <figure><img src="img/d_english.png"><figcaption>Gambar 2.14 · Tampilan bahasa Inggris (tombol EN).</figcaption></figure>
+    <figure class="avoid"><img src="img/d_phone.png" style="width:55%;margin:0 auto"><figcaption style="text-align:center">Gambar 2.15 · Tampilan di ponsel.</figcaption></figure>
+  </div>
+  <h3>Membagikan tampilan sebagai tautan</h3>
+  <p>Alamat di browser selalu menyimpan tampilan yang sedang dibuka (sektor, tab, unit, tahun, bahasa). Salin alamat itu
+  untuk membagikan tampilan yang sama persis, misalnya:<br><code>case4id.github.io/dashboard-case/#tab=compare&amp;unit=uid_aceh&amp;year=2025</code></p>
+  <h3>Bagian bawah (footer)</h3>
+  <figure><img src="img/d_footer.png"><figcaption>Gambar 2.16 · Bagian bawah halaman.</figcaption></figure>
+  <ol class="callouts">
+    <li><b>Sumber data</b> sektor yang sedang dibuka.</li>
+    <li><b>Tahun data tersedia.</b></li>
+    <li><b>Tautan untuk staf:</b> panduan pembaruan data dan halaman Cek Data.</li>
+  </ol>
+</section>
+
+<!-- ============================ BAB 3 ============================ -->
+<section class="chapter">
+  <h1><span class="num">3</span>Cara Kerja Situs</h1>
+  <p>Situs ini hanya terdiri dari file biasa (HTML, CSS, JavaScript) dan file Excel. Tidak ada server atau basis data.
+  Semua file disimpan di <b>repositori GitHub</b> <code>CASE4id/dashboard-case</code>. Layanan <b>GitHub Pages</b> menerbitkan isi
+  repositori menjadi situs secara gratis, otomatis setiap kali ada perubahan.</p>
+  <div class="path"><div class="lbl">Alur pembaruan data</div>
+    <span class="k">File Excel baru</span><span class="a">→</span><span class="k">Cek Data</span><span class="a">→</span><span class="k">Unggah ke GitHub</span><span class="a">→</span><span class="k">GitHub Pages menerbitkan (1–3 menit)</span><span class="a">→</span><span class="k">Dashboard menampilkan data baru</span></div>
+  <h2>Isi repositori</h2>
+  <table>
+    <tr><th style="width:34%">Folder / file</th><th>Isi</th><th style="width:22%">Diubah oleh</th></tr>
+    <tr><td><code>data/listrik/</code></td><td>Statistik PLN, <b>satu file per tahun</b>: <code>statistik-pln-2014.xlsx</code> … <code>statistik-pln-2025.xlsx</code></td><td>Petugas data</td></tr>
+    <tr><td><code>data/gas/</code></td><td>Statistik Gas, <b>satu file berisi semua tahun</b>: <code>statistik-gas-2024.xlsx</code></td><td>Petugas data</td></tr>
+    <tr><td><code>data/udara/</code></td><td>Statistik Transportasi Udara, satu file berisi semua tahun: <code>statistik-udara-2024.xlsx</code></td><td>Petugas data</td></tr>
+    <tr><td><code>PANDUAN-UPDATE-DATA.md</code></td><td>Panduan singkat pembaruan data (versi teks dari Bab 4)</td><td>Admin</td></tr>
+    <tr><td><code>assets/js/config.js</code></td><td>Pengaturan: indikator, teks sumber, kontak, daftar kolom</td><td>Admin (hati-hati)</td></tr>
+    <tr><td><code>index.html</code>, <code>cek-data.html</code>, <code>assets/</code> lainnya</td><td>Kode tampilan</td><td>Pihak teknis</td></tr>
+    <tr><td><code>README.md</code></td><td>Dokumentasi teknis (bahasa Inggris)</td><td>Pihak teknis</td></tr>
+  </table>
+  <div class="box tip"><b>Riwayat selalu tersimpan</b>
+    GitHub menyimpan setiap versi setiap file. Kesalahan hampir selalu dapat dibatalkan dengan mengembalikan versi sebelumnya (Bab 4.4 dan 5.7).</div>
+  <div class="box warn"><b>Repositori bersifat publik</b>
+    Siapa pun dapat melihat isi repositori (syarat GitHub Pages gratis). Hanya anggota yang diundang yang dapat <b>mengubah</b> isinya.
+    Jangan pernah mengunggah data rahasia, kata sandi, atau dokumen internal ke repositori.</div>
+</section>
+
+<!-- ============================ BAB 4 ============================ -->
+<section class="chapter">
+  <h1><span class="num">4</span>Memperbarui Data</h1>
+  <p>Pembaruan dilakukan sekali setahun per sektor, setelah publikasi sumber terbit. Waktu yang dibutuhkan ±30–60 menit.
+  Yang diperlukan: Microsoft Excel, browser (Chrome/Edge), dan akun GitHub yang sudah diundang (Bab 5.4).
+  <b>Tidak perlu kemampuan pemrograman.</b></p>
+  <h2>4.1 Menyiapkan file Excel per sektor</h2>
+  <p>Prinsip untuk semua sektor: <b>salin file terakhir, ganti namanya, lalu perbarui isinya.</b> File terakhir dapat diunduh dari dashboard
+  (tab Data &amp; Unduh → Unduh Excel). Nama file: huruf kecil semua, tanpa spasi, memakai tanda hubung.</p>
+  <table>
+    <tr><th style="width:20%">Sektor</th><th style="width:30%">Nama file baru (contoh)</th><th>Yang diubah</th></tr>
+    <tr><td><b>Ketenagalistrikan</b></td><td><code>statistik-pln-2026.xlsx</code><br>(file baru per tahun)</td><td>Ganti angka di sheet <code>t01</code>…<code>t30</code> dengan Statistik PLN terbaru. Tahun diambil dari <b>nama file</b>.</td></tr>
+    <tr><td><b>Transmisi Gas</b></td><td><code>statistik-gas-2025.xlsx</code><br>(TAHUN = tahun data terakhir)</td><td>Di sheet <code>g01</code>…<code>g10</code>: tambah <b>kolom</b> tahun baru di paling kanan (judulnya angka, mis. 2025); perbarui angka tahun lalu bila BPS merevisi.</td></tr>
+    <tr><td><b>Kedirgantaraan</b></td><td><code>statistik-udara-2025.xlsx</code><br>(TAHUN = tahun data terakhir)</td><td>Di sheet <code>a01</code>…<code>a06</code>: tambah <b>baris</b> dengan kolom <code>year</code> = tahun baru. Jangan hapus tahun lama.</td></tr>
+  </table>
+  <h3>Aturan pengisian (semua sektor)</h3>
+  <table>
+    <tr><th style="width:50%">Boleh ✓</th><th>Jangan ✗</th></tr>
+    <tr><td>Mengubah angka di dalam sel</td><td>Mengubah nama sheet (<code>t01</code>, <code>g01</code>, <code>a01</code>, <code>units</code>, …)</td></tr>
+    <tr><td>Menambah baris unit/tahun baru</td><td>Mengubah atau menerjemahkan judul kolom di baris 1</td></tr>
+    <tr><td>Mengosongkan sel jika data tidak ada ("-")</td><td>Menggabungkan sel (merge cells)</td></tr>
+    <tr><td>Angka desimal dengan koma atau titik; negatif sebagai <code>-3,53</code></td><td>Menulis teks di kolom angka (mis. "n/a", "±5")</td></tr>
+    <tr><td></td><td>Menambah baris total/judul di tengah tabel</td></tr>
+  </table>
+  <h3>Khusus Ketenagalistrikan</h3>
+  <ul>
+    <li>Baris <code>indonesia</code> (nasional) wajib ada di setiap tabel.</li>
+    <li><b>Jangan mengubah <code>unit_id</code></b> unit lama. Jika unit berganti nama, ubah kolom <code>unit_name_reported</code> saja. Unit baru: tambahkan barisnya di tabel dan di sheet <code>units</code>.</li>
+    <li>Sheet <code>catatan</code> (opsional): keterangan yang muncul sebagai kotak kuning pada kartu indikator (kolom <code>year</code>, <code>unit_id</code>, <code>indicator</code>, <code>note_id</code>, <code>note_en</code>).</li>
+  </ul>
+</section>
+
+<section>
+  <h2>4.2 Memeriksa file di halaman Cek Data</h2>
+  <p>Sebelum diunggah, setiap file <b>wajib</b> diperiksa. Pemeriksaan berlangsung di browser Anda; file <b>tidak dikirim ke mana pun</b>.</p>
+  <ol class="steps">
+    <li>Buka <code>case4id.github.io/dashboard-case/cek-data.html</code>, atau klik <b>Cek Data</b> di bagian bawah dashboard.</li>
+    <li>Seret file Excel ke kotak bergaris putus-putus (1), atau klik kotak itu untuk memilih file. Sektor dikenali dari nama file.</li>
+    <li>Baca hasilnya. <b>✔ SIAP DIUNGGAH</b>: lanjut ke 4.3; hasil juga menyebut folder tujuan. <b>✖ BELUM SIAP</b>: perbaiki di Excel, lalu cek ulang.</li>
+  </ol>
+  <figure><img src="img/c_empty.png"><figcaption>Gambar 4.1 · Halaman Cek Data.</figcaption></figure>
+  <figure><img src="img/c_ok.png"><figcaption>Gambar 4.2 · Contoh hasil: file siap diunggah.</figcaption></figure>
+</section>
+
+<section>
+  <figure><img src="img/c_err.png"><figcaption>Gambar 4.3 · Contoh hasil: file belum siap. Setiap kesalahan menyebut sheet, baris, dan kolom.</figcaption></figure>
+  <p>Cara membaca contoh di atas:</p>
+  <ul>
+    <li><b>Kesalahan (merah)</b> wajib diperbaiki. Di sini: sel berisi teks "n/a" di kolom angka (sheet t16, baris 4), dan judul kolom
+    <code>electrification_ratio_pct</code> diganti menjadi "rasio_elektrifikasi". Cek Data juga menyebut indikator yang terdampak.</li>
+    <li><b>Catatan (kuning)</b> perlu diperiksa, tetapi file boleh tetap diunggah, misalnya nilai di luar rentang wajar.</li>
+    <li><b>Ringkasan</b> menyebut sektor, tahun, folder tujuan, dan jumlah baris per sheet.</li>
+  </ul>
+  <div class="box warn"><b>Cek Data tidak memeriksa kebenaran angka</b>
+    Cek Data memastikan file dapat dibaca dashboard. Kesesuaian angka dengan publikasi tetap harus diperiksa manusia (Bab 4.4).</div>
+</section>
+
+<section>
+  <h2>4.3 Mengunggah ke GitHub</h2>
+  <ol class="steps">
+    <li>Masuk ke <b>github.com</b> dengan akun Anda (Sign in, kanan atas).</li>
+    <li>Buka repositori <code>github.com/CASE4id/dashboard-case</code>.</li>
+    <li>Klik folder <b>data</b>, lalu folder sektornya: <b>listrik</b>, <b>gas</b>, atau <b>udara</b>.</li>
+    <li>Klik tombol <b>Add file</b> (kanan atas daftar file), lalu <b>Upload files</b>.</li>
+    <li>Seret file Excel ke halaman, atau klik <i>choose your files</i>.</li>
+    <li>Di bagian <b>Commit changes</b> di bawah, tulis keterangan singkat, mis. <i>Tambah data Statistik PLN 2026</i>.</li>
+    <li>Pastikan pilihan <b>Commit directly to the main branch</b> terpilih, lalu klik tombol hijau <b>Commit changes</b>.</li>
+  </ol>
+  <div class="path"><div class="lbl">Jalur klik (ilustrasi)</div>
+    <span class="k">github.com/CASE4id/dashboard-case</span><span class="a">→</span><span class="k">data</span><span class="a">→</span><span class="k">listrik / gas / udara</span><span class="a">→</span><span class="k">Add file ▾</span><span class="a">→</span><span class="k">Upload files</span><span class="a">→</span><span class="k">seret file</span><span class="a">→</span><span class="k">Commit directly to the main branch</span><span class="a">→</span><span class="k btn">Commit changes</span></div>
+  <div class="box tip"><b>Memperbaiki file yang sudah diunggah</b>
+    Unggah ulang file dengan <b>nama yang sama persis</b> ke folder yang sama. GitHub menggantikan file lama; versi lama tetap tersimpan di riwayat.</div>
+  <div class="box danger"><b>Batas ukuran</b>
+    Unggah lewat situs GitHub dibatasi 25 MB per file. File data dashboard hanya ±20–80 KB, jadi tidak masalah. Jangan mengunggah PDF publikasi ke repositori.</div>
+
+  <h2>4.4 Memeriksa hasil dan mengembalikan versi lama</h2>
+  <ol class="steps">
+    <li>Tunggu 1–3 menit. Status penerbitan terlihat di tab <b>Actions</b> repositori (Bab 5.6): centang hijau = selesai.</li>
+    <li>Buka dashboard, pilih sektornya, tekan <b>Ctrl + F5</b>. Browser kadang menampilkan versi lama hingga ±10 menit; untuk memastikan,
+    buka di jendela <b>incognito</b> (<b>Ctrl + Shift + N</b>).</li>
+    <li>Pastikan tahun baru muncul di pilihan Tahun, lalu <b>bandingkan beberapa angka</b> (terutama angka nasional) dengan publikasi.</li>
+    <li>Jika muncul kotak kuning "Sebagian data tidak terbaca", klik untuk melihat rinciannya, perbaiki file, lalu unggah ulang.</li>
+  </ol>
+  <h3>Mengembalikan file ke versi sebelumnya</h3>
+  <div class="path"><div class="lbl">Jalur klik (ilustrasi)</div>
+    <span class="k">buka file di folder data</span><span class="a">→</span><span class="k">History</span><span class="a">→</span><span class="k">pilih versi sebelumnya</span><span class="a">→</span><span class="k">⋯ → View file</span><span class="a">→</span><span class="k">Download raw file</span><span class="a">→</span><span class="k">unggah ulang dengan nama sama (4.3)</span></div>
+</section>
+
+<section>
+  <h2>4.5 Cara otomatis dari PDF (Ketenagalistrikan)</h2>
+  <p>File Statistik PLN dapat dibuat otomatis dari PDF-nya. GitHub membaca PDF, memeriksa hasilnya, lalu membuat <b>pull request</b>
+  berisi file data dan laporan peninjauan. Tidak ada yang tampil di dashboard sebelum pull request di-<i>merge</i> oleh orang.</p>
+  <ol class="steps">
+    <li>Siapkan <b>tautan langsung ke file PDF</b> Statistik PLN (tautan yang langsung mengunduh file <code>.pdf</code>).</li>
+    <li>Di repositori, buka tab <b>Actions</b> → pilih <b>Tambah data PLN dari PDF</b> di kiri → klik <b>Run workflow</b> di kanan.</li>
+    <li>Isi <b>tahun data</b> (mis. 2026) dan <b>tautan PDF</b>, lalu klik tombol hijau <b>Run workflow</b>. Tunggu ±3 menit.</li>
+    <li>Buka tab <b>Pull requests</b> → <i>Data Statistik PLN 2026 (otomatis dari PDF)</i> dan baca laporannya.</li>
+  </ol>
+  <div class="path"><div class="lbl">Jalur klik (ilustrasi)</div>
+    <span class="k">Actions</span><span class="a">→</span><span class="k">Tambah data PLN dari PDF</span><span class="a">→</span><span class="k">Run workflow ▾</span><span class="a">→</span><span class="k">tahun + tautan PDF</span><span class="a">→</span><span class="k btn">Run workflow</span><span class="a">→</span><span class="k">Pull requests</span></div>
+  <table>
+    <tr><th style="width:30%">Laporan menyatakan</th><th>Arti</th><th style="width:34%">Tindakan</th></tr>
+    <tr><td>✅ <b>Siap ditinjau</b></td><td>Semua tabel lolos pemeriksaan otomatis</td><td>Cocokkan angka nasional (bagian 1) dan daftar perubahan besar (bagian 4) dengan PDF, lalu <b>Merge</b></td></tr>
+    <tr><td>⚠️ <b>Perlu bantuan teknis</b> (pull request <i>Draft</i>)</td><td>Biasanya PLN mengubah susunan kolom suatu tabel, atau ada indikasi label baris tertukar</td><td>Minta bantuan teknis mengikuti petunjuk di laporan; setelah diperbaiki, jalankan ulang dengan <b>Use workflow from</b> = branch <code>data-pln-TAHUN</code></td></tr>
+  </table>
+  <div class="box warn"><b>Pemeriksaan manusia tetap wajib</b>
+    Pemeriksaan otomatis menangkap salah baca angka, jumlah yang tidak cocok, dan label baris yang tertukar, tetapi tidak semua
+    kesalahan di PDF. Selalu cocokkan angka nasional dan beberapa sel acak dengan PDF sebelum <i>merge</i>. Uji coba pada laporan
+    2014–2025: pada sebagian besar tahun, PLN mengubah susunan kolom satu atau dua tabel, sehingga bantuan teknis singkat masih sering diperlukan.</div>
+</section>
+
+<!-- ============================ BAB 5 ============================ -->
+<section class="chapter">
+  <h1><span class="num">5</span>GitHub untuk Akun Proyek</h1>
+  <p>Bab ini untuk <b>admin</b> yang memegang akun proyek. Akun proyek adalah akun GitHub milik direktorat (bukan milik pribadi),
+  sehingga pengelolaan dashboard tidak bergantung pada satu orang.</p>
+  <h2>5.1 Istilah penting</h2>
+  <table>
+    <tr><th style="width:24%">Istilah</th><th>Arti dalam proyek ini</th></tr>
+    <tr><td><b>Akun (account)</b></td><td>Identitas login di GitHub: akun pribadi tiap staf, dan satu akun proyek milik direktorat.</td></tr>
+    <tr><td><b>Organisasi</b></td><td><code>CASE4id</code>: "kantor" di GitHub yang memiliki repositori. Anggotanya adalah akun-akun yang diundang.</td></tr>
+    <tr><td><b>Owner / Member</b></td><td>Peran di organisasi. <b>Owner</b> dapat mengatur segalanya (anggota, pengaturan, penghapusan). <b>Member</b> hanya mendapat akses yang diberikan.</td></tr>
+    <tr><td><b>Repositori</b></td><td><code>dashboard-case</code>: folder proyek berisi semua file situs dan data, beserta riwayatnya.</td></tr>
+    <tr><td><b>Commit</b></td><td>Satu perubahan yang disimpan (mis. "Tambah data 2026"), tercatat siapa dan kapan.</td></tr>
+    <tr><td><b>Branch</b></td><td>Salinan kerja. <code>main</code> = versi yang tampil di situs. Pihak teknis bekerja di branch lain lalu mengajukan pull request.</td></tr>
+    <tr><td><b>Pull request</b></td><td>Usulan perubahan dari sebuah branch ke <code>main</code>, untuk ditinjau lalu digabungkan (<b>Merge</b>).</td></tr>
+    <tr><td><b>GitHub Pages</b></td><td>Layanan yang menerbitkan isi <code>main</code> menjadi situs <code>case4id.github.io/dashboard-case</code>.</td></tr>
+    <tr><td><b>Actions</b></td><td>Proses otomatis GitHub; di sini menjalankan penerbitan situs ("pages build and deployment") setiap ada perubahan.</td></tr>
+  </table>
+
+  <h2>5.2 Membuat akun proyek dan mengamankannya</h2>
+  <ol class="steps">
+    <li>Buka <b>github.com/signup</b>. Gunakan <b>email instansi yang dapat diakses bersama/diwariskan</b> (mis. email direktorat), bukan email pribadi.</li>
+    <li>Pilih nama pengguna yang jelas, mis. <code>tkka-bappenas</code>. Simpan kata sandi di pengelola kata sandi kantor.</li>
+    <li>Aktifkan <b>verifikasi dua langkah (2FA)</b>: foto profil (kanan atas) → <b>Settings</b> → <b>Password and authentication</b> →
+    <b>Enable two-factor authentication</b>. Gunakan aplikasi autentikator di ponsel dinas.</li>
+    <li>Unduh dan simpan <b>recovery codes</b> di tempat aman (mis. dicetak dan disimpan di lemari arsip). Tanpa kode ini, akun yang kehilangan ponsel autentikator bisa terkunci permanen.</li>
+  </ol>
+  <div class="path"><div class="lbl">Jalur klik 2FA (ilustrasi)</div>
+    <span class="k">foto profil</span><span class="a">→</span><span class="k">Settings</span><span class="a">→</span><span class="k">Password and authentication</span><span class="a">→</span><span class="k btn">Enable two-factor authentication</span><span class="a">→</span><span class="k">simpan recovery codes</span></div>
+</section>
+
+<section>
+  <h2>5.3 Menjadikan akun proyek pemilik (Owner) organisasi</h2>
+  <p>Langkah ini dilakukan oleh <b>Owner saat ini</b> (pemilik akun yang membangun dashboard).</p>
+  <ol class="steps">
+    <li>Buka <code>github.com/CASE4id</code> → tab <b>People</b> → tombol <b>Invite member</b>.</li>
+    <li>Ketik nama pengguna akun proyek, pilih peran <b>Owner</b>, lalu kirim undangan.</li>
+    <li>Akun proyek menerima undangan: buka email undangan, atau login lalu buka <code>github.com/orgs/CASE4id/invitation</code> → <b>Join CASE4id</b>.</li>
+    <li>Periksa di tab <b>People</b>: akun proyek tercatat sebagai <b>Owner</b>.</li>
+  </ol>
+  <div class="path"><div class="lbl">Jalur klik (ilustrasi)</div>
+    <span class="k">github.com/CASE4id</span><span class="a">→</span><span class="k">People</span><span class="a">→</span><span class="k btn">Invite member</span><span class="a">→</span><span class="k">nama pengguna</span><span class="a">→</span><span class="k">Role: Owner</span><span class="a">→</span><span class="k">Send invitation</span></div>
+  <div class="box warn"><b>Selalu ada minimal dua Owner</b>
+    Pertahankan sedikitnya dua Owner (mis. akun proyek dan satu admin), agar organisasi tidak terkunci jika satu akun hilang.
+    Organisasi juga dapat mewajibkan 2FA bagi semua anggota: <b>Settings</b> organisasi → <b>Authentication security</b>.</div>
+
+  <h2>5.4 Mengundang dan mengeluarkan staf</h2>
+  <p>Petugas pembaruan data cukup menjadi <b>Member</b> dengan akses <b>Write</b> ke repositori (dapat mengunggah file, tetapi tidak dapat mengubah pengaturan).</p>
+  <ol class="steps">
+    <li>Staf membuat akun GitHub pribadi (gratis) dan memberi tahu nama penggunanya.</li>
+    <li>Undang ke organisasi: <code>github.com/CASE4id</code> → <b>People</b> → <b>Invite member</b> → peran <b>Member</b>.</li>
+    <li>Beri akses ke repositori: buka repositori → <b>Settings</b> → <b>Collaborators and teams</b> → <b>Add people</b> → pilih staf → peran <b>Write</b>.</li>
+    <li>Staf menerima undangan (email atau notifikasi GitHub).</li>
+  </ol>
+  <div class="path"><div class="lbl">Jalur klik akses repositori (ilustrasi)</div>
+    <span class="k">CASE4id/dashboard-case</span><span class="a">→</span><span class="k">Settings</span><span class="a">→</span><span class="k">Collaborators and teams</span><span class="a">→</span><span class="k btn">Add people</span><span class="a">→</span><span class="k">Role: Write</span></div>
+  <p><b>Mengeluarkan staf</b> (mis. pindah tugas): <code>github.com/CASE4id</code> → <b>People</b> → centang nama → <b>Remove from organization</b>.
+  Lakukan pada hari terakhir tugas sebagai bagian dari serah terima.</p>
+  <table>
+    <tr><th style="width:26%">Peran</th><th>Dapat</th><th style="width:34%">Untuk</th></tr>
+    <tr><td>Owner organisasi</td><td>Semua: anggota, pengaturan, Pages, menghapus repositori</td><td>Akun proyek + 1 admin</td></tr>
+    <tr><td>Member, repositori <b>Write</b></td><td>Mengunggah/mengubah file, menggabungkan pull request</td><td>Petugas pembaruan data</td></tr>
+    <tr><td>Member, repositori <b>Read</b></td><td>Melihat saja</td><td>Pimpinan/pengamat (opsional)</td></tr>
+  </table>
+</section>
+
+<section>
+  <h2>5.5 Pengaturan GitHub Pages</h2>
+  <p>Pengaturan ini sudah aktif dan biasanya tidak perlu diubah. Periksa bila situs tidak tampil sama sekali.</p>
+  <div class="path"><div class="lbl">Jalur klik (ilustrasi)</div>
+    <span class="k">CASE4id/dashboard-case</span><span class="a">→</span><span class="k">Settings</span><span class="a">→</span><span class="k">Pages</span><span class="a">→</span><span class="k">Source: Deploy from a branch</span><span class="a">→</span><span class="k">Branch: main · / (root)</span><span class="a">→</span><span class="k btn">Save</span></div>
+  <div class="box danger"><b>Custom domain</b>
+    Kolom <i>Custom domain</i> di halaman yang sama dipakai untuk alamat sendiri (mis. <code>praktik.bappenas.go.id</code>). <b>Jangan mengisinya</b>
+    sebelum catatan DNS dibuat oleh Pusdatin; situs akan langsung dialihkan ke alamat baru dan tidak dapat diakses. Jika terlanjur, kosongkan kolom itu lalu Save.</div>
+
+  <h3>Izin untuk proses otomatis (sekali saja)</h3>
+  <p>Agar <b>Tambah data PLN dari PDF</b> (Bab 4.5) dapat membuat pull request, Owner perlu mengaktifkan:</p>
+  <div class="path"><div class="lbl">Jalur klik (ilustrasi)</div>
+    <span class="k">CASE4id/dashboard-case</span><span class="a">→</span><span class="k">Settings</span><span class="a">→</span><span class="k">Actions</span><span class="a">→</span><span class="k">General</span><span class="a">→</span><span class="k">Workflow permissions: Read and write permissions</span><span class="a">→</span><span class="k">✓ Allow GitHub Actions to create and approve pull requests</span><span class="a">→</span><span class="k btn">Save</span></div>
+  <p>Jika pilihan itu tidak bisa diubah (abu-abu), pengaturannya dikunci di tingkat organisasi: <code>github.com/CASE4id</code> → <b>Settings</b> → <b>Actions</b> → <b>General</b>, ubah hal yang sama di sana.</p>
+
+  <h2>5.6 Memantau publikasi (tab Actions)</h2>
+  <p>Setiap perubahan pada <code>main</code> memicu proses <b>pages build and deployment</b> di tab <b>Actions</b> repositori.</p>
+  <table>
+    <tr><th style="width:24%">Tanda</th><th>Arti</th><th style="width:40%">Tindakan</th></tr>
+    <tr><td>✓ hijau</td><td>Situs sudah diperbarui</td><td>Periksa dashboard (incognito)</td></tr>
+    <tr><td>● kuning, beberapa menit</td><td>Sedang berjalan / antre</td><td>Tunggu</td></tr>
+    <tr><td>✗ merah (mis. <i>Server Error</i>, 502)</td><td>Gangguan sementara di server GitHub, bukan kesalahan file</td><td>Buka run → <b>Re-run jobs</b> → <b>Re-run all jobs</b>. Jika gagal lagi, cek <code>githubstatus.com</code>.</td></tr>
+    <tr><td>● kuning &gt; 15 menit</td><td>Antrean GitHub macet; run tidak dapat dibatalkan</td><td>Tunggu, atau buat perubahan kecil apa pun (setiap perubahan memulai run baru)</td></tr>
+  </table>
+
+  <h2>5.7 Menerima perubahan dari pihak teknis (pull request)</h2>
+  <p>Perubahan kode (fitur baru, perbaikan) diajukan pihak teknis sebagai pull request. Admin meninjau lalu menggabungkannya.</p>
+  <ol class="steps">
+    <li>Buka repositori. Jika ada pita kuning "<i>… had recent pushes</i>", klik <b>Compare &amp; pull request</b>; atau buka tab <b>Pull requests</b>.</li>
+    <li>Baca judul dan deskripsi, klik <b>Create pull request</b> (jika belum dibuat).</li>
+    <li>Klik <b>Merge pull request</b> → <b>Confirm merge</b>. Situs diperbarui dalam beberapa menit.</li>
+  </ol>
+  <div class="path"><div class="lbl">Jalur klik (ilustrasi)</div>
+    <span class="k">Pull requests</span><span class="a">→</span><span class="k">pilih pull request</span><span class="a">→</span><span class="k btn">Merge pull request</span><span class="a">→</span><span class="k btn">Confirm merge</span></div>
+  <div class="box tip"><b>Membatalkan perubahan yang sudah digabungkan</b>
+    Buka pull request yang sudah digabungkan → tombol <b>Revert</b> → GitHub membuat pull request baru yang membatalkannya → <b>Merge</b>.
+    Situs kembali ke keadaan sebelumnya.</div>
+</section>
+
+<!-- ============================ BAB 6 ============================ -->
+<section class="chapter">
+  <h1><span class="num">6</span>Pemecahan Masalah</h1>
+  <table>
+    <tr><th style="width:28%">Gejala</th><th style="width:30%">Penyebab umum</th><th>Solusi</th></tr>
+    <tr><td>Tahun baru tidak muncul</td><td>Nama file salah (mis. <code>Statistik PLN 2026.xlsx</code>) atau salah folder</td><td>Ubah nama sesuai format (Bab 4.1), unggah ke folder sektornya</td></tr>
+    <tr><td>Perubahan belum terlihat</td><td>Penerbitan belum selesai, atau browser menyimpan versi lama</td><td>Cek tab Actions; buka di jendela incognito; tunggu hingga ±10 menit</td></tr>
+    <tr><td>Kartu "Data tidak tersedia"</td><td>Sel kosong atau baris unit tidak ada</td><td>Periksa sheet terkait; jalankan Cek Data</td></tr>
+    <tr><td>Kotak kuning "Sebagian data tidak terbaca"</td><td>Teks di kolom angka atau sheet hilang</td><td>Klik kotak untuk rincian; perbaiki; unggah ulang</td></tr>
+    <tr><td>Situs kosong / pesan merah</td><td>File rusak atau situs sedang diperbarui</td><td>Tunggu 3 menit; jika tetap, kembalikan versi sebelumnya (4.4) atau Revert pull request terakhir (5.7)</td></tr>
+    <tr><td>✗ merah di Actions</td><td>Gangguan server GitHub</td><td>Re-run all jobs (5.6)</td></tr>
+    <tr><td>Tidak bisa mengunggah (tombol Add file tidak ada)</td><td>Akun belum diberi akses Write atau belum menerima undangan</td><td>Minta admin memeriksa 5.4</td></tr>
+    <tr><td>Lupa kata sandi akun proyek</td><td>—</td><td>Reset lewat email instansi; jika 2FA hilang, gunakan recovery codes (5.2)</td></tr>
+  </table>
+  <div class="box warn"><b>Kapan memanggil bantuan teknis</b>
+    Menambah grafik, tab, atau sektor baru; publikasi sumber berubah format; menambah peta; memindahkan situs ke server Bappenas (mis. bacadata).
+    Dokumentasi teknis ada di <code>README.md</code>. Menambah atau menghapus indikator sederhana dijelaskan di <code>PANDUAN-UPDATE-DATA.md</code>.</div>
+</section>
+
+<!-- ============================ BAB 7 ============================ -->
+<section class="chapter">
+  <h1><span class="num">7</span>Serah Terima</h1>
+  <h2>Daftar periksa</h2>
+  <ul class="check">
+    <li>Akun proyek dibuat dengan email instansi; 2FA aktif; recovery codes disimpan di tempat aman</li>
+    <li>Akun proyek menjadi <b>Owner</b> organisasi CASE4id; sedikitnya dua Owner aktif</li>
+    <li>Petugas pembaruan data diundang sebagai Member dengan akses <b>Write</b> ke repositori</li>
+    <li>Latihan bersama: satu siklus pembaruan data lengkap (siapkan file → Cek Data → unggah → periksa) oleh petugas</li>
+    <li>Latihan mengembalikan file ke versi sebelumnya dan Revert pull request</li>
+    <li>Tabel kontak di bawah dan di <code>PANDUAN-UPDATE-DATA.md</code> diisi</li>
+    <li>Kontak dan Instagram di bagian bawah dashboard sudah benar (<code>assets/js/config.js</code>)</li>
+    <li>Akun pribadi yang tidak lagi terlibat dikeluarkan dari organisasi</li>
+    <li>Jadwal pembaruan dicatat: Statistik PLN, Statistik Gas, Statistik Transportasi Udara (perkiraan bulan terbit)</li>
+  </ul>
+  <h2>Kontak</h2>
+  <table>
+    <tr><th style="width:30%">Peran</th><th>Nama</th><th>Email / kontak</th></tr>
+    <tr><td>Pemilik konten</td><td>Direktorat TKKA, Bappenas</td><td>dit.tkka@bappenas.go.id</td></tr>
+    <tr><td>Admin GitHub (akun proyek)</td><td><span class="fill"></span></td><td><span class="fill"></span></td></tr>
+    <tr><td>Admin cadangan (Owner kedua)</td><td><span class="fill"></span></td><td><span class="fill"></span></td></tr>
+    <tr><td>Petugas data Ketenagalistrikan</td><td><span class="fill"></span></td><td><span class="fill"></span></td></tr>
+    <tr><td>Petugas data Gas &amp; Kedirgantaraan</td><td><span class="fill"></span></td><td><span class="fill"></span></td></tr>
+    <tr><td>Bantuan teknis</td><td><span class="fill"></span></td><td><span class="fill"></span></td></tr>
+  </table>
+  <h2>Jadwal pembaruan</h2>
+  <table>
+    <tr><th style="width:30%">Sektor</th><th>Publikasi</th><th style="width:26%">Perkiraan terbit</th><th style="width:18%">Penanggung jawab</th></tr>
+    <tr><td>Ketenagalistrikan</td><td>Statistik PLN</td><td><span class="fill" style="min-width:35mm"></span></td><td></td></tr>
+    <tr><td>Transmisi Gas</td><td>BPS, Statistik Gas</td><td><span class="fill" style="min-width:35mm"></span></td><td></td></tr>
+    <tr><td>Kedirgantaraan</td><td>BPS, Statistik Transportasi Udara</td><td><span class="fill" style="min-width:35mm"></span></td><td></td></tr>
+  </table>
+</section>
+
+<!-- ============================ LAMPIRAN ============================ -->
+<section class="chapter">
+  <h1>Lampiran: Glosarium</h1>
+  <table>
+    <tr><th style="width:26%">Istilah</th><th>Arti</th></tr>
+    <tr><td>EBT</td><td>Energi baru terbarukan (PLTA, PLTM, PLTMH, PLTP, PLTS, PLTB, PLTBm).</td></tr>
+    <tr><td>SAIDI / SAIFI</td><td>Rata-rata lama padam (jam) dan frekuensi padam (kali) per pelanggan per tahun.</td></tr>
+    <tr><td>Susut</td><td>Energi yang hilang di jaringan transmisi/distribusi, dalam persen.</td></tr>
+    <tr><td>Rasio elektrifikasi</td><td>Pelanggan rumah tangga PLN dibagi jumlah rumah tangga (tidak termasuk pelanggan non-PLN).</td></tr>
+    <tr><td>Cadangan daya (reserve margin)</td><td>(Daya mampu − beban puncak) ÷ beban puncak.</td></tr>
+    <tr><td>UID / UIW</td><td>Unit Induk Distribusi / Unit Induk Wilayah PLN.</td></tr>
+    <tr><td>MMSCF / MSCF</td><td>Juta / ribu standar kaki kubik (satuan volume gas).</td></tr>
+    <tr><td>Nilai tambah bruto</td><td>Nilai output dikurangi biaya antara.</td></tr>
+    <tr><td>Faktor muatan penumpang</td><td>Km-penumpang terpakai ÷ km-tempat duduk tersedia.</td></tr>
+    <tr><td>AOC 121 / AOC 135</td><td>Sertifikat operator angkutan udara niaga berjadwal / komuter &amp; carter.</td></tr>
+    <tr><td>Korelasi (r)</td><td>Ukuran kecenderungan dua indikator bergerak bersama, dari −1 sampai 1.</td></tr>
+    <tr><td>Poin persentase</td><td>Selisih dua persentase (mis. 95% → 97% = +2 poin).</td></tr>
+    <tr><td>Incognito</td><td>Jendela browser tanpa riwayat/cache; menampilkan versi situs terbaru.</td></tr>
+    <tr><td>CSV</td><td>Format tabel teks sederhana yang dapat dibuka di Excel.</td></tr>
+  </table>
+  <p style="margin-top:10mm;color:var(--muted);font-size:9pt">Tangkapan layar dashboard dibuat dari versi November 2026. Kotak "jalur klik" untuk GitHub adalah ilustrasi
+  urutan tombol; tampilan situs GitHub dapat sedikit berbeda dari waktu ke waktu, tetapi nama tombolnya umumnya tetap.</p>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,1584 @@
+{
+ "2025": {
+  "t01": {
+   "pages": [
+    1
+   ]
+  },
+  "t02": {
+   "pages": [
+    2,
+    3
+   ],
+   "split": 14,
+   "relabel_rows": {
+    "25": "PLN Nusantara Power - Kalimantan",
+    "28": "PLN Indonesia Power - Kalimantan"
+   }
+  },
+  "t08": {
+   "pages": [
+    4
+   ]
+  },
+  "t16": {
+   "pages": [
+    5
+   ]
+  },
+  "t19": {
+   "pages": [
+    6
+   ],
+   "keys": [
+    "households_thousand",
+    "household_customers",
+    "electrification_ratio_pct"
+   ]
+  },
+  "t21": {
+   "pages": [
+    7,
+    8
+   ],
+   "split": 8
+  },
+  "t23": {
+   "pages": [
+    9,
+    10
+   ],
+   "split": 12
+  },
+  "t28": {
+   "pages": [
+    11
+   ]
+  },
+  "t29": {
+   "pages": [
+    12
+   ]
+  },
+  "t30": {
+   "pages": [
+    13
+   ]
+  }
+ },
+ "2024": {
+  "t01": {
+   "pages": [
+    18
+   ]
+  },
+  "t02": {
+   "pages": [
+    19,
+    20
+   ],
+   "split": 10,
+   "keys": [
+    "purchased_gwh",
+    "project_gwh",
+    "received_other_unit_gwh",
+    "own_production_gwh",
+    "leased_gwh",
+    "own_use_power_plant_gwh",
+    "own_use_power_plant_pct",
+    "net_production_gwh",
+    "own_use_substation_gwh",
+    "own_use_substation_pct",
+    "transmission_losses_gwh",
+    "transmission_losses_pct",
+    "transfer_other_unit_gwh",
+    "transfer_non_pln_gwh",
+    "transfer_distribution_gwh",
+    "own_use_distr_substation_gwh",
+    "own_use_distr_substation_pct",
+    "distribution_losses_gwh",
+    "distribution_losses_pct",
+    "energy_losses_gwh",
+    "energy_losses_pct",
+    "energy_losses_own_use_gwh",
+    "energy_losses_own_use_pct",
+    "energy_consumption_gwh",
+    "energy_consumption_pct"
+   ]
+  },
+  "t08": {
+   "pages": [
+    36
+   ]
+  },
+  "t16": {
+   "pages": [
+    45
+   ]
+  },
+  "t19": {
+   "pages": [
+    48
+   ],
+   "keys": [
+    "households_thousand",
+    "household_customers",
+    "electrification_ratio_pct"
+   ]
+  },
+  "t21": {
+   "pages": [
+    59,
+    60
+   ],
+   "split": 7,
+   "keys": [
+    "hydro_mw",
+    "mini_hydro_mw",
+    "micro_hydro_mw",
+    "steam_mw",
+    "gas_mw",
+    "combined_cycle_mw",
+    "geothermal_mw",
+    "diesel_mw",
+    "gas_engine_mw",
+    "solar_mw",
+    "wind_mw",
+    "biomass_mw",
+    "pln_owned_subtotal_mw",
+    "leased_mw",
+    "ipp_mw",
+    "total_mw",
+    "total_share_pct"
+   ]
+  },
+  "t23": {
+   "pages": [
+    63,
+    64
+   ],
+   "split": 9,
+   "keys": [
+    "own_hydro_gwh",
+    "own_mini_hydro_gwh",
+    "own_micro_hydro_gwh",
+    "own_steam_gwh",
+    "own_gas_gwh",
+    "own_combined_cycle_gwh",
+    "own_geothermal_gwh",
+    "own_diesel_gwh",
+    "own_gas_engine_gwh",
+    "own_solar_gwh",
+    "own_wind_gwh",
+    "own_biomass_gwh",
+    "leased_diesel_gwh",
+    "leased_gas_engine_gwh",
+    "leased_gas_gwh",
+    "leased_combined_cycle_gwh",
+    "leased_steam_gwh",
+    "leased_hydro_gwh",
+    "leased_solar_gwh",
+    "own_and_leased_subtotal_gwh",
+    "purchased_and_project_gwh",
+    "total_gwh",
+    "total_share_pct"
+   ]
+  },
+  "t28": {
+   "pages": [
+    70
+   ]
+  },
+  "t29": {
+   "pages": [
+    71
+   ]
+  },
+  "t30": {
+   "pages": [
+    72
+   ]
+  }
+ },
+ "2023": {
+  "t01": {
+   "pages": [
+    17
+   ]
+  },
+  "t02": {
+   "pages": [
+    18,
+    19
+   ],
+   "split": 10,
+   "keys": [
+    "purchased_gwh",
+    "project_gwh",
+    "received_other_unit_gwh",
+    "own_production_gwh",
+    "leased_gwh",
+    "own_use_power_plant_gwh",
+    "own_use_power_plant_pct",
+    "net_production_gwh",
+    "own_use_substation_gwh",
+    "own_use_substation_pct",
+    "transmission_losses_gwh",
+    "transmission_losses_pct",
+    "transfer_other_unit_gwh",
+    "transfer_distribution_gwh",
+    "own_use_distr_substation_gwh",
+    "own_use_distr_substation_pct",
+    "distribution_losses_gwh",
+    "distribution_losses_pct",
+    "energy_losses_gwh",
+    "energy_losses_pct",
+    "energy_losses_own_use_gwh",
+    "energy_losses_own_use_pct",
+    "energy_consumption_gwh",
+    "energy_consumption_pct"
+   ],
+   "cell_moves": [
+    [
+     "indonesia",
+     "transfer_other_unit_gwh",
+     "transfer_non_pln_gwh"
+    ]
+   ]
+  },
+  "t08": {
+   "pages": [
+    25
+   ],
+   "keys": [
+    "households_kwh",
+    "industry_kwh",
+    "business_kwh",
+    "social_kwh",
+    "gov_office_kwh",
+    "street_lighting_kwh",
+    "total_kwh"
+   ]
+  },
+  "t16": {
+   "pages": [
+    34
+   ]
+  },
+  "t19": {
+   "pages": [
+    37
+   ],
+   "keys": [
+    "households_thousand",
+    "household_customers",
+    "electrification_ratio_pct"
+   ]
+  },
+  "t21": {
+   "pages": [
+    39
+   ],
+   "keys": [
+    "hydro_mw",
+    "mini_hydro_mw",
+    "micro_hydro_mw",
+    "steam_mw",
+    "gas_mw",
+    "combined_cycle_mw",
+    "geothermal_mw",
+    "diesel_mw",
+    "gas_engine_mw",
+    "solar_mw",
+    "wind_mw",
+    "biomass_mw",
+    "pln_owned_subtotal_mw",
+    "leased_mw",
+    "ipp_mw",
+    "total_mw",
+    "total_share_pct"
+   ]
+  },
+  "t23": {
+   "pages": [
+    42,
+    43
+   ],
+   "split": 10,
+   "keys": [
+    "own_hydro_gwh",
+    "own_mini_hydro_gwh",
+    "own_micro_hydro_gwh",
+    "own_steam_gwh",
+    "own_gas_gwh",
+    "own_combined_cycle_gwh",
+    "own_geothermal_gwh",
+    "own_diesel_gwh",
+    "own_gas_engine_gwh",
+    "own_solar_gwh",
+    "own_wind_gwh",
+    "own_biomass_gwh",
+    "leased_diesel_gwh",
+    "leased_gas_engine_gwh",
+    "leased_gas_gwh",
+    "leased_combined_cycle_gwh",
+    "leased_steam_gwh",
+    "leased_hydro_gwh",
+    "leased_solar_gwh",
+    "own_and_leased_subtotal_gwh",
+    "purchased_and_project_gwh",
+    "total_gwh",
+    "total_share_pct"
+   ]
+  },
+  "t28": {
+   "pages": [
+    48
+   ]
+  },
+  "t29": {
+   "pages": [
+    49
+   ]
+  },
+  "t30": {
+   "pages": [
+    50
+   ]
+  }
+ },
+ "2018": {
+  "t01": {
+   "pages": [
+    19
+   ]
+  },
+  "t02": {
+   "pages": [
+    20,
+    21
+   ],
+   "split": 8,
+   "keys": [
+    "purchased_gwh",
+    "received_other_unit_gwh",
+    "own_production_gwh",
+    "own_use_power_plant_gwh",
+    "own_use_power_plant_pct",
+    "net_production_gwh",
+    "own_use_substation_gwh",
+    "own_use_substation_pct",
+    "transmission_losses_gwh",
+    "transmission_losses_pct",
+    "transfer_other_unit_gwh",
+    "transfer_distribution_gwh",
+    "own_use_distr_substation_gwh",
+    "own_use_distr_substation_pct",
+    "distribution_losses_gwh",
+    "distribution_losses_pct",
+    "energy_losses_gwh",
+    "energy_losses_pct",
+    "energy_losses_own_use_gwh",
+    "energy_losses_own_use_pct",
+    "energy_consumption_gwh",
+    "energy_consumption_pct"
+   ]
+  },
+  "t08": {
+   "pages": [
+    27
+   ],
+   "keys": [
+    "households_kwh",
+    "industry_kwh",
+    "business_kwh",
+    "social_kwh",
+    "gov_office_kwh",
+    "street_lighting_kwh",
+    "total_kwh"
+   ]
+  },
+  "t16": {
+   "pages": [
+    35
+   ]
+  },
+  "t19": {
+   "pages": [
+    38
+   ],
+   "keys": [
+    "population_thousand",
+    "households_thousand",
+    "household_customers",
+    "electrification_ratio_pct",
+    "kwh_sold_per_capita"
+   ]
+  },
+  "t21": {
+   "pages": [
+    40
+   ],
+   "keys": [
+    "hydro_mw",
+    "steam_mw",
+    "gas_mw",
+    "combined_cycle_mw",
+    "geothermal_mw",
+    "diesel_mw",
+    "solar_mw",
+    "wind_mw",
+    "biomass_mw",
+    "pln_owned_subtotal_mw",
+    "pln_owned_subtotal_share_pct",
+    "leased_mw",
+    "ipp_mw",
+    "total_mw"
+   ]
+  },
+  "t23": {
+   "pages": [
+    42,
+    43
+   ],
+   "split": 9,
+   "keys": [
+    "own_hydro_gwh",
+    "own_steam_gwh",
+    "own_gas_gwh",
+    "own_combined_cycle_gwh",
+    "own_geothermal_gwh",
+    "own_diesel_gwh",
+    "own_gas_engine_gwh",
+    "own_solar_gwh",
+    "own_wind_gwh",
+    "leased_diesel_gwh",
+    "leased_gas_engine_gwh",
+    "leased_combined_cycle_gwh",
+    "leased_steam_gwh",
+    "leased_hydro_gwh",
+    "leased_solar_gwh",
+    "own_and_leased_subtotal_gwh",
+    "purchased_and_project_gwh",
+    "total_gwh",
+    "total_share_pct"
+   ]
+  },
+  "t28": {
+   "pages": [
+    48
+   ]
+  },
+  "t29": {
+   "pages": [
+    49
+   ]
+  },
+  "t30": {
+   "pages": [
+    50
+   ]
+  }
+ },
+ "2019": {
+  "t01": {
+   "pages": [
+    17
+   ]
+  },
+  "t02": {
+   "pages": [
+    18,
+    19
+   ],
+   "split": 10,
+   "keys": [
+    "purchased_gwh",
+    "project_gwh",
+    "received_other_unit_gwh",
+    "own_production_gwh",
+    "leased_gwh",
+    "own_use_power_plant_gwh",
+    "own_use_power_plant_pct",
+    "net_production_gwh",
+    "own_use_substation_gwh",
+    "own_use_substation_pct",
+    "transmission_losses_gwh",
+    "transmission_losses_pct",
+    "transfer_other_unit_gwh",
+    "transfer_distribution_gwh",
+    "own_use_distr_substation_gwh",
+    "own_use_distr_substation_pct",
+    "distribution_losses_gwh",
+    "distribution_losses_pct",
+    "energy_losses_gwh",
+    "energy_losses_pct",
+    "energy_losses_own_use_gwh",
+    "energy_losses_own_use_pct",
+    "energy_consumption_gwh",
+    "energy_consumption_pct"
+   ]
+  },
+  "t08": {
+   "pages": [
+    25
+   ],
+   "keys": [
+    "households_kwh",
+    "industry_kwh",
+    "business_kwh",
+    "social_kwh",
+    "gov_office_kwh",
+    "street_lighting_kwh",
+    "total_kwh"
+   ]
+  },
+  "t16": {
+   "pages": [
+    33
+   ]
+  },
+  "t19": {
+   "pages": [
+    36
+   ],
+   "keys": [
+    "population_thousand",
+    "households_thousand",
+    "household_customers",
+    "electrification_ratio_pct",
+    "kwh_sold_per_capita"
+   ]
+  },
+  "t21": {
+   "pages": [
+    38
+   ],
+   "keys": [
+    "hydro_mw",
+    "steam_mw",
+    "gas_mw",
+    "combined_cycle_mw",
+    "geothermal_mw",
+    "diesel_mw",
+    "gas_engine_mw",
+    "solar_mw",
+    "wind_mw",
+    "biomass_mw",
+    "pln_owned_subtotal_mw",
+    "leased_mw",
+    "ipp_mw",
+    "total_mw"
+   ]
+  },
+  "t23": {
+   "pages": [
+    40,
+    41
+   ],
+   "split": 10,
+   "keys": [
+    "own_hydro_gwh",
+    "own_steam_gwh",
+    "own_gas_gwh",
+    "own_combined_cycle_gwh",
+    "own_geothermal_gwh",
+    "own_diesel_gwh",
+    "own_gas_engine_gwh",
+    "own_solar_gwh",
+    "own_wind_gwh",
+    "own_biomass_gwh",
+    "leased_diesel_gwh",
+    "leased_gas_engine_gwh",
+    "leased_gas_gwh",
+    "leased_combined_cycle_gwh",
+    "leased_steam_gwh",
+    "leased_hydro_gwh",
+    "leased_solar_gwh",
+    "own_and_leased_subtotal_gwh",
+    "purchased_gwh",
+    "project_gwh",
+    "purchased_and_project_gwh",
+    "total_gwh"
+   ]
+  },
+  "t28": {
+   "pages": [
+    46
+   ]
+  },
+  "t29": {
+   "pages": [
+    47
+   ]
+  },
+  "t30": {
+   "pages": [
+    48
+   ]
+  }
+ },
+ "2020": {
+  "t01": {
+   "pages": [
+    17
+   ]
+  },
+  "t02": {
+   "pages": [
+    18,
+    19
+   ],
+   "split": 10,
+   "keys": [
+    "purchased_gwh",
+    "project_gwh",
+    "received_other_unit_gwh",
+    "own_production_gwh",
+    "leased_gwh",
+    "own_use_power_plant_gwh",
+    "own_use_power_plant_pct",
+    "net_production_gwh",
+    "own_use_substation_gwh",
+    "own_use_substation_pct",
+    "transmission_losses_gwh",
+    "transmission_losses_pct",
+    "transfer_other_unit_gwh",
+    "transfer_distribution_gwh",
+    "own_use_distr_substation_gwh",
+    "own_use_distr_substation_pct",
+    "distribution_losses_gwh",
+    "distribution_losses_pct",
+    "energy_losses_gwh",
+    "energy_losses_pct",
+    "energy_losses_own_use_gwh",
+    "energy_losses_own_use_pct",
+    "energy_consumption_gwh",
+    "energy_consumption_pct"
+   ]
+  },
+  "t08": {
+   "pages": [
+    25
+   ],
+   "keys": [
+    "households_kwh",
+    "industry_kwh",
+    "business_kwh",
+    "social_kwh",
+    "gov_office_kwh",
+    "street_lighting_kwh",
+    "total_kwh"
+   ]
+  },
+  "t16": {
+   "pages": [
+    34
+   ]
+  },
+  "t19": {
+   "pages": [
+    37
+   ],
+   "keys": [
+    "households_thousand",
+    "household_customers",
+    "electrification_ratio_pct"
+   ]
+  },
+  "t21": {
+   "pages": [
+    39
+   ],
+   "keys": [
+    "hydro_mw",
+    "steam_mw",
+    "gas_mw",
+    "combined_cycle_mw",
+    "geothermal_mw",
+    "diesel_mw",
+    "gas_engine_mw",
+    "solar_mw",
+    "wind_mw",
+    "biomass_mw",
+    "pln_owned_subtotal_mw",
+    "leased_mw",
+    "ipp_mw",
+    "total_mw",
+    "total_share_pct"
+   ]
+  },
+  "t23": {
+   "pages": [
+    42,
+    43
+   ],
+   "split": 10,
+   "keys": [
+    "own_hydro_gwh",
+    "own_steam_gwh",
+    "own_gas_gwh",
+    "own_combined_cycle_gwh",
+    "own_geothermal_gwh",
+    "own_diesel_gwh",
+    "own_gas_engine_gwh",
+    "own_solar_gwh",
+    "own_wind_gwh",
+    "own_biomass_gwh",
+    "leased_diesel_gwh",
+    "leased_gas_engine_gwh",
+    "leased_gas_gwh",
+    "leased_combined_cycle_gwh",
+    "leased_steam_gwh",
+    "leased_hydro_gwh",
+    "leased_solar_gwh",
+    "own_and_leased_subtotal_gwh",
+    "purchased_and_project_gwh",
+    "total_gwh",
+    "total_share_pct"
+   ]
+  },
+  "t28": {
+   "pages": [
+    48
+   ]
+  },
+  "t29": {
+   "pages": [
+    49
+   ]
+  },
+  "t30": {
+   "pages": [
+    50
+   ]
+  }
+ },
+ "2021": {
+  "t01": {
+   "pages": [
+    17
+   ]
+  },
+  "t02": {
+   "pages": [
+    18,
+    19
+   ],
+   "split": 10,
+   "keys": [
+    "purchased_gwh",
+    "project_gwh",
+    "received_other_unit_gwh",
+    "own_production_gwh",
+    "leased_gwh",
+    "own_use_power_plant_gwh",
+    "own_use_power_plant_pct",
+    "net_production_gwh",
+    "own_use_substation_gwh",
+    "own_use_substation_pct",
+    "transmission_losses_gwh",
+    "transmission_losses_pct",
+    "transfer_other_unit_gwh",
+    "transfer_distribution_gwh",
+    "own_use_distr_substation_gwh",
+    "own_use_distr_substation_pct",
+    "distribution_losses_gwh",
+    "distribution_losses_pct",
+    "energy_losses_gwh",
+    "energy_losses_pct",
+    "energy_losses_own_use_gwh",
+    "energy_losses_own_use_pct",
+    "energy_consumption_gwh",
+    "energy_consumption_pct"
+   ]
+  },
+  "t08": {
+   "pages": [
+    25
+   ],
+   "keys": [
+    "households_kwh",
+    "industry_kwh",
+    "business_kwh",
+    "social_kwh",
+    "gov_office_kwh",
+    "street_lighting_kwh",
+    "total_kwh"
+   ]
+  },
+  "t16": {
+   "pages": [
+    34
+   ]
+  },
+  "t19": {
+   "pages": [
+    37
+   ],
+   "keys": [
+    "households_thousand",
+    "household_customers",
+    "electrification_ratio_pct"
+   ]
+  },
+  "t21": {
+   "pages": [
+    39
+   ],
+   "keys": [
+    "hydro_mw",
+    "mini_hydro_mw",
+    "micro_hydro_mw",
+    "steam_mw",
+    "gas_mw",
+    "combined_cycle_mw",
+    "geothermal_mw",
+    "diesel_mw",
+    "gas_engine_mw",
+    "solar_mw",
+    "wind_mw",
+    "biomass_mw",
+    "pln_owned_subtotal_mw",
+    "leased_mw",
+    "ipp_mw",
+    "total_mw",
+    "total_share_pct"
+   ]
+  },
+  "t23": {
+   "pages": [
+    42,
+    43
+   ],
+   "split": 10,
+   "keys": [
+    "own_hydro_gwh",
+    "own_mini_hydro_gwh",
+    "own_micro_hydro_gwh",
+    "own_steam_gwh",
+    "own_gas_gwh",
+    "own_combined_cycle_gwh",
+    "own_geothermal_gwh",
+    "own_diesel_gwh",
+    "own_gas_engine_gwh",
+    "own_solar_gwh",
+    "own_wind_gwh",
+    "own_biomass_gwh",
+    "leased_diesel_gwh",
+    "leased_gas_engine_gwh",
+    "leased_gas_gwh",
+    "leased_combined_cycle_gwh",
+    "leased_steam_gwh",
+    "leased_hydro_gwh",
+    "leased_solar_gwh",
+    "own_and_leased_subtotal_gwh",
+    "purchased_and_project_gwh",
+    "total_gwh",
+    "total_share_pct"
+   ]
+  },
+  "t28": {
+   "pages": [
+    48
+   ]
+  },
+  "t29": {
+   "pages": [
+    49
+   ]
+  },
+  "t30": {
+   "pages": [
+    50
+   ]
+  }
+ },
+ "2022": {
+  "t01": {
+   "pages": [
+    17
+   ]
+  },
+  "t02": {
+   "pages": [
+    18,
+    19
+   ],
+   "split": 10,
+   "keys": [
+    "purchased_gwh",
+    "project_gwh",
+    "received_other_unit_gwh",
+    "own_production_gwh",
+    "leased_gwh",
+    "own_use_power_plant_gwh",
+    "own_use_power_plant_pct",
+    "net_production_gwh",
+    "own_use_substation_gwh",
+    "own_use_substation_pct",
+    "transmission_losses_gwh",
+    "transmission_losses_pct",
+    "transfer_other_unit_gwh",
+    "transfer_distribution_gwh",
+    "own_use_distr_substation_gwh",
+    "own_use_distr_substation_pct",
+    "distribution_losses_gwh",
+    "distribution_losses_pct",
+    "energy_losses_gwh",
+    "energy_losses_pct",
+    "energy_losses_own_use_gwh",
+    "energy_losses_own_use_pct",
+    "energy_consumption_gwh",
+    "energy_consumption_pct"
+   ],
+   "relabel_rows": {
+    "30": "PT Indonesia Power",
+    "31": "PT PJB",
+    "32": "PJB Sulawesi"
+   }
+  },
+  "t08": {
+   "pages": [
+    25
+   ],
+   "keys": [
+    "households_kwh",
+    "industry_kwh",
+    "business_kwh",
+    "social_kwh",
+    "gov_office_kwh",
+    "street_lighting_kwh",
+    "total_kwh"
+   ]
+  },
+  "t16": {
+   "pages": [
+    34
+   ]
+  },
+  "t19": {
+   "pages": [
+    37
+   ],
+   "keys": [
+    "population_thousand",
+    "households_thousand",
+    "household_customers",
+    "electrification_ratio_pct",
+    "kwh_sold_per_capita"
+   ]
+  },
+  "t21": {
+   "pages": [
+    39
+   ],
+   "keys": [
+    "hydro_mw",
+    "mini_hydro_mw",
+    "micro_hydro_mw",
+    "steam_mw",
+    "gas_mw",
+    "combined_cycle_mw",
+    "geothermal_mw",
+    "diesel_mw",
+    "gas_engine_mw",
+    "solar_mw",
+    "wind_mw",
+    "biomass_mw",
+    "pln_owned_subtotal_mw",
+    "leased_mw",
+    "ipp_mw",
+    "total_mw",
+    "total_share_pct"
+   ],
+   "token_fix": {
+    "6-": "60.00"
+   }
+  },
+  "t23": {
+   "pages": [
+    42,
+    43
+   ],
+   "split": 10,
+   "keys": [
+    "own_hydro_gwh",
+    "own_mini_hydro_gwh",
+    "own_micro_hydro_gwh",
+    "own_steam_gwh",
+    "own_gas_gwh",
+    "own_combined_cycle_gwh",
+    "own_geothermal_gwh",
+    "own_diesel_gwh",
+    "own_gas_engine_gwh",
+    "own_solar_gwh",
+    "own_wind_gwh",
+    "own_biomass_gwh",
+    "leased_diesel_gwh",
+    "leased_gas_engine_gwh",
+    "leased_gas_gwh",
+    "leased_combined_cycle_gwh",
+    "leased_steam_gwh",
+    "leased_hydro_gwh",
+    "leased_solar_gwh",
+    "own_and_leased_subtotal_gwh",
+    "purchased_and_project_gwh",
+    "total_gwh",
+    "total_share_pct"
+   ]
+  },
+  "t28": {
+   "pages": [
+    48
+   ]
+  },
+  "t29": {
+   "pages": [
+    49
+   ]
+  },
+  "t30": {
+   "pages": [
+    50
+   ]
+  }
+ },
+ "2014": {
+  "t01": {
+   "pages": [
+    19
+   ]
+  },
+  "t02": {
+   "pages": [
+    20,
+    21
+   ],
+   "split": 8,
+   "keys": [
+    "purchased_gwh",
+    "received_other_unit_gwh",
+    "own_production_gwh",
+    "own_use_power_plant_gwh",
+    "own_use_power_plant_pct",
+    "net_production_gwh",
+    "own_use_substation_gwh",
+    "own_use_substation_pct",
+    "transmission_losses_gwh",
+    "transmission_losses_pct",
+    "transfer_other_unit_gwh",
+    "transfer_distribution_gwh",
+    "own_use_distr_substation_gwh",
+    "own_use_distr_substation_pct",
+    "distribution_losses_gwh",
+    "distribution_losses_pct",
+    "energy_losses_gwh",
+    "energy_losses_pct",
+    "energy_losses_own_use_gwh",
+    "energy_losses_own_use_pct",
+    "energy_consumption_gwh",
+    "energy_consumption_pct"
+   ],
+   "relabel_rows": {
+    "9": "Region of S & C Kalimantan",
+    "10": "Region of East Kalimantan & North",
+    "11": "Region of N, C Sulawesi & Gorontalo"
+   }
+  },
+  "t08": {
+   "pages": [
+    27
+   ],
+   "keys": [
+    "households_kwh",
+    "industry_kwh",
+    "business_kwh",
+    "social_kwh",
+    "gov_office_kwh",
+    "street_lighting_kwh",
+    "total_kwh"
+   ]
+  },
+  "t16": {
+   "pages": [
+    35
+   ]
+  },
+  "t19": {
+   "pages": [
+    38
+   ],
+   "keys": [
+    "population_thousand",
+    "households_thousand",
+    "household_customers",
+    "electrification_ratio_pct",
+    "kwh_sold_per_capita"
+   ]
+  },
+  "t21": {
+   "pages": [
+    40
+   ],
+   "keys": [
+    "hydro_mw",
+    "steam_mw",
+    "gas_mw",
+    "combined_cycle_mw",
+    "geothermal_mw",
+    "diesel_mw",
+    "solar_mw",
+    "wind_mw",
+    "pln_owned_subtotal_mw",
+    "pln_owned_subtotal_share_pct",
+    "leased_mw",
+    "ipp_mw",
+    "total_mw",
+    "total_share_pct"
+   ]
+  },
+  "t23": {
+   "pages": [
+    42,
+    43
+   ],
+   "split": 8,
+   "keys": [
+    "own_hydro_gwh",
+    "own_steam_gwh",
+    "own_gas_gwh",
+    "own_combined_cycle_gwh",
+    "own_geothermal_gwh",
+    "own_diesel_gwh",
+    "own_gas_engine_gwh",
+    "own_solar_gwh",
+    "leased_diesel_gwh",
+    "leased_gas_engine_gwh",
+    "leased_combined_cycle_gwh",
+    "leased_steam_gwh",
+    "leased_hydro_gwh",
+    "own_and_leased_subtotal_gwh",
+    "purchased_and_project_gwh",
+    "total_gwh",
+    "total_share_pct"
+   ]
+  },
+  "t28": {
+   "pages": [
+    48
+   ]
+  },
+  "t29": {
+   "pages": [
+    49
+   ]
+  },
+  "t30": {
+   "pages": [
+    50
+   ]
+  },
+  "_english_layer_pages": [
+   48,
+   49,
+   50
+  ]
+ },
+ "2015": {
+  "t01": {
+   "pages": [
+    19
+   ]
+  },
+  "t02": {
+   "pages": [
+    20,
+    21
+   ],
+   "split": 8,
+   "keys": [
+    "purchased_gwh",
+    "received_other_unit_gwh",
+    "own_production_gwh",
+    "own_use_power_plant_gwh",
+    "own_use_power_plant_pct",
+    "net_production_gwh",
+    "own_use_substation_gwh",
+    "own_use_substation_pct",
+    "transmission_losses_gwh",
+    "transmission_losses_pct",
+    "transfer_other_unit_gwh",
+    "transfer_distribution_gwh",
+    "own_use_distr_substation_gwh",
+    "own_use_distr_substation_pct",
+    "distribution_losses_gwh",
+    "distribution_losses_pct",
+    "energy_losses_gwh",
+    "energy_losses_pct",
+    "energy_losses_own_use_gwh",
+    "energy_losses_own_use_pct",
+    "energy_consumption_gwh",
+    "energy_consumption_pct"
+   ]
+  },
+  "t08": {
+   "pages": [
+    27
+   ],
+   "keys": [
+    "households_kwh",
+    "industry_kwh",
+    "business_kwh",
+    "social_kwh",
+    "gov_office_kwh",
+    "street_lighting_kwh",
+    "total_kwh"
+   ]
+  },
+  "t16": {
+   "pages": [
+    35
+   ]
+  },
+  "t19": {
+   "pages": [
+    38
+   ],
+   "keys": [
+    "population_thousand",
+    "households_thousand",
+    "household_customers",
+    "electrification_ratio_pct",
+    "kwh_sold_per_capita"
+   ]
+  },
+  "t21": {
+   "pages": [
+    40
+   ],
+   "keys": [
+    "hydro_mw",
+    "steam_mw",
+    "gas_mw",
+    "combined_cycle_mw",
+    "geothermal_mw",
+    "diesel_mw",
+    "solar_mw",
+    "wind_mw",
+    "pln_owned_subtotal_mw",
+    "pln_owned_subtotal_share_pct",
+    "leased_mw",
+    "ipp_mw",
+    "total_mw"
+   ]
+  },
+  "t23": {
+   "pages": [
+    42,
+    43
+   ],
+   "split": 8,
+   "keys": [
+    "own_hydro_gwh",
+    "own_steam_gwh",
+    "own_gas_gwh",
+    "own_combined_cycle_gwh",
+    "own_geothermal_gwh",
+    "own_diesel_gwh",
+    "own_gas_engine_gwh",
+    "own_solar_gwh",
+    "own_wind_gwh",
+    "leased_diesel_gwh",
+    "leased_gas_engine_gwh",
+    "leased_combined_cycle_gwh",
+    "leased_steam_gwh",
+    "leased_hydro_gwh",
+    "own_and_leased_subtotal_gwh",
+    "purchased_and_project_gwh",
+    "total_gwh",
+    "total_share_pct"
+   ]
+  },
+  "t28": {
+   "pages": [
+    48
+   ]
+  },
+  "t29": {
+   "pages": [
+    49
+   ]
+  },
+  "t30": {
+   "pages": [
+    50
+   ]
+  }
+ },
+ "2016": {
+  "t01": {
+   "pages": [
+    19
+   ]
+  },
+  "t02": {
+   "pages": [
+    20,
+    21
+   ],
+   "split": 8,
+   "keys": [
+    "purchased_gwh",
+    "received_other_unit_gwh",
+    "own_production_gwh",
+    "own_use_power_plant_gwh",
+    "own_use_power_plant_pct",
+    "net_production_gwh",
+    "own_use_substation_gwh",
+    "own_use_substation_pct",
+    "transmission_losses_gwh",
+    "transmission_losses_pct",
+    "transfer_other_unit_gwh",
+    "transfer_distribution_gwh",
+    "own_use_distr_substation_gwh",
+    "own_use_distr_substation_pct",
+    "distribution_losses_gwh",
+    "distribution_losses_pct",
+    "energy_losses_gwh",
+    "energy_losses_pct",
+    "energy_losses_own_use_gwh",
+    "energy_losses_own_use_pct",
+    "energy_consumption_gwh",
+    "energy_consumption_pct"
+   ]
+  },
+  "t08": {
+   "pages": [
+    27
+   ],
+   "keys": [
+    "households_kwh",
+    "industry_kwh",
+    "business_kwh",
+    "social_kwh",
+    "gov_office_kwh",
+    "street_lighting_kwh",
+    "total_kwh"
+   ]
+  },
+  "t16": {
+   "pages": [
+    35
+   ]
+  },
+  "t19": {
+   "pages": [
+    38
+   ],
+   "keys": [
+    "population_thousand",
+    "households_thousand",
+    "household_customers",
+    "electrification_ratio_pct",
+    "kwh_sold_per_capita"
+   ]
+  },
+  "t21": {
+   "pages": [
+    40
+   ],
+   "keys": [
+    "hydro_mw",
+    "steam_mw",
+    "gas_mw",
+    "combined_cycle_mw",
+    "geothermal_mw",
+    "diesel_mw",
+    "solar_mw",
+    "wind_mw",
+    "pln_owned_subtotal_mw",
+    "leased_mw",
+    "ipp_mw",
+    "total_mw"
+   ]
+  },
+  "t23": {
+   "pages": [
+    42,
+    43
+   ],
+   "split": 8,
+   "keys": [
+    "own_hydro_gwh",
+    "own_steam_gwh",
+    "own_gas_gwh",
+    "own_combined_cycle_gwh",
+    "own_geothermal_gwh",
+    "own_diesel_gwh",
+    "own_gas_engine_gwh",
+    "own_solar_gwh",
+    "leased_diesel_gwh",
+    "leased_gas_engine_gwh",
+    "leased_combined_cycle_gwh",
+    "leased_steam_gwh",
+    "leased_hydro_gwh",
+    "leased_solar_gwh",
+    "own_and_leased_subtotal_gwh",
+    "purchased_and_project_gwh",
+    "total_gwh",
+    "total_share_pct"
+   ]
+  },
+  "t28": {
+   "pages": [
+    48
+   ]
+  },
+  "t29": {
+   "pages": [
+    49
+   ]
+  },
+  "t30": {
+   "pages": [
+    50
+   ]
+  }
+ },
+ "2017": {
+  "t01": {
+   "pages": [
+    19
+   ]
+  },
+  "t02": {
+   "pages": [
+    20,
+    21
+   ],
+   "split": 8,
+   "keys": [
+    "purchased_gwh",
+    "received_other_unit_gwh",
+    "own_production_gwh",
+    "own_use_power_plant_gwh",
+    "own_use_power_plant_pct",
+    "net_production_gwh",
+    "own_use_substation_gwh",
+    "own_use_substation_pct",
+    "transmission_losses_gwh",
+    "transmission_losses_pct",
+    "transfer_other_unit_gwh",
+    "transfer_distribution_gwh",
+    "own_use_distr_substation_gwh",
+    "own_use_distr_substation_pct",
+    "distribution_losses_gwh",
+    "distribution_losses_pct",
+    "energy_losses_gwh",
+    "energy_losses_pct",
+    "energy_losses_own_use_gwh",
+    "energy_losses_own_use_pct",
+    "energy_consumption_gwh",
+    "energy_consumption_pct"
+   ]
+  },
+  "t08": {
+   "pages": [
+    27
+   ],
+   "keys": [
+    "households_kwh",
+    "industry_kwh",
+    "business_kwh",
+    "social_kwh",
+    "gov_office_kwh",
+    "street_lighting_kwh",
+    "total_kwh"
+   ]
+  },
+  "t16": {
+   "pages": [
+    35
+   ]
+  },
+  "t19": {
+   "pages": [
+    38
+   ],
+   "keys": [
+    "population_thousand",
+    "households_thousand",
+    "household_customers",
+    "electrification_ratio_pct",
+    "kwh_sold_per_capita"
+   ]
+  },
+  "t21": {
+   "pages": [
+    40
+   ],
+   "keys": [
+    "hydro_mw",
+    "steam_mw",
+    "gas_mw",
+    "combined_cycle_mw",
+    "geothermal_mw",
+    "diesel_mw",
+    "solar_mw",
+    "wind_mw",
+    "pln_owned_subtotal_mw",
+    "pln_owned_subtotal_share_pct",
+    "leased_mw",
+    "ipp_mw",
+    "total_mw"
+   ],
+   "null_cols": [
+    "pln_owned_subtotal_share_pct"
+   ]
+  },
+  "t23": {
+   "pages": [
+    42,
+    43
+   ],
+   "split": 9,
+   "keys": [
+    "own_hydro_gwh",
+    "own_steam_gwh",
+    "own_gas_gwh",
+    "own_combined_cycle_gwh",
+    "own_geothermal_gwh",
+    "own_diesel_gwh",
+    "own_gas_engine_gwh",
+    "own_solar_gwh",
+    "own_wind_gwh",
+    "leased_diesel_gwh",
+    "leased_gas_engine_gwh",
+    "leased_combined_cycle_gwh",
+    "leased_steam_gwh",
+    "leased_hydro_gwh",
+    "leased_solar_gwh",
+    "own_and_leased_subtotal_gwh",
+    "purchased_and_project_gwh",
+    "total_gwh",
+    "total_share_pct"
+   ]
+  },
+  "t28": {
+   "pages": [
+    48
+   ]
+  },
+  "t29": {
+   "pages": [
+    49
+   ]
+  },
+  "t30": {
+   "pages": [
+    50
+   ]
+  }
+ }
+}
