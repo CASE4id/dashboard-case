@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Panduan Menambah Data per Provinsi</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root { --navy:#0a2f6b; --blue:#1557b0; --sky:#2fa8e0; --yellow:#f7c948; --ink:#12213a; --muted:#5b6b82; --line:#dce3ee; --bg:#f2f5fa; --red:#e0245e; --good:#1e8e4e; --bad:#c8382a; }
+  @page { size: A4; margin: 18mm 16mm 20mm 16mm; }
+  * { box-sizing: border-box; }
+  body { font-family: "Plus Jakarta Sans", system-ui, sans-serif; color: var(--ink); font-size: 10pt; line-height: 1.5; margin: 0; }
+  h1 { font-size: 22pt; color: var(--navy); margin: 0 0 6mm; letter-spacing: .01em; }
+  h1 .num { display: inline-block; background: var(--yellow); color: var(--navy); border-radius: 8px; padding: 0 10px; margin-right: 8px; }
+  h2 { font-size: 14pt; color: var(--navy); margin: 6mm 0 3mm; border-bottom: 2px solid var(--line); padding-bottom: 1.5mm; }
+  h3 { font-size: 11.5pt; color: var(--blue); margin: 5mm 0 2mm; }
+  p { margin: 0 0 3mm; }
+  .chapter { page-break-before: always; }
+  .avoid { page-break-inside: avoid; }
+  ul, ol { margin: 0 0 3mm; padding-left: 6mm; }
+  li { margin-bottom: 1.2mm; }
+  code, .mono { font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; font-size: 9.2pt; background: #eef2f8; border-radius: 4px; padding: 0 4px; color: var(--navy); }
+  b, strong { color: var(--navy); }
+  table { width: 100%; border-collapse: collapse; margin: 2mm 0 4mm; font-size: 9.5pt; page-break-inside: avoid; }
+  th { background: var(--navy); color: #fff; text-align: left; padding: 2mm 2.5mm; font-weight: 600; }
+  td { border-bottom: 1px solid var(--line); padding: 1.5mm 2.5mm; vertical-align: top; }
+  tr:nth-child(even) td { background: #f7f9fc; }
+  figure { margin: 3mm 0 5mm; page-break-inside: avoid; }
+  figure img { width: 100%; max-height: 118mm; object-fit: contain; object-position: left top; border: 1px solid var(--line); border-radius: 8px; display: block; }
+  figure.narrow img { width: 62%; margin: 0 auto; }
+  figure.phone img { width: 38%; margin: 0 auto; }
+  figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
+  .callouts { counter-reset: c; list-style: none; padding-left: 0; }
+  .callouts li { position: relative; padding-left: 9mm; }
+  .callouts li::before { counter-increment: c; content: counter(c); position: absolute; left: 0; top: .2mm; width: 6mm; height: 6mm; border-radius: 50%; background: var(--red); color: #fff; font-weight: 800; font-size: 8.5pt; text-align: center; line-height: 6mm; }
+  .box { border-radius: 10px; padding: 2.5mm 4mm; margin: 2.5mm 0 3mm; page-break-inside: avoid; }
+  .tip { background: #eaf4fd; border-left: 4px solid var(--sky); }
+  .warn { background: #fff7e0; border-left: 4px solid var(--yellow); }
+  .danger { background: #fdecef; border-left: 4px solid var(--red); }
+  .box b:first-child { display: block; margin-bottom: 1mm; }
+  .steps { counter-reset: s; list-style: none; padding-left: 0; }
+  .steps > li { position: relative; padding-left: 10mm; margin-bottom: 2.5mm; }
+  .steps > li::before { counter-increment: s; content: counter(s); position: absolute; left: 0; top: 0; width: 7mm; height: 7mm; border-radius: 6px; background: var(--navy); color: #fff; font-weight: 700; font-size: 9pt; text-align: center; line-height: 7mm; }
+  /* Jalur klik (ilustrasi, bukan tangkapan layar GitHub) */
+  .path { display: flex; flex-wrap: wrap; align-items: center; gap: 1.5mm; background: var(--bg); border: 1px dashed #b9cbe6; border-radius: 10px; padding: 3mm; margin: 2mm 0 4mm; page-break-inside: avoid; }
+  .path .lbl { width: 100%; font-size: 8pt; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: .5mm; }
+  .path span.k { background: #fff; border: 1px solid #c9d6ea; border-radius: 6px; padding: .8mm 2.5mm; font-weight: 600; font-size: 9.2pt; color: var(--navy); }
+  .path span.btn { background: #1f883d; border-color: #1f883d; color: #fff; }
+  .path span.a { color: var(--muted); font-weight: 700; }
+  /* Sampul */
+  .cover { height: 257mm; display: flex; flex-direction: column; justify-content: space-between; background: linear-gradient(135deg, #0a2f6b 0%, #1557b0 60%, #2fa8e0 100%); color: #fff; border-radius: 16px; padding: 18mm 16mm; }
+  .cover .pill { display: inline-flex; align-items: center; gap: 4mm; background: #fff; color: var(--navy); border-radius: 999px; padding: 3mm 6mm; font-weight: 600; font-size: 9.5pt; }
+  .cover .pill img { height: 11mm; }
+  .cover h1 { color: #fff; font-size: 34pt; margin: 0; line-height: 1.1; }
+  .cover h1 span { color: var(--yellow); }
+  .cover .sub { font-size: 15pt; margin-top: 4mm; opacity: .95; }
+  .cover .meta { font-size: 10pt; opacity: .9; line-height: 1.7; }
+  .cover .sectors span { display: inline-block; border: 1px solid rgba(255,255,255,.5); border-radius: 999px; padding: 1.5mm 4mm; margin: 0 2mm 2mm 0; font-size: 10pt; }
+  .cover .sectors span:first-child { background: var(--yellow); color: var(--navy); border-color: var(--yellow); font-weight: 700; }
+  .toc { list-style: none; padding: 0; }
+  .toc li { display: flex; justify-content: space-between; border-bottom: 1px dotted #c9d6ea; padding: .7mm 0; font-size: 9.8pt; font-weight: 600; color: var(--navy); }
+  .toc li.s { font-weight: 400; padding-left: 6mm; color: var(--ink); font-size: 9.8pt; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; }
+  .check { list-style: none; padding-left: 0; }
+  .check li { padding-left: 8mm; position: relative; margin-bottom: 3mm; font-size: 11pt; }
+  .check li::before { content: ""; position: absolute; left: 0; top: .6mm; width: 4.5mm; height: 4.5mm; border: 1.5px solid var(--navy); border-radius: 3px; }
+  .fill { display: inline-block; min-width: 55mm; border-bottom: 1px solid #9aa5b1; }
+
+  /* Contoh isi Excel (ilustrasi) */
+  table.xl { width: 100%; border: 1px solid #c8ced8; font-size: 9pt; }
+  table.xl th { background: #eef1f5; color: #5b6b82; font-weight: 600; border: 1px solid #c8ced8; text-align: left; padding: 1mm 2mm; }
+  table.xl td { border: 1px solid #dde2ea; padding: 1mm 2mm; background: #fff !important; }
+  table.xl td.rn, table.xl th.rn { background: #eef1f5 !important; color: #8a98ad; text-align: center; width: 7mm; }
+  table.xl td.r { text-align: right; }
+  table.xl td.isi { background: #fff7d6 !important; }
+</style>
+</head>
+<body>
+<!-- ============================ SAMPUL ============================ -->
+<section class="cover">
+  <div><span class="pill"><img src="img/logo-bappenas-emblem.png" alt=""> Kementerian PPN/Bappenas <img src="img/logo-tkka.png" alt=""> Direktorat Transmisi, Ketenagalistrikan, Kedirgantaraan, dan Antariksa</span></div>
+  <div>
+    <div style="font-size:12pt;letter-spacing:.2em;opacity:.9;margin-bottom:4mm">PANDUAN LANGKAH DEMI LANGKAH</div>
+    <h1>Menambah <span>Data per Provinsi</span></h1>
+    <div class="sub">ke Dashboard PraKTIk</div>
+    <div class="sectors" style="margin-top:8mm"><span>Contoh: Desa menurut status penerangan listrik (BPS)</span></div>
+  </div>
+  <div class="meta">
+    Untuk staf yang baru pertama kali menambah data.<br>
+    Waktu: ±45 menit · Tidak perlu kemampuan pemrograman<br>
+    Versi 1.0 · November 2026
+  </div>
+</section>
+
+<!-- ============================ PENGANTAR ============================ -->
+<section class="chapter">
+  <h1>Sebelum Mulai</h1>
+  <p>Panduan ini menuntun Anda menambahkan data baru per provinsi ke dashboard, dari file yang diunduh dari sumber (mis. BPS)
+  sampai tampil di tab <b>Provinsi</b>. Sebagai contoh dipakai data <b>jumlah desa menurut status penerangan listrik, 2024</b>.</p>
+  <h2>Yang Anda perlukan</h2>
+  <ul class="check">
+    <li>Microsoft Excel</li>
+    <li>Browser (Chrome atau Edge)</li>
+    <li>Akun GitHub yang sudah diundang ke organisasi CASE4id dengan akses <b>Write</b> (minta ke admin; lihat Buku Panduan Bab 5.4)</li>
+    <li>File data dari sumbernya (mis. tabel Excel dari bps.go.id)</li>
+  </ul>
+  <h2>Gambaran alur</h2>
+  <div class="path"><div class="lbl">Delapan langkah</div>
+    <span class="k">1 Unduh data</span><span class="a">→</span><span class="k">2 Susun 4 kolom</span><span class="a">→</span><span class="k">3 Cek Data</span><span class="a">→</span><span class="k">4 Unduh versi rapi &amp; lengkapi</span><span class="a">→</span><span class="k">5 Cek ulang</span><span class="a">→</span><span class="k">6 Unggah file data</span><span class="a">→</span><span class="k">7 Daftarkan</span><span class="a">→</span><span class="k btn">8 Tampil di dashboard</span></div>
+  <h2>Istilah</h2>
+  <table>
+    <tr><th style="width:26%">Istilah</th><th>Arti</th></tr>
+    <tr><td><b>Indikator</b></td><td>Satu ukuran yang diamati, mis. "Desa berlistrik PLN". Satu file boleh berisi beberapa indikator.</td></tr>
+    <tr><td><b>Cek Data</b></td><td>Halaman untuk memeriksa file Excel sebelum diunggah: <code>case4id.github.io/dashboard-case/cek-data.html</code> (tautan <i>Cek Data</i> di bagian bawah dashboard). File tidak dikirim ke mana pun.</td></tr>
+    <tr><td><b>Versi rapi</b></td><td>File Excel siap pakai yang dibuat oleh Cek Data: sheet <code>info</code>, <code>indikator</code>, dan <code>data</code>.</td></tr>
+    <tr><td><b>Daftar data</b></td><td>File <code>data/provinsi/daftar-indikator.xlsx</code> berisi file mana saja yang ditampilkan di tab Provinsi.</td></tr>
+  </table>
+  <div class="box tip"><b>Aman dicoba</b>
+    Tidak ada yang tampil di dashboard sampai Langkah 7 selesai, dan setiap file di GitHub menyimpan riwayatnya. Jika ada yang salah,
+    versi sebelumnya dapat dikembalikan (Buku Panduan Bab 4.4).</div>
+</section>
+
+<!-- ============================ LANGKAH 1-2 ============================ -->
+<section class="chapter">
+  <h1><span class="num">1</span>Unduh data dari sumbernya</h1>
+  <ol class="steps">
+    <li>Cari tabelnya di situs sumber, mis. <b>bps.go.id</b> → menu <b>Statistik</b> / <b>Tabel</b> → cari "desa listrik" → pilih tabel per provinsi.</li>
+    <li>Unduh dalam format <b>Excel</b> (.xlsx), bukan PDF.</li>
+    <li>Simpan file aslinya di folder kerja Anda <b>tanpa diubah</b>. Kerjakan langkah berikutnya pada <b>salinannya</b>.</li>
+  </ol>
+  <div class="box warn"><b>Pahami arti datanya dulu</b>
+    Baca judul tabel dan catatan kaki di file asli. Pada contoh ini, BPS mencatat desa menurut <i>keberadaan keluarga</i> pengguna listrik
+    PLN, non-PLN, dan bukan pengguna listrik. Satu desa dapat tercatat di lebih dari satu kategori. Hal ini penting di Langkah 4.</div>
+
+  <h1 style="margin-top:6mm"><span class="num">2</span>Susun data menjadi empat kolom</h1>
+  <p><b>Ini format standar untuk semua data per provinsi, dari sumber mana pun.</b> Tabel dari BPS, kementerian, atau PLN berbeda-beda
+  bentuknya, jadi selalu susun ulang ke empat kolom: <b>Tahun</b>, <b>Provinsi</b>, <b>Indikator</b>, <b>Nilai</b>.
+  Satu baris = satu tahun, satu provinsi, satu indikator. Contoh (awal file):</p>
+  <table class="xl">
+    <tr><th class="rn"></th><th>A</th><th>B</th><th>C</th><th>D</th></tr>
+    <tr><td class="rn">1</td><td><b>Tahun</b></td><td><b>Provinsi</b></td><td><b>Indikator</b></td><td><b>Nilai</b></td></tr>
+    <tr><td class="rn">2</td><td>2024</td><td>ACEH</td><td>Desa berlistrik PLN</td><td class="r">6508</td></tr>
+    <tr><td class="rn">3</td><td>2024</td><td>SUMATERA UTARA</td><td>Desa berlistrik PLN</td><td class="r">6000</td></tr>
+    <tr><td class="rn">40</td><td>2024</td><td>ACEH</td><td>Desa berlistrik Non-PLN</td><td class="r">171</td></tr>
+    <tr><td class="rn">115</td><td>2024</td><td>PAPUA PEGUNUNGAN</td><td>Desa tidak berlistrik</td><td class="r">2168</td></tr>
+  </table>
+  <table>
+    <tr><th style="width:50%">Tidak perlu khawatir ✓</th><th>Yang perlu diperhatikan ✗</th></tr>
+    <tr><td>Huruf besar/kecil dan penulisan provinsi (ACEH, "Kep. Riau", "DIY")</td><td>Jangan menggabungkan sel (merge cells)</td></tr>
+    <tr><td>Urutan baris</td><td>Kolom Nilai hanya berisi angka (kosongkan jika tidak ada data)</td></tr>
+    <tr><td>Baris INDONESIA (nasional) boleh ada</td><td>Nama indikator ditulis persis sama di setiap baris dan setiap tahun</td></tr>
+  </table>
+</section>
+
+<section class="chapter">
+  <h2>Dua cara menyusun ulang</h2>
+  <h3>Cara A · Salin-tempel (tabel kecil, mis. satu tahun, beberapa kategori)</h3>
+  <ol class="steps">
+    <li>Buat sheet baru dengan judul kolom <b>Tahun, Provinsi, Indikator, Nilai</b>.</li>
+    <li>Salin daftar 38 provinsi ke kolom B. Isi kolom A dengan tahunnya dan kolom C dengan nama indikator pertama (mis. "Desa berlistrik PLN").</li>
+    <li>Salin angka kategori pertama ke kolom D (<b>Paste Special → Values</b>, agar hanya angka yang tersalin).</li>
+    <li>Ulangi di bawahnya untuk kategori berikutnya: provinsi yang sama, nama indikator berikutnya, angkanya.</li>
+  </ol>
+  <h3>Cara B · Unpivot di Excel (tabel lebar: kategori atau tahun sebagai kolom)</h3>
+  <p>Excel dapat membalik tabel lebar menjadi daftar panjang secara otomatis dengan <b>Power Query</b> (Microsoft 365 / Excel 2016 ke atas).</p>
+  <table class="xl" style="width:70%">
+    <tr><th class="rn"></th><th>Provinsi</th><th>PLN</th><th>Non PLN</th><th>Tidak Ada</th></tr>
+    <tr><td class="rn">1</td><td>ACEH</td><td class="r">6508</td><td class="r">171</td><td class="r">562</td></tr>
+    <tr><td class="rn">2</td><td>SUMATERA UTARA</td><td class="r">6000</td><td class="r">715</td><td class="r">1790</td></tr>
+  </table>
+  <ol class="steps">
+    <li><b>Siapkan tabelnya:</b> hapus baris judul di atas tabel, sehingga baris pertama berisi judul kolom (Provinsi, lalu nama kategori atau tahun,
+      satu baris saja). Hapus baris catatan di bawah tabel. Jika ada sel yang digabung, pisahkan (<b>Merge &amp; Center → Unmerge</b>).</li>
+    <li>Klik salah satu sel tabel → menu <b>Data</b> → <b>From Table/Range</b> → centang <i>My table has headers</i> → <b>OK</b>. Jendela Power Query terbuka.</li>
+    <li>Klik judul kolom <b>Provinsi</b> → klik kanan → <b>Unpivot Other Columns</b>. Tabel berubah menjadi tiga kolom: Provinsi, <i>Attribute</i>, <i>Value</i>.</li>
+    <li>Ganti nama kolom (klik dua kali judulnya): <i>Attribute</i> → <b>Indikator</b> (atau <b>Tahun</b>, jika yang dibalik adalah kolom tahun), <i>Value</i> → <b>Nilai</b>.</li>
+    <li>Tambahkan kolom yang belum ada: <b>Add Column</b> → <b>Custom Column</b>, nama <b>Tahun</b>, isi rumus angka tahunnya, mis. <code>2024</code> (atau kolom <b>Indikator</b> berisi nama indikator, jika yang dibalik adalah tahun).</li>
+    <li><b>Home</b> → <b>Close &amp; Load</b>. Hasilnya muncul di sheet baru. Atur urutan kolom menjadi Tahun, Provinsi, Indikator, Nilai, lalu simpan.</li>
+  </ol>
+  <table class="xl" style="width:70%">
+    <tr><th class="rn"></th><th>Tahun</th><th>Provinsi</th><th>Indikator</th><th>Nilai</th></tr>
+    <tr><td class="rn">1</td><td>2024</td><td>ACEH</td><td>PLN</td><td class="r">6508</td></tr>
+    <tr><td class="rn">2</td><td>2024</td><td>ACEH</td><td>Non PLN</td><td class="r">171</td></tr>
+    <tr><td class="rn">3</td><td>2024</td><td>ACEH</td><td>Tidak Ada</td><td class="r">562</td></tr>
+  </table>
+  <div class="box tip"><b>Ganti nama indikator yang terlalu singkat</b>
+    Nama seperti "PLN" atau "Tidak Ada" kurang jelas di dashboard. Gunakan <b>Find &amp; Replace</b> (Ctrl + H) di kolom Indikator,
+    mis. "Tidak Ada" → "Desa dengan keluarga bukan pengguna listrik". Pakai nama yang sama untuk tahun-tahun berikutnya.</div>
+  <div class="box warn"><b>Cek Data juga dapat membaca beberapa tabel apa adanya, tetapi jangan diandalkan</b>
+    Untuk sebagian tabel BPS, Cek Data dapat membaca bentuk aslinya dan menyusunnya sendiri (versi rapi). Bentuk tabel dari sumber lain sangat beragam,
+    jadi format standar empat kolom tetap menjadi aturan. Jika Cek Data menyebut file "bukan susunan standar", periksa hasilnya dengan teliti
+    atau susun ulang dengan Cara A atau B.</div>
+</section>
+
+<!-- ============================ LANGKAH 3-4 ============================ -->
+<section class="chapter">
+  <h1><span class="num">3</span>Periksa di halaman Cek Data</h1>
+  <ol class="steps">
+    <li>Buka <b>Cek Data</b> (tautan di bagian bawah dashboard).</li>
+    <li>Seret file Anda ke kotak bergaris putus-putus, atau klik kotak itu lalu pilih file.</li>
+    <li>Baca hasilnya. Contoh untuk file desa berlistrik:</li>
+  </ol>
+  <figure><img src="img/c1_mentah.png"><figcaption>Gambar 3.1 · Hasil pemeriksaan file yang baru disusun. (1) Tombol <b>Unduh versi rapi</b>.</figcaption></figure>
+  <ul>
+    <li><b>✔ FORMAT DAPAT DIBACA</b>: file dapat diproses. Lanjut ke Langkah 4.</li>
+    <li><b>Catatan (kuning)</b>: hal untuk diperiksa, tidak menghalangi. Di sini: dua provinsi ditulis berbeda (otomatis diganti nama resmi),
+      sheet <code>info</code> belum ada, dan pertanyaan tentang <b>komposisi</b> (dijawab di Langkah 4).</li>
+    <li><b>✖ BELUM SIAP</b> (merah): perbaiki di Excel sesuai pesannya (sheet, baris, dan isi yang salah disebutkan), lalu periksa lagi.
+      Contoh pesan: provinsi "Jawa Barta" tidak dikenali, maksudnya <b>Jawa Barat</b>?</li>
+  </ul>
+
+  <h1 style="margin-top:8mm"><span class="num">4</span>Unduh versi rapi, lalu lengkapi</h1>
+  <ol class="steps">
+    <li>Klik <b>Unduh versi rapi</b> (Gambar 3.1, nomor 1). File baru tersimpan di folder Unduhan.</li>
+    <li>Ganti nama file menjadi nama pendek tanpa tahun, huruf kecil, dengan tanda hubung. Contoh: <code>desa-berlistrik.xlsx</code>.
+      Nama ini dipakai seterusnya; data tahun berikutnya ditambahkan ke file yang sama.</li>
+    <li>Buka file itu di Excel. Ada tiga sheet: <code>info</code>, <code>indikator</code>, <code>data</code>. Sheet <code>data</code> sudah rapi; <b>jangan diubah</b>.</li>
+    <li>Isi kolom <b>isian</b> di sheet <code>info</code> dan kolom kosong di sheet <code>indikator</code>, seperti contoh di halaman berikut. Simpan.</li>
+  </ol>
+</section>
+
+<section class="chapter">
+  <h3>Sheet <code>info</code> (contoh terisi)</h3>
+  <table class="xl">
+    <tr><th class="rn"></th><th style="width:18%">A · kunci</th><th>B · isian</th></tr>
+    <tr><td class="rn">2</td><td>judul_id</td><td class="isi">Desa menurut status penerangan listrik</td></tr>
+    <tr><td class="rn">3</td><td>judul_en</td><td class="isi">Villages by electricity status</td></tr>
+    <tr><td class="rn">4</td><td>sumber</td><td class="isi">BPS, Statistik Potensi Desa (Podes) 2024</td></tr>
+    <tr><td class="rn">5</td><td>satuan</td><td class="isi">desa</td></tr>
+    <tr><td class="rn">6</td><td>komposisi</td><td class="isi">tidak</td></tr>
+    <tr><td class="rn">7</td><td>catatan</td><td class="isi">Satu desa dapat masuk lebih dari satu kategori (mis. ada keluarga pengguna listrik PLN dan non-PLN), sehingga jumlah ketiga kategori lebih besar daripada jumlah desa.</td></tr>
+  </table>
+  <h3>Sheet <code>indikator</code> (contoh terisi)</h3>
+  <table class="xl">
+    <tr><th class="rn"></th><th style="width:30%">A · indikator</th><th style="width:34%">B · nama_en</th><th style="width:10%">C · satuan</th><th>D · makin_tinggi_makin_baik</th></tr>
+    <tr><td class="rn">2</td><td>Desa berlistrik PLN</td><td class="isi">Villages with PLN electricity</td><td class="isi"></td><td class="isi">ya</td></tr>
+    <tr><td class="rn">3</td><td>Desa berlistrik Non-PLN</td><td class="isi">Villages with non-PLN electricity</td><td class="isi"></td><td class="isi">netral</td></tr>
+    <tr><td class="rn">4</td><td>Desa tidak berlistrik</td><td class="isi">Villages without electricity</td><td class="isi"></td><td class="isi">tidak</td></tr>
+  </table>
+  <p style="font-size:9pt;color:var(--muted)">Sel berwarna = yang Anda isi. <b>satuan</b> per indikator boleh kosong jika sama dengan satuan di sheet info.</p>
+  <table>
+    <tr><th style="width:24%">Isian</th><th>Cara mengisi</th></tr>
+    <tr><td><b>satuan</b></td><td>Satuan nilai, mis. <i>desa</i>, <i>MW</i>. Untuk rasio: <b>fraksi</b> jika nilainya 0–1 (0,99 → tampil 99%), <b>persen</b> jika 0–100.</td></tr>
+    <tr><td><b>makin_tinggi_<br>makin_baik</b></td><td><b>ya</b> (peringkat dari yang tertinggi), <b>tidak</b> (peringkat dari yang terendah, mis. desa tidak berlistrik), atau <b>netral</b>.</td></tr>
+    <tr><td><b>komposisi</b></td><td>Lihat kotak di bawah.</td></tr>
+  </table>
+  <div class="box warn"><b>Memilih komposisi: ya atau tidak?</b>
+    Pilih <b>ya</b> hanya jika setiap unsur (mis. setiap desa) masuk tepat <b>satu</b> indikator, sehingga jumlah semua indikator sama dengan
+    keseluruhannya. Dashboard lalu dapat menampilkan persentase (100% per provinsi).<br>
+    Pada contoh ini jumlah ketiga indikator <b>108.505</b> (disebutkan di Cek Data), padahal jumlah desa/kelurahan di Indonesia sekitar <b>84 ribu</b>.
+    Artinya kategorinya tumpang tindih, jadi pilih <b>tidak</b> dan jelaskan di <i>catatan</i>. Jika ragu, pilih <b>tidak</b>.</div>
+
+  <h1 style="margin-top:8mm"><span class="num">5</span>Periksa ulang</h1>
+  <p>Seret file yang sudah dilengkapi (<code>desa-berlistrik.xlsx</code>) ke Cek Data sekali lagi. Hasil yang diharapkan: hijau tanpa catatan.</p>
+  <figure><img src="img/c2_rapi.png"><figcaption>Gambar 5.1 · File versi rapi yang sudah dilengkapi: siap diunggah.</figcaption></figure>
+</section>
+
+<!-- ============================ LANGKAH 6-7 ============================ -->
+<section class="chapter">
+  <h1><span class="num">6</span>Unggah file data ke GitHub</h1>
+  <ol class="steps">
+    <li>Masuk ke <b>github.com</b>, buka repositori <code>CASE4id/dashboard-case</code>.</li>
+    <li>Klik folder <b>data</b> → <b>provinsi</b>.</li>
+    <li>Klik <b>Add file</b> → <b>Upload files</b>, seret <code>desa-berlistrik.xlsx</code>.</li>
+    <li>Di <b>Commit changes</b>, tulis keterangan, mis. <i>Tambah data desa berlistrik 2024</i>. Pilih <b>Commit directly to the main branch</b> → <b>Commit changes</b>.</li>
+  </ol>
+  <div class="path"><div class="lbl">Jalur klik (ilustrasi)</div>
+    <span class="k">CASE4id/dashboard-case</span><span class="a">→</span><span class="k">data</span><span class="a">→</span><span class="k">provinsi</span><span class="a">→</span><span class="k">Add file ▾</span><span class="a">→</span><span class="k">Upload files</span><span class="a">→</span><span class="k">desa-berlistrik.xlsx</span><span class="a">→</span><span class="k btn">Commit changes</span></div>
+  <p>File ini belum tampil di dashboard sampai didaftarkan (Langkah 7).</p>
+
+  <h1 style="margin-top:8mm"><span class="num">7</span>Daftarkan di daftar data</h1>
+  <ol class="steps">
+    <li>Di folder <b>data/provinsi</b> GitHub, klik <code>daftar-indikator.xlsx</code> → tombol <b>Download raw file</b> (ikon unduh, kanan atas).</li>
+    <li>Buka di Excel, sheet <code>daftar</code>. Tambahkan satu baris:
+      <table class="xl" style="margin-top:2mm">
+        <tr><th class="rn"></th><th>A · file</th><th>B · tampilkan</th><th>C · urutan</th></tr>
+        <tr><td class="rn">2</td><td class="isi">desa-berlistrik.xlsx</td><td class="isi">ya</td><td class="isi">1</td></tr>
+      </table>
+      <span style="font-size:9pt;color:var(--muted)">Nama file harus <b>persis sama</b> dengan yang diunggah di Langkah 6. <i>urutan</i> menentukan urutan di pilihan data.</span></li>
+    <li>Simpan, lalu periksa <code>daftar-indikator.xlsx</code> di Cek Data. Cek Data memastikan setiap file yang terdaftar sudah ada di situs:</li>
+  </ol>
+  <figure><img src="img/c4_daftar_ok.png"><figcaption>Gambar 7.1 · Daftar siap diunggah: file data ditemukan di situs.</figcaption></figure>
+  <div class="box warn"><b>Jika muncul "belum ada di situs"</b>
+    Artinya Langkah 6 belum dilakukan, atau situs belum selesai diperbarui (tunggu 1–3 menit, lalu periksa lagi). Jangan unggah daftar sebelum pesan ini hilang.</div>
+  <figure><img src="img/c3_daftar_belum.png"><figcaption>Gambar 7.2 · Contoh: daftar diperiksa sebelum file datanya diunggah.</figcaption></figure>
+  <ol class="steps" start="4" style="counter-reset: s 3">
+    <li>Unggah <code>daftar-indikator.xlsx</code> ke folder <b>data/provinsi</b> (cara sama dengan Langkah 6). GitHub menggantikan file lama.</li>
+  </ol>
+</section>
+
+<!-- ============================ LANGKAH 8 ============================ -->
+<section class="chapter">
+  <h1><span class="num">8</span>Lihat hasilnya di dashboard</h1>
+  <ol class="steps">
+    <li>Tunggu 1–3 menit, buka dashboard di jendela <b>incognito</b> (Ctrl + Shift + N).</li>
+    <li>Di sektor <b>Ketenagalistrikan</b> kini ada tab <b>Provinsi</b>.</li>
+    <li>Periksa beberapa angka terhadap file sumber.</li>
+  </ol>
+  <figure><img src="img/d1_tab.png"><figcaption>Gambar 8.1 · Tab Provinsi. (1) Tab baru, (2) pilihan indikator, (3) pilihan tahun. Peringkat mengikuti isian <i>makin_tinggi_makin_baik</i>.</figcaption></figure>
+  <figure><img src="img/d2_rincian.png"><figcaption>Gambar 8.2 · Klik batang suatu provinsi untuk melihat rinciannya. Grafik tren muncul otomatis setelah ada data dua tahun atau lebih. Tabel lengkap dan tombol unduh ada di bawahnya.</figcaption></figure>
+</section>
+
+<!-- ============================ SETELAH ITU ============================ -->
+<section class="chapter">
+  <h1>Setelah Itu</h1>
+  <h2>Menambah data tahun berikutnya</h2>
+  <ol class="steps">
+    <li>Unduh <code>desa-berlistrik.xlsx</code> dari dashboard (tab Provinsi → <b>Unduh Excel</b>) atau dari GitHub.</li>
+    <li>Di sheet <code>data</code>, tambahkan baris tahun baru di bawahnya (kolom Kode BPS boleh dikosongkan). <b>Jangan hapus</b> tahun lama.</li>
+    <li>Periksa di Cek Data. Jika ada catatan penulisan provinsi, unduh versi rapi lagi (sheet info dan indikator tetap terbawa).</li>
+    <li>Unggah dengan <b>nama yang sama</b> ke <code>data/provinsi</code>. Daftar tidak perlu diubah. Grafik tren otomatis muncul.</li>
+  </ol>
+  <h2>Menyembunyikan atau mengganti data</h2>
+  <ul>
+    <li><b>Menyembunyikan</b>: ubah <i>tampilkan</i> menjadi <b>tidak</b> di <code>daftar-indikator.xlsx</code>, lalu unggah ulang daftarnya.</li>
+    <li><b>Memperbaiki angka</b>: perbaiki file, periksa di Cek Data, unggah ulang dengan nama sama.</li>
+    <li><b>Data baru lainnya</b>: ulangi Langkah 1–7 dengan file baru dan tambahkan satu baris lagi di daftar.</li>
+    <li><b>Penulisan provinsi yang benar tetapi tidak dikenali</b>: tambahkan ke kolom <i>alternatif</i> di <code>data/referensi/provinsi.xlsx</code>, unggah ulang file itu.</li>
+  </ul>
+  <h2>Masalah umum</h2>
+  <table>
+    <tr><th style="width:32%">Gejala</th><th>Penyebab dan solusi</th></tr>
+    <tr><td>Cek Data: "provinsi tidak dikenali"</td><td>Salah ketik. Ikuti saran nama di pesan, atau tambahkan penulisan alternatif (lihat di atas).</td></tr>
+    <tr><td>Cek Data: "bukan angka"</td><td>Ada teks di kolom nilai (mis. "n/a", "…"). Kosongkan sel atau isi angka.</td></tr>
+    <tr><td>Cek Data: "muncul dua kali"</td><td>Baris ganda untuk provinsi, indikator, dan tahun yang sama. Hapus salah satunya.</td></tr>
+    <tr><td>Cek Data: nilai fraksi di luar 0–1</td><td>Sebagian nilai ditulis dalam persen (98,5) dan sebagian fraksi (0,985). Seragamkan.</td></tr>
+    <tr><td>Tab Provinsi tidak muncul</td><td>Daftar belum diunggah, <i>tampilkan</i> bukan "ya", atau situs belum diperbarui. Periksa daftar di Cek Data; buka dashboard di jendela incognito.</td></tr>
+    <tr><td>Dashboard: kotak kuning "Sebagian data tidak terbaca"</td><td>File yang terdaftar tidak ditemukan atau rusak. Klik kotak untuk rinciannya; periksa nama file di daftar.</td></tr>
+  </table>
+</section>
+<section class="chapter">
+  <h1>Lembar Ringkas</h1>
+  <p>Cetak halaman ini dan centang setiap langkah saat menambah data.</p>
+  <ul class="check">
+    <li>File sumber disimpan, dikerjakan pada salinannya</li>
+    <li>Empat kolom: Tahun · Provinsi · Indikator · Nilai</li>
+    <li>Cek Data ✔ → Unduh versi rapi → ganti nama (mis. <code>desa-berlistrik.xlsx</code>)</li>
+    <li>Isi sheet info (judul, sumber, satuan, komposisi) dan indikator (nama_en, makin_tinggi_makin_baik)</li>
+    <li>Cek Data ulang: hijau tanpa catatan</li>
+    <li>Unggah ke <code>data/provinsi</code></li>
+    <li>Tambah baris di <code>daftar-indikator.xlsx</code>, cek, unggah</li>
+    <li>Periksa tab Provinsi (incognito) dan beberapa angka</li>
+  </ul>
+</section>
+
+</body>
+</html>

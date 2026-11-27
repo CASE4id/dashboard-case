@@ -77,22 +77,24 @@ Jika cara otomatis tidak dapat dipakai, gunakan cara manual berikut.
    baris tahun lama boleh tetap ada.
 4. Perhatikan satuan: kargo dalam **ton** di `a01`, tetapi dalam **kg** di `a05`/`a06` (sesuai publikasi).
 
-### 1D. Indikator per provinsi (persiapan, mis. rasio desa berlistrik)
+### 1D. Data per provinsi (mis. desa berlistrik, rasio desa berlistrik)
 
-Untuk data sederhana per provinsi (tahun, provinsi, nilai), tidak perlu mengubah format secara manual:
+Data sederhana per provinsi tampil di tab **Provinsi** (sektor Ketenagalistrikan). Panduan lengkap dengan gambar:
+**`docs/Panduan-Menambah-Data-Provinsi.pdf`**. Ringkasnya:
 
-1. Siapkan file Excel dengan kolom **Tahun**, **Provinsi**, dan satu kolom **nilai** (atau unduh templat:
-   `data/referensi/templat-indikator-provinsi.xlsx`, juga tersedia di halaman Cek Data).
-   Susunan melebar (satu kolom per tahun) juga diterima.
-2. Seret file ke halaman **Cek Data**. Halaman ini mengenali file per provinsi dari isinya dan memeriksa:
-   penulisan provinsi (dibandingkan dengan `data/referensi/provinsi.xlsx`, termasuk penulisan lain seperti "DIY" atau "Kep. Babel"),
-   baris ganda, provinsi yang belum ada datanya, teks di kolom nilai, serta fraksi (0–1) atau persen.
-3. Jika hasilnya ✔, klik **Unduh versi rapi**: file baru dengan sheet `info` (nama indikator, satuan, sumber) dan sheet `data`
-   (Tahun, Kode BPS, Provinsi, Nilai). Lengkapi sheet `info`, lalu cek ulang.
-4. Jika ada penulisan provinsi yang benar tetapi belum dikenali, tambahkan ke kolom `alternatif` di `data/referensi/provinsi.xlsx`.
+1. Susun data menjadi empat kolom: **Tahun | Provinsi | Indikator | Nilai**. Ini **aturan baku untuk semua sumber**
+   (BPS, kementerian, PLN, dll.), karena setiap sumber punya bentuk tabel berbeda. Tabel kecil: salin-tempel;
+   tabel lebar: Excel **Data → From Table/Range → Unpivot Other Columns** (langkah di panduan PDF, Langkah 2).
+   Templat dan contoh (PJUTS): `data/referensi/templat-indikator-provinsi.xlsx`. Cek Data masih bisa membaca
+   sebagian tabel mentah, tetapi akan memberi catatan "bukan susunan standar"; jangan mengandalkannya.
+2. Periksa di **Cek Data** → **Unduh versi rapi** → beri nama pendek tanpa tahun, mis. `desa-berlistrik.xlsx`.
+3. Lengkapi sheet `info` (judul, sumber, satuan, komposisi) dan `indikator` (nama Inggris, makin tinggi makin baik); periksa ulang.
+4. Unggah ke folder `data/provinsi/`.
+5. Tambahkan satu baris di `data/provinsi/daftar-indikator.xlsx` (file | tampilkan = ya | urutan), periksa di Cek Data, unggah.
+6. Tahun berikutnya: tambahkan baris di file yang sama dan unggah ulang dengan nama sama.
 
-> Indikator per provinsi **belum ditampilkan** di dashboard. Menampilkannya memerlukan pengaturan teknis satu kali; setelah itu
-> cukup unggah file rapi ke folder `data/provinsi/`.
+Penulisan provinsi yang benar tetapi tidak dikenali: tambahkan ke kolom `alternatif` di `data/referensi/provinsi.xlsx`.
+Selama daftar kosong, tab Provinsi tidak ditampilkan.
 
 ### Aturan pengisian (semua sektor, penting!)
 

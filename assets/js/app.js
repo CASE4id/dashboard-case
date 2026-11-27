@@ -71,6 +71,8 @@
       return;
     }
     const p = new URLSearchParams({ tab: state.tab, unit: state.unit, year: state.year, lang: state.lang });
+    const extra = ELEC_EXTRA.find((x) => x.key === state.tab);
+    if (extra && extra.hash) for (const [k, v] of Object.entries(extra.hash() || {})) if (v != null && v !== "") p.set(k, v);
     if (state.tab === "compare") { p.set("indicator", state.indicator); p.set("scope", state.scope); }
     if (state.tab === "data") p.set("table", state.table);
     if (state.tab === "analysis") {
@@ -907,7 +909,14 @@
 
   /* ---------- Main render ---------- */
   const RENDER = { summary: renderSummary, generation: renderGeneration, network: renderNetwork, compare: renderCompare, analysis: renderAnalysis, data: renderData };
-  const tabsOf = (sector) => (sector === "listrik" ? ELEC_TABS : MODULES[sector] ? MODULES[sector].tabs : []);
+  /* Tab tambahan sektor Ketenagalistrikan (mis. tab Provinsi, assets/js/tab-provinsi.js): tampil hanya jika available() */
+  const ELEC_EXTRA = [];
+  const elecTabs = () => {
+    const tabs = ELEC_TABS.slice();
+    for (const x of ELEC_EXTRA) if (x.available()) tabs.splice(tabs.findIndex((t) => t[0] === "data"), 0, [x.key, x.label]);
+    return tabs;
+  };
+  const tabsOf = (sector) => (sector === "listrik" ? elecTabs() : MODULES[sector] ? MODULES[sector].tabs : []);
   function buildTabs() {
     $("#tabs").innerHTML = tabsOf(state.sector).map(([k, label]) =>
       `<button role="tab" data-tab="${k}" aria-selected="${k === state.tab}" data-i18n="${label}">${esc(T(label))}</button>`).join("");
@@ -918,7 +927,10 @@
     if (!tabs.includes(state.tab)) state.tab = tabs[0];
     destroyCharts();
     document.querySelectorAll("#tabs button").forEach((b) => b.setAttribute("aria-selected", b.dataset.tab === state.tab));
-    if (state.sector === "listrik") RENDER[state.tab]();
+    const extra = state.sector === "listrik" && ELEC_EXTRA.find((x) => x.key === state.tab);
+    $(".filters").style.display = extra ? "none" : "";   // tab tambahan memakai pilihan sendiri
+    if (extra) extra.render();
+    else if (state.sector === "listrik") RENDER[state.tab]();
     else MODULES[state.sector].render(state.tab);
     writeHash();
   }
@@ -935,7 +947,9 @@
   async function ensureLoaded(sector) {
     if (sector === "listrik") {
       if (!db) db = await window.PraktikData.loadFromServer();
-      return db.problems;
+      const extraProblems = [];
+      for (const x of ELEC_EXTRA) if (!x.loaded) { x.loaded = true; try { extraProblems.push(...((await x.load()) || [])); } catch (e) { extraProblems.push(e.message); } }
+      return db.problems.concat(extraProblems);
     }
     const m = MODULES[sector];
     if (!m) throw new Error("sector " + sector);
@@ -974,6 +988,7 @@
     if (sector === "listrik" && !db.units.has(state.unit)) state.unit = NATIONAL;
     applyStaticText();
     fillFilters();
+    buildTabs();   // tab tambahan (mis. Provinsi) baru diketahui setelah data dimuat
     $("#loader").hidden = true;
     $("#view").hidden = false;
     render();
@@ -1003,6 +1018,7 @@
     state, T, L, esc, fmt, fmtAuto, fmtTick, $, card, chartBox, empty, makeChart, COLORS, numTicks, logTicks, gridless,
     render, showBanner, nationalLinePlugin, yearRange,
     registerSector(key, mod) { MODULES[key] = mod; },
+    registerElecTab(tab) { ELEC_EXTRA.push(tab); },
   };
   document.addEventListener("DOMContentLoaded", init);
 })();
