@@ -82,8 +82,11 @@ Jika cara otomatis tidak dapat dipakai, gunakan cara manual berikut.
 Data sederhana per provinsi tampil di tab **Provinsi** (sektor Ketenagalistrikan). Panduan lengkap dengan gambar:
 **`docs/Panduan-Menambah-Data-Provinsi.pdf`**. Ringkasnya:
 
-1. Susun data menjadi empat kolom: **Tahun | Provinsi | Indikator | Nilai** (tabel melebar juga diterima;
-   templat: `data/referensi/templat-indikator-provinsi.xlsx`).
+1. Susun data menjadi empat kolom: **Tahun | Provinsi | Indikator | Nilai**. Ini **aturan baku untuk semua sumber**
+   (BPS, kementerian, PLN, dll.), karena setiap sumber punya bentuk tabel berbeda. Tabel kecil: salin-tempel;
+   tabel lebar: Excel **Data → From Table/Range → Unpivot Other Columns** (langkah di panduan PDF, Langkah 2).
+   Templat dan contoh (PJUTS): `data/referensi/templat-indikator-provinsi.xlsx`. Cek Data masih bisa membaca
+   sebagian tabel mentah, tetapi akan memberi catatan "bukan susunan standar"; jangan mengandalkannya.
 2. Periksa di **Cek Data** → **Unduh versi rapi** → beri nama pendek tanpa tahun, mis. `desa-berlistrik.xlsx`.
 3. Lengkapi sheet `info` (judul, sumber, satuan, komposisi) dan `indikator` (nama Inggris, makin tinggi makin baik); periksa ulang.
 4. Unggah ke folder `data/provinsi/`.

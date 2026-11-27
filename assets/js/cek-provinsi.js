@@ -151,7 +151,7 @@
 
     let dataName = null, t = null;
     for (const [n, rows] of Object.entries(sheets)) {
-      if (/^(info|indikator|readme)$/i.test(n)) continue;
+      if (/^(info|indikator|readme|contoh|petunjuk)$/i.test(n)) continue;
       const f = findTable(rows);
       if (f) { dataName = n; t = f; break; }
     }
@@ -192,6 +192,10 @@
     const singleName = t.layout === "long" && t.vcols.length === 1 && !isValueHeader(hdr[t.vcols[0]]) ? String(hdr[t.vcols[0]]).trim() : (getInfo("judul_id") || "Nilai");
     const layoutTxt = t.layout === "long" ? "memanjang (satu baris per tahun dan provinsi)" : t.layout === "wide2" ? "tabel BPS (indikator dan tahun sebagai judul kolom)" : "melebar (satu kolom per tahun)";
     info.push(`Dikenali sebagai <b>data per provinsi</b>: sheet <b>${esc(dataName)}</b>, susunan ${layoutTxt}, ${indMode === "column" ? `indikator di kolom <b>${esc(hdr[t.ic])}</b>` : indMode === "columns" ? "satu kolom per indikator" : `satu indikator ("${esc(singleName)}")`}.`);
+    const standard = t.layout === "long" && t.ic >= 0 && t.header === 0;
+    if (!standard) warnings.push(`File ini <b>bukan</b> susunan standar empat kolom (Tahun | Provinsi | Indikator | Nilai), tetapi masih dapat dibaca. ` +
+      `Periksa hasil di Ringkasan dengan teliti (nama indikator dan tahun). Untuk data berikutnya, sebaiknya susun dulu ke empat kolom ` +
+      `(lihat Panduan Menambah Data per Provinsi, Langkah 2), karena tabel dari sumber lain bisa saja tidak terbaca dengan benar.`);
     if (t.layout === "wide") warnings.push(`Susunan melebar (tahun sebagai kolom: ${t.yearCols.map((j) => esc(hdr[j])).join(", ")}). Dapat dibaca; versi rapi mengubahnya menjadi satu baris per tahun.`);
     if (t.header > 0 && t.layout !== "wide2") warnings.push(`Baris 1–${t.header} berisi judul/teks di atas tabel dan diabaikan. Versi rapi tidak menyertakannya.`);
 
@@ -323,6 +327,7 @@
         `<b>tidak</b> jika satu unsur dapat masuk lebih dari satu indikator.`);
     }
 
+    if (!recs.length && !errors.length) errors.push(`${S}: belum ada angka. Isi data di bawah judul kolom (Tahun | Provinsi | Indikator | Nilai), lalu periksa lagi.`);
     const ok = errors.length === 0;
     ui.show(errors, warnings, info, "", ok ? "✔ FORMAT DAPAT DIBACA (data per provinsi)" : null);
     const base = slugify(getInfo("judul_id")) || slugify(file.name.replace(/\.xlsx$/i, "").replace(/^\d{4}[_ -]*/, "").replace(/^provinsi[_ -]*/i, "")) || "data-provinsi";

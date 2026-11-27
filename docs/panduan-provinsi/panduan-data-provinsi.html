@@ -132,8 +132,9 @@
     PLN, non-PLN, dan bukan pengguna listrik. Satu desa dapat tercatat di lebih dari satu kategori. Hal ini penting di Langkah 4.</div>
 
   <h1 style="margin-top:6mm"><span class="num">2</span>Susun data menjadi empat kolom</h1>
-  <p>Ubah tabel menjadi daftar panjang dengan empat kolom: <b>Tahun</b>, <b>Provinsi</b>, <b>Indikator</b>, <b>Nilai</b>.
-  Satu baris = satu provinsi, satu indikator, satu tahun. Contoh (awal file):</p>
+  <p><b>Ini format standar untuk semua data per provinsi, dari sumber mana pun.</b> Tabel dari BPS, kementerian, atau PLN berbeda-beda
+  bentuknya, jadi selalu susun ulang ke empat kolom: <b>Tahun</b>, <b>Provinsi</b>, <b>Indikator</b>, <b>Nilai</b>.
+  Satu baris = satu tahun, satu provinsi, satu indikator. Contoh (awal file):</p>
   <table class="xl">
     <tr><th class="rn"></th><th>A</th><th>B</th><th>C</th><th>D</th></tr>
     <tr><td class="rn">1</td><td><b>Tahun</b></td><td><b>Provinsi</b></td><td><b>Indikator</b></td><td><b>Nilai</b></td></tr>
@@ -145,13 +146,49 @@
   <table>
     <tr><th style="width:50%">Tidak perlu khawatir ✓</th><th>Yang perlu diperhatikan ✗</th></tr>
     <tr><td>Huruf besar/kecil dan penulisan provinsi (ACEH, "Kep. Riau", "DIY")</td><td>Jangan menggabungkan sel (merge cells)</td></tr>
-    <tr><td>Baris judul di atas tabel atau baris "Sumber: …" di bawahnya</td><td>Kolom nilai hanya berisi angka (tanpa "n/a", "-" boleh)</td></tr>
-    <tr><td>Tabel melebar (satu kolom per tahun atau per indikator) juga diterima</td><td>Tulis nama indikator persis sama di setiap baris</td></tr>
+    <tr><td>Urutan baris</td><td>Kolom Nilai hanya berisi angka (kosongkan jika tidak ada data)</td></tr>
+    <tr><td>Baris INDONESIA (nasional) boleh ada</td><td>Nama indikator ditulis persis sama di setiap baris dan setiap tahun</td></tr>
   </table>
-  <div class="box tip"><b>Punya file unduhan BPS? Langkah ini boleh dilewati</b>
-    Cek Data membaca tabel BPS apa adanya: judul kolom dua tingkat (kategori di atas, tahun di bawah), angka yang tersimpan sebagai teks,
-    dan baris INDONESIA. Judul tabel dan satuannya, mis. "(Desa)", dipakai sebagai isian awal sheet info. Langsung ke Langkah 3:
-    versi rapi akan menyusunnya menjadi empat kolom untuk Anda. Untuk file desa berlistrik, hasilnya sama persis dengan susunan manual.</div>
+</section>
+
+<section class="chapter">
+  <h2>Dua cara menyusun ulang</h2>
+  <h3>Cara A · Salin-tempel (tabel kecil, mis. satu tahun, beberapa kategori)</h3>
+  <ol class="steps">
+    <li>Buat sheet baru dengan judul kolom <b>Tahun, Provinsi, Indikator, Nilai</b>.</li>
+    <li>Salin daftar 38 provinsi ke kolom B. Isi kolom A dengan tahunnya dan kolom C dengan nama indikator pertama (mis. "Desa berlistrik PLN").</li>
+    <li>Salin angka kategori pertama ke kolom D (<b>Paste Special → Values</b>, agar hanya angka yang tersalin).</li>
+    <li>Ulangi di bawahnya untuk kategori berikutnya: provinsi yang sama, nama indikator berikutnya, angkanya.</li>
+  </ol>
+  <h3>Cara B · Unpivot di Excel (tabel lebar: kategori atau tahun sebagai kolom)</h3>
+  <p>Excel dapat membalik tabel lebar menjadi daftar panjang secara otomatis dengan <b>Power Query</b> (Microsoft 365 / Excel 2016 ke atas).</p>
+  <table class="xl" style="width:70%">
+    <tr><th class="rn"></th><th>Provinsi</th><th>PLN</th><th>Non PLN</th><th>Tidak Ada</th></tr>
+    <tr><td class="rn">1</td><td>ACEH</td><td class="r">6508</td><td class="r">171</td><td class="r">562</td></tr>
+    <tr><td class="rn">2</td><td>SUMATERA UTARA</td><td class="r">6000</td><td class="r">715</td><td class="r">1790</td></tr>
+  </table>
+  <ol class="steps">
+    <li><b>Siapkan tabelnya:</b> hapus baris judul di atas tabel, sehingga baris pertama berisi judul kolom (Provinsi, lalu nama kategori atau tahun,
+      satu baris saja). Hapus baris catatan di bawah tabel. Jika ada sel yang digabung, pisahkan (<b>Merge &amp; Center → Unmerge</b>).</li>
+    <li>Klik salah satu sel tabel → menu <b>Data</b> → <b>From Table/Range</b> → centang <i>My table has headers</i> → <b>OK</b>. Jendela Power Query terbuka.</li>
+    <li>Klik judul kolom <b>Provinsi</b> → klik kanan → <b>Unpivot Other Columns</b>. Tabel berubah menjadi tiga kolom: Provinsi, <i>Attribute</i>, <i>Value</i>.</li>
+    <li>Ganti nama kolom (klik dua kali judulnya): <i>Attribute</i> → <b>Indikator</b> (atau <b>Tahun</b>, jika yang dibalik adalah kolom tahun), <i>Value</i> → <b>Nilai</b>.</li>
+    <li>Tambahkan kolom yang belum ada: <b>Add Column</b> → <b>Custom Column</b>, nama <b>Tahun</b>, isi rumus angka tahunnya, mis. <code>2024</code> (atau kolom <b>Indikator</b> berisi nama indikator, jika yang dibalik adalah tahun).</li>
+    <li><b>Home</b> → <b>Close &amp; Load</b>. Hasilnya muncul di sheet baru. Atur urutan kolom menjadi Tahun, Provinsi, Indikator, Nilai, lalu simpan.</li>
+  </ol>
+  <table class="xl" style="width:70%">
+    <tr><th class="rn"></th><th>Tahun</th><th>Provinsi</th><th>Indikator</th><th>Nilai</th></tr>
+    <tr><td class="rn">1</td><td>2024</td><td>ACEH</td><td>PLN</td><td class="r">6508</td></tr>
+    <tr><td class="rn">2</td><td>2024</td><td>ACEH</td><td>Non PLN</td><td class="r">171</td></tr>
+    <tr><td class="rn">3</td><td>2024</td><td>ACEH</td><td>Tidak Ada</td><td class="r">562</td></tr>
+  </table>
+  <div class="box tip"><b>Ganti nama indikator yang terlalu singkat</b>
+    Nama seperti "PLN" atau "Tidak Ada" kurang jelas di dashboard. Gunakan <b>Find &amp; Replace</b> (Ctrl + H) di kolom Indikator,
+    mis. "Tidak Ada" → "Desa dengan keluarga bukan pengguna listrik". Pakai nama yang sama untuk tahun-tahun berikutnya.</div>
+  <div class="box warn"><b>Cek Data juga dapat membaca beberapa tabel apa adanya, tetapi jangan diandalkan</b>
+    Untuk sebagian tabel BPS, Cek Data dapat membaca bentuk aslinya dan menyusunnya sendiri (versi rapi). Bentuk tabel dari sumber lain sangat beragam,
+    jadi format standar empat kolom tetap menjadi aturan. Jika Cek Data menyebut file "bukan susunan standar", periksa hasilnya dengan teliti
+    atau susun ulang dengan Cara A atau B.</div>
 </section>
 
 <!-- ============================ LANGKAH 3-4 ============================ -->
