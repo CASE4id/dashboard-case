@@ -79,7 +79,7 @@ Jika cara otomatis tidak dapat dipakai, gunakan cara manual berikut.
 
 ### 1D. Data per provinsi (mis. desa berlistrik, rasio desa berlistrik)
 
-Data sederhana per provinsi tampil di tab **Provinsi** (sektor Ketenagalistrikan). Panduan lengkap dengan gambar:
+Data per provinsi tampil di tab **Perbandingan** dan **Analisis** (sektor Ketenagalistrikan) dengan **Cakupan: Provinsi**, dan dapat dipasangkan dengan indikator PLN. Panduan lengkap dengan gambar:
 **`docs/Panduan-Menambah-Data-Provinsi.pdf`**. Ringkasnya:
 
 1. Susun data menjadi empat kolom: **Tahun | Provinsi | Indikator | Nilai**. Ini **aturan baku untuk semua sumber**
@@ -94,7 +94,10 @@ Data sederhana per provinsi tampil di tab **Provinsi** (sektor Ketenagalistrikan
 6. Tahun berikutnya: tambahkan baris di file yang sama dan unggah ulang dengan nama sama.
 
 Penulisan provinsi yang benar tetapi tidak dikenali: tambahkan ke kolom `alternatif` di `data/referensi/provinsi.xlsx`.
-Selama daftar kosong, tab Provinsi tidak ditampilkan.
+Opsional: isi `penyebut` di sheet `info` (nama indikator keseluruhan, mis. *Jumlah desa*) agar indikator lain juga tampil sebagai persentase.
+
+Pemetaan unit PLN ke provinsi (untuk data PLN dengan Cakupan: Provinsi) ada di `data/referensi/pln-provinsi.xlsx`. Ubah hanya jika PLN
+membentuk atau menggabung unit; unit yang belum dipetakan disebut di bawah grafik.
 
 ### Aturan pengisian (semua sektor, penting!)
 
